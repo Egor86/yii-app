@@ -24,6 +24,8 @@ use Yii;
  */
 class Coupon extends \yii\db\ActiveRecord
 {
+    const USED = 1;
+    const UNUSED = 0;
     /**
      * @inheritdoc
      */

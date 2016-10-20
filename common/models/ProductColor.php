@@ -60,9 +60,9 @@ class ProductColor extends \yii\db\ActiveRecord
         return false;
     }
 
-    public function getColor()
+    public function getColors()
     {
-        return $this->hasOne(Color::className(), ['id' => 'color_id']);
+        return $this->hasMany(Color::className(), ['id' => 'color_id']);
     }
 
     /**
@@ -81,11 +81,10 @@ class ProductColor extends \yii\db\ActiveRecord
 //            ;
 //    }
 //
-//    public function getSizes()
-//    {
-//        return $this->hasOne(Size::className(), ['id' => 'size_id'])
-//            ->viaTable(ProductColorSize::tableName(),['product_color_id' => 'id']);
-//    }
+    public function getSizes()
+    {
+        return $this->hasMany(ProductColorSize::className(), ['product_color_id' => 'id']);
+    }
 //
 //    public function getAmount()
 //    {

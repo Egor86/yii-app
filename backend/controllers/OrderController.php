@@ -7,6 +7,7 @@ use common\models\OrderProduct;
 use Yii;
 use common\models\Order;
 use yii\data\ActiveDataProvider;
+use yii\data\ArrayDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -54,10 +55,12 @@ class OrderController extends Controller
     public function actionView($id)
     {
         $model = $this->findModel($id);
-        $query = OrderProduct::find()->where(['order_id' => $model->id]);
-
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
+        echo '<pre>';
+        @print_r(unserialize($model->value));
+        echo '</pre>';
+        exit(__FILE__ .': '. __LINE__);
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => unserialize($model->value),
             'sort' => false
         ]);
         return $this->render('view', [

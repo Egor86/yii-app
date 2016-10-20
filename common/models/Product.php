@@ -4,10 +4,9 @@ namespace common\models;
 
 use common\behavior\SeoBehavior;
 use common\models\active_query\ProductQuery;
-use Yii;
-use yii\helpers\ArrayHelper;
-use yii\helpers\Html;
-use yii\helpers\Url;
+use hscstudio\cart\CartPositionProviderInterface;
+use hscstudio\cart\CartPositionTrait;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "product".
@@ -31,15 +30,18 @@ use yii\helpers\Url;
  * @property Brand $brand
  * @property Category $category
  */
-class Product extends \yii\db\ActiveRecord
+class Product extends ActiveRecord implements CartPositionProviderInterface
 {
+
+    use CartPositionTrait;
+
     const PUBLISHED = 1;
     const UNPUBLISHED = 0;
 
     public static function publishedList(){
         return [
-            self::PUBLISHED => 'Да',
-            self::UNPUBLISHED => 'Нет'
+            self::UNPUBLISHED => 'Нет',
+            self::PUBLISHED => 'Да'
             ];
     }
     /**
@@ -79,6 +81,7 @@ class Product extends \yii\db\ActiveRecord
             ['published', 'in', 'range' => array_keys(self::publishedList())],
             [['brand_id'], 'exist', 'skipOnError' => true, 'targetClass' => Brand::className(), 'targetAttribute' => ['brand_id' => 'id']],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::className(), 'targetAttribute' => ['category_id' => 'id']],
+            [['quantity'], 'integer', 'min' => 0]
         ];
     }
 
@@ -114,7 +117,7 @@ class Product extends \yii\db\ActiveRecord
             'discount_price' => 'Цена со скидкой',
             'created_at' => 'Дата создания',
             'updated_at' => 'Дата обновления',
-            'published' => 'Опубликован',
+            'published' => 'Опубликован?',
             'sort_by' => 'Sort By',
             'status' => 'Наличие',
             'brand.name' => 'Бренд',
@@ -123,6 +126,7 @@ class Product extends \yii\db\ActiveRecord
             'seo.title' => 'SEO title',
             'seo.description' => 'SEO текст',
             'seo.keyword' => 'SEO ключевые слова',
+            'sizes' => 'Размеры'
         ];
     }
 
@@ -152,9 +156,16 @@ class Product extends \yii\db\ActiveRecord
         return $this->hasMany(ProductColor::className(), ['product_id' => 'id']);
     }
 
-    public function getSizes(){
-        return $this->hasMany(ProductColorSize::className(), ['product_color_id' => 'product_id'])
-            ->viaTable('product_color', ['product_id' => 'id']);
+    public function getSizes()
+    {
+        return $this->hasMany(Size::className(), ['size_table_name_id' => 'size_table_name_id'])
+            ->viaTable(Category::tableName(),['id' => 'category_id']);
+    }
+
+    public function getAllowColors()
+    {
+        return $this->hasMany(Color::className(), ['id' => 'color_id'])
+            ->viaTable(ProductColor::tableName(), ['product_id' => 'id'])->asArray()->all();
     }
 
     /**
@@ -182,4 +193,14 @@ class Product extends \yii\db\ActiveRecord
 //        }
 //        return 'Нет';
 //    }
+
+    /**
+     * @param array $params Parameters for cart position
+     * @return object CartPositionInterface
+     */
+    public function getCartPosition($params = [])
+    {
+        $params['class'] = 'common\models\ProductCartPosition';
+        return \Yii::createObject($params);
+    }
 }

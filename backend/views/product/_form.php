@@ -79,7 +79,10 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'discount_price')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'published')->widget(SwitchInput::classname(), []); ?>
+    <?= $form->field($model, 'published')->widget(SwitchInput::classname(), ['pluginOptions' => [
+        'onText' => 'Да',
+        'offText' => 'Нет',
+    ]]); ?>
 
     <?= SeoForm::widget(['model' => $model]) ?>
 

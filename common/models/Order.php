@@ -24,6 +24,9 @@ use Yii;
  * @property integer $created_at
  * @property integer $updated_at
  * @property integer $sort_by
+ * @property string $value
+ * @property string $coupon_code
+ * @property integer $total_cost
  *
  * @property OrderProduct[] $orderProducts
  */
@@ -36,6 +39,7 @@ class Order extends \yii\db\ActiveRecord
     const DONE_ORDER = 4;
 
     public $verifyCode;
+    public $coupon_code;
     /**
      * @inheritdoc
      */
@@ -54,20 +58,55 @@ class Order extends \yii\db\ActiveRecord
         ];
     }
 
+    public function beforeValidate()
+    {
+        if ($this->coupon_code) {
+            $coupon = Coupon::findOne(['coupon_code' => $this->coupon_code]);
+            if ($coupon && $coupon->using_status == Coupon::UNUSED) {
+                $subscriber = $coupon->subscriber;
+                if ($subscriber->email == $this->email && $subscriber->phone = $this->phone) {
+                    $this->coupon_id = $coupon->id;
+                    return true;
+                } else {
+                    $this->addError('coupon_code', 'Указанный купон принадлежит другому пользователю');
+                    return false;
+                }
+
+            } else {
+                $this->addError('coupon_code', $coupon ? 'Указанный купон уже использован' : 'Неверно указан код купона');
+                return false;
+            }
+        }
+        return parent::beforeValidate();
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        if ($this->coupon_id) {
+            $coupon = Coupon::findOne($this->coupon_id);
+            $coupon->using_status = Coupon::USED;
+            $coupon->save();
+        }
+
+
+    }
+
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['name', 'city', 'address', 'phone', 'email', 'delivery_date'], 'required'],
+            [['name', 'city', 'address', 'phone', 'email', 'delivery_date', 'city'], 'required'],
             [['delivery_date'], 'safe'],
-            [['coupon_id', 'status_id', 'created_at', 'updated_at', 'sort_by'], 'integer'],
+            [['coupon_id', 'status_id', 'total_cost', 'created_at', 'updated_at', 'sort_by'], 'integer'],
             [['name', 'phone'], 'string', 'max' => 64],
-            [['surname', 'country', 'region', 'city', 'organization_name', 'post_index'], 'string', 'max' => 45],
+            [['surname', 'country', 'region', 'city', 'organization_name', 'post_index', 'coupon_code'], 'string', 'max' => 45],
             [['address'], 'string', 'max' => 255],
             [['email'], 'string', 'max' => 128],
-            ['verifyCode', 'captcha'],
+            [['value'], 'string'],
         ];
     }
 
@@ -94,6 +133,11 @@ class Order extends \yii\db\ActiveRecord
             'created_at' => 'Создан',
             'updated_at' => 'Обновлен',
             'sort_by' => 'Sort By',
+            'value' => 'Serialized cart data',
+            'fullName' => 'ФИО покупателя',
+            'fullAddress' => 'Адрес доставки',
+            'coupon_code' => 'Код купона',
+            'total_cost' => 'Сумма заказа',
         ];
     }
 
@@ -131,6 +175,18 @@ class Order extends \yii\db\ActiveRecord
     public function getOrderProducts()
     {
         return $this->hasMany(OrderProduct::className(), ['order_id' => 'id'])->inverseOf('order');
+    }
+
+    public function getFullName()
+    {
+        return $this->name.' '.$this->surname;
+    }
+
+    public function getFullAddress()
+    {
+        return ($this->organization_name ? $this->organization_name . ', ' : '') .
+            $this->address . ', ' . $this->city . ($this->region ? $this->region . ', ' : '') .
+            $this->country . $this->post_index;
     }
 
     /**

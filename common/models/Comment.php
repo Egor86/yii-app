@@ -22,6 +22,7 @@ class Comment extends \yii\db\ActiveRecord
 {
     const YES = 1;
     const NO = 0;
+
     /**
      * @inheritdoc
      */
@@ -31,9 +32,9 @@ class Comment extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return int
+     * @return array
      */
-    public static function getStatus(): array
+    public static function getStatus()
     {
         return [
             self::NO => 'Нет',

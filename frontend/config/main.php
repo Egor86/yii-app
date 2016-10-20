@@ -17,6 +17,9 @@ return [
             'csrfParam' => '_csrf-frontend',
             'baseUrl' => ''
         ],
+        'cart' => [
+            'class' => 'hscstudio\cart\Cart',
+        ],
         'user' => [
             'identityClass' => 'common\models\User',
             'enableAutoLogin' => true,

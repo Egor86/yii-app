@@ -28,7 +28,10 @@ $this->params['breadcrumbs'][] = $this->title;
 //            'updated_at',
             // 'sort_by',
 
-            ['class' => 'yii\grid\ActionColumn'],
+            [
+                'class' => 'yii\grid\ActionColumn',
+                'template'=>'{view} {update}',
+            ],
         ],
     ]); ?>
 <?php Pjax::end(); ?></div>

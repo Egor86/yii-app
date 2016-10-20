@@ -31,7 +31,10 @@
         "wbraganca/yii2-dynamicform": "*",
         "kartik-v/yii2-grid": "@dev",
         "kartik-v/yii2-widget-select2": "@dev",
-        "kartik-v/yii2-widget-switchinput": "*"
+        "kartik-v/yii2-widget-switchinput": "*",
+        "hscstudio/yii2-cart": "*",
+        "kartik-v/yii2-editable": "@dev",
+        "yii2mod/yii2-editable": "*"
     },
     "require-dev": {
         "yiisoft/yii2-codeception": "*",

@@ -59,7 +59,7 @@ $this->params['breadcrumbs'][] = $this->title;
                  },
                  'filter'=> Product::publishedList(),
              ],
-                [
+            [
                 'class' => 'yii\grid\ActionColumn',
                 'buttons'=>[
                     'add'=>function ($url, $model) {

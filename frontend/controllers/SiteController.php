@@ -2,6 +2,7 @@
 namespace frontend\controllers;
 
 use common\models\Contact;
+use common\models\Product;
 use common\models\Subscriber;
 use Yii;
 use yii\base\InvalidParamException;
@@ -73,7 +74,9 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $product = Product::find()->all();
+
+        return $this->render('index', ['product' => $product]);
     }
 
     /**

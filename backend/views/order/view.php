@@ -10,13 +10,7 @@ use yii\widgets\DetailView;
 $this->title = $model->name;
 $this->params['breadcrumbs'][] = ['label' => 'Orders', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
-$total = 0;
-if (!empty($dataProvider->getModels())) {
-    foreach ($dataProvider->getModels() as $key => $val) {
-        $total += $val->total;
-    }
-    $total = number_format($total, 2);
-}
+
 ?>
 <div class="order-view">
 
@@ -78,41 +72,50 @@ if (!empty($dataProvider->getModels())) {
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
             [
-                'attribute' => 'product_id',
-                'value' => function($data){
-                    return $data->product->name;
-                },
+                'attribute' => 'name',
+//                'value' => function($data){
+//                    return $data->product->name;
+//                },
             ],
+//            [
+//                'attribute' => 'color_id',
+//                'value' => function($data){
+//                    return $data->color->name;
+//                },
+//            ],
+//            [
+//                'attribute' => 'size_id',
+//                'value' => function($data){
+//                    return $data->size->value;
+//                },
+//            ],
             [
-                'attribute' => 'color_id',
-                'value' => function($data){
-                    return $data->color->name;
-                },
-            ],
-            [
-                'attribute' => 'size_id',
-                'value' => function($data){
-                    return $data->size->value;
-                },
+                'attribute' => 'quantity',
+//                'format' => 'currency',
+//                'value' => function($data){
+//                    $product = $data->product;
+//                    return $product->discount_price ? $product->discount_price : $product->price;
+//                },
+                'footer' => 'Итого:'
             ],
             [
                 'attribute' => 'price',
                 'format' => 'currency',
-                'value' => function($data){
-                    $product = $data->product;
-                    return $product->discount_price ? $product->discount_price : $product->price;
-                },
+//                'value' => function($data){
+//                    $product = $data->product;
+//                    return $product->discount_price ? $product->discount_price : $product->price;
+//                },
                 'footer' => 'Итого:'
             ],
-            'amount',
-            [
-                'attribute' => 'total',
-                'format' => 'currency',
-                'value' => function($data){
-                    return $data->total;
-                },
-                'footer' => $total
-            ],
+//            'amount',
+//            [
+//                'attribute' => 'total',
+//                'format' => 'currency',
+//                'value' => function($data){
+//                    return $data->total;
+//                },
+//                'footer' => 0
+//            ],
 
             ['class' => 'yii\grid\ActionColumn'],
         ],

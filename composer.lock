@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "75ad92cfa0c18c4ad77ab8087647ca2f",
-    "content-hash": "1563a77448ee692325b22ab3d48af56c",
+    "hash": "4aac5bcdf0d8e2c1ed532b6d89eae01a",
+    "content-hash": "4f93662403fda7d4662a61cb8e5d8d90",
     "packages": [
         {
             "name": "alexandernst/yii2-device-detect",
@@ -567,6 +567,47 @@
                 "html"
             ],
             "time": "2016-07-16 12:58:58"
+        },
+        {
+            "name": "hscstudio/yii2-cart",
+            "version": "v2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hscstudio/yii2-cart.git",
+                "reference": "24c9ae8bddf82e63c4704e608567377f547982bd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hscstudio/yii2-cart/zipball/24c9ae8bddf82e63c4704e608567377f547982bd",
+                "reference": "24c9ae8bddf82e63c4704e608567377f547982bd",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0",
+                "yiisoft/yii2": "*"
+            },
+            "type": "yii2-extension",
+            "autoload": {
+                "psr-4": {
+                    "hscstudio\\cart\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Hafid Mukhlasin",
+                    "email": "hafidmukhlasin@gmail.com"
+                }
+            ],
+            "description": "Yii2 extension that adds shopping cart functions",
+            "keywords": [
+                "shopping cart",
+                "yii"
+            ],
+            "time": "2016-01-17 23:24:26"
         },
         {
             "name": "kartik-v/bootstrap-fileinput",

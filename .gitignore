@@ -34,3 +34,9 @@ phpunit.phar
 
 # test dir
 /test
+
+# db_dump
+db_dump.sql
+
+# upload files
+/common/upload/

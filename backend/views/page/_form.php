@@ -35,7 +35,10 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'slug')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'status')->widget(SwitchInput::classname(), []); ?>
+    <?= $form->field($model, 'status')->widget(SwitchInput::classname(), ['pluginOptions' => [
+            'onText' => 'Да',
+            'offText' => 'Нет',
+        ]]); ?>
 
     <?= SeoForm::widget(['model' => $model]) ?>
 
