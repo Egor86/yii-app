@@ -109,14 +109,16 @@ class ProductController extends Controller
         $video_form = new VideoForm();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            $video_form->load(Yii::$app->request->post());
-            if(!empty($video_form->videoFile)){
-                $model->video_id = $video_form->uploadVideo(get_class($model), $model->id);
-                if (!$model->video_id && !$model->save()){
-                    throw new Exception('Видео не было сохранено.');
-                }
+            $model->video_id = $video_form->uploadVideo(get_class($model), $model->id);
+
+            if (!$model->video_id || !$model->save()){
+                $this->findModel($model->id)->delete();
+                return $this->render('create', [
+                    'model' => $model,
+                    'video_form' => $video_form,
+                ]);
             }
-            return $this->redirect(['product-color/create', 'product_id' => $model->id]);
+            return $this->redirect(['item/create', 'product_id' => $model->id]);
         }
 
         return $this->render('create', [

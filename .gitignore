@@ -40,3 +40,8 @@ db_dump.sql
 
 # upload files
 /common/upload/
+
+# upload file
+/frontend/web/data
+
+.extentions.txt

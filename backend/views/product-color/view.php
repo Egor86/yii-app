@@ -6,7 +6,7 @@ use yii\widgets\DetailView;
 /* @var $this yii\web\View */
 /* @var $model common\models\ProductColor */
 
-$this->title = $model->id;
+$this->title = $model->name;
 $this->params['breadcrumbs'][] = ['label' => 'Product Colors', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
@@ -31,6 +31,11 @@ $this->params['breadcrumbs'][] = $this->title;
             'id',
             'product_id',
             'color_id',
+            'name',
+            'slug',
+            'stock_keeping_unit',
+            'price',
+            'discount_price',
         ],
     ]) ?>
 

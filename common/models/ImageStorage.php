@@ -2,9 +2,12 @@
 
 namespace common\models;
 
+use common\helpers\Image;
+use common\helpers\Upload;
 use Yii;
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\web\UploadedFile;
 
 /**
  * This is the model class for table "uploaded_file".
@@ -27,6 +30,7 @@ class ImageStorage extends \yii\db\ActiveRecord
     const TYPE_SECOND_MAIN  = 1;
     const TYPE_OTHER = 2;
 
+    public $image;
     /**
      * @inheritdoc
      */
@@ -35,6 +39,15 @@ class ImageStorage extends \yii\db\ActiveRecord
     public static function tableName()
     {
         return 'image_storage';
+    }
+
+    public static function getTypeList()
+    {
+        return [
+            self::TYPE_MAIN => 'Основное изображение',
+            self::TYPE_SECOND_MAIN => 'Второе основое изображение',
+            self::TYPE_OTHER => 'Остальные изображения',
+        ];
     }
 
     /**
@@ -127,5 +140,36 @@ class ImageStorage extends \yii\db\ActiveRecord
     public static function find()
     {
         return new \common\models\active_query\ImageStorageQuery(get_called_class());
+    }
+
+    public function uploadImages($class, $item_id, $path = '')
+    {
+        $this->image = UploadedFile::getInstances($this, 'image');
+        $this->class =$class;
+        $this->class_item_id = $item_id;
+
+        if (($this->image && $this->saveImages($class, $item_id, $path))) {
+            $this->image = null;
+            return true;
+        }
+        return false;
+    }
+
+    private function saveImages($class, $item_id, $path)
+    {
+        if ($this->type == self::TYPE_MAIN || $this->type == self::TYPE_SECOND_MAIN){
+            if (self::findOne(['class' => $class, 'class_item_id' => $item_id, 'type' => $this->type])){
+                $this->addError('image', self::getTypeList()[$this->type] . ' для товара этого цвета уже существует');
+                return false;
+            }
+        }
+
+        if (($this->file_path = Image::upload($this->image, Yii::getAlias('@front-web'), $path))) {
+            $this->name = Upload::getFileName($this->image);
+            if ($this->save()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

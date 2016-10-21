@@ -7,7 +7,6 @@ use yii\base\Model;
 use yii\web\UploadedFile;
 use common\helpers\Image;
 use Yii;
-//use common\models\files\ImageStorage;
 use common\helpers\Upload;
 
 
@@ -22,7 +21,7 @@ class VideoForm extends Model
     public function rules()
     {
         return [
-            [['videoFile'], 'file', 'skipOnEmpty' => true, 'extensions' => 'mp4'],
+            [['videoFile'], 'file', 'skipOnEmpty' => true, 'extensions' => 'mp4, mpeg, mpg, avi, mp2',],
         ];
     }
 
@@ -32,14 +31,14 @@ class VideoForm extends Model
     public function attributeLabels()
     {
         return [
-            'videoFile' => Yii::t('main', 'Video'),
+            'videoFile' => 'Video',
         ];
     }
 
     public function uploadVideo($class, $item_id, $path = 'video_storage')
     {
         $this->videoFile = UploadedFile::getInstance($this, 'videoFile');
-        if ($this->validate() && $this->videoFile) {
+        if ($this->validate() || $this->videoFile) {
 
             if (($url = Image::upload($this->videoFile, Yii::getAlias('@front-web'), $path))) {
                 $video = new VideoStorage([
@@ -53,10 +52,10 @@ class VideoForm extends Model
                     return $video->id;
                 }
             }
-            return false;
-        } else {
-            return false;
         }
+        $this->addError('videoFile', 'Видео не сохранилось');
+        return false;
+
 
     }
 }

@@ -25,6 +25,8 @@ class MultipleImageForm extends Model
     /**
      * @var UploadedFile[]
      */
+    public $type;
+    public $img;
     public $imageMain;
     public $imageSecondMain;
     public $imageOther;

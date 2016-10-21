@@ -21,7 +21,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>
-        <?= Html::a('Create Product', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Создать продукт', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 <?php Pjax::begin(); ?>    <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -33,15 +33,32 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'class' => Column::className(),
             ],
-            'id',
-            'name',
             [
-                'attribute' => 'brand_id',
-                'value' => function($data){
-                    return $data->brand ? $data->brand->name : null;
-                },
+                'attribute' => 'id',
                 'format' => 'html',
-                'filter'=> ArrayHelper::map(\common\models\Brand::find()->all(), 'id', 'name'),
+                'filter'=> false,
+                'options' => [
+                    'width' => '15px'
+                ]
+            ],
+            [
+                'attribute' => 'name',
+                'format' => 'html',
+                'options' => [
+                    'width' => '300px'
+                ]
+            ],
+//            'brand.name',
+            [
+                'attribute' => 'video_id',
+                'format' => 'html',
+                'value' => function($data){
+                    return $data->video ? $data->video->file_name : null;
+                },
+//                'filter'=> false,
+                'options' => [
+                    'width' => '250px'
+                ]
             ],
             [
                 'attribute' => 'category_id',
@@ -51,25 +68,21 @@ $this->params['breadcrumbs'][] = $this->title;
                 'format' => 'html',
                 'filter'=> ArrayHelper::map(Category::find()->all(), 'id', 'name'),
             ],
+            // 'created_at',
+            // 'updated_at',
             [
-                 'attribute' => 'published',
-                 'value' => function($data){
-                     $list = Product::publishedList();
-                     return $list[$data->published];
-                 },
-                 'filter'=> Product::publishedList(),
-             ],
-            [
-                'class' => 'yii\grid\ActionColumn',
-                'buttons'=>[
-                    'add'=>function ($url, $model) {
-                        $customurl=Yii::$app->getUrlManager()->createUrl(['/product-color/update','product_id'=>$model->id]);
-                            return Html::a( '<span class="glyphicon glyphicon-cloud-upload"></span>', $customurl,
-                            ['title' => Yii::t('yii', 'Добавить цвета и размеры'), 'data-pjax' => '0']);
-                }
-                ],
-                'template'=>'{view} {update} {delete} {add}',
+                'attribute' => 'published',
+                'value' => function($data){
+                    $list = Product::publishedList();
+                    return $list[$data->published];
+                },
+                'filter'=> Product::publishedList(),
+                'options' => [
+                    'width' => '15px'
+                ]
             ],
+
+            ['class' => 'yii\grid\ActionColumn'],
         ],
         'options' => [
             'data' => [

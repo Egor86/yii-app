@@ -4,12 +4,10 @@ use yii\helpers\Html;
 
 /* @var $this yii\web\View */
 /* @var $model common\models\ProductColor */
-/* @var $product common\models\Product */
-/* @var $product_color_size common\models\ProductColorSize */
 
-$this->title = 'Update Product Color: ' . $product->id;
+$this->title = 'Update Product Color: ' . $model->name;
 $this->params['breadcrumbs'][] = ['label' => 'Product Colors', 'url' => ['index']];
-$this->params['breadcrumbs'][] = ['label' => $product->name, 'url' => ['view', 'id' => $product->id]];
+$this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['view', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = 'Update';
 ?>
 <div class="product-color-update">
@@ -18,8 +16,6 @@ $this->params['breadcrumbs'][] = 'Update';
 
     <?= $this->render('_form', [
         'model' => $model,
-        'product' => $product,
-        'product_color_size' => $product_color_size
     ]) ?>
 
 </div>

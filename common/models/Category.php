@@ -44,6 +44,7 @@ class Category extends \yii\db\ActiveRecord
             [['description'], 'string'],
             [['parent', 'size_table_name_id', 'created_at', 'updated_at', 'sort_by'], 'integer'],
             [['slug'], 'string', 'max' => 30],
+            ['slug', 'match', 'pattern' => '/^[a-zA-Z-]+$/', 'message' => 'URL может состоять из латиницы и тире'],
             [['name'], 'unique'],
             [['slug'], 'unique'],
             [['size_table_name_id'], 'exist', 'skipOnError' => true, 'targetClass' => SizeTableName::className(), 'targetAttribute' => ['size_table_name_id' => 'id']],

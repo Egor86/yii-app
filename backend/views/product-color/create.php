@@ -5,8 +5,6 @@ use yii\helpers\Html;
 
 /* @var $this yii\web\View */
 /* @var $model common\models\ProductColor */
-/* @var $product common\models\Product */
-/* @var $product_color_size common\models\ProductColorSize */
 
 $this->title = 'Create Product Color';
 $this->params['breadcrumbs'][] = ['label' => 'Product Colors', 'url' => ['index']];
@@ -18,8 +16,6 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?= $this->render('_form', [
         'model' => $model,
-        'product' => $product,
-        'product_color_size' => $product_color_size
     ]) ?>
 
 </div>

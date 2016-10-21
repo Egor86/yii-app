@@ -3,11 +3,11 @@
 namespace common\models\active_query;
 
 /**
- * This is the ActiveQuery class for [[\common\models\Product]].
+ * This is the ActiveQuery class for [[\common\models\ItemSize]].
  *
- * @see \common\models\Product
+ * @see \common\models\ItemSize
  */
-class ProductQuery extends \yii\db\ActiveQuery
+class ItemSizeQuery extends \yii\db\ActiveQuery
 {
     /*public function active()
     {
@@ -16,7 +16,7 @@ class ProductQuery extends \yii\db\ActiveQuery
 
     /**
      * @inheritdoc
-     * @return \common\models\Product[]|array
+     * @return \common\models\ItemSize[]|array
      */
     public function all($db = null)
     {
@@ -25,7 +25,7 @@ class ProductQuery extends \yii\db\ActiveQuery
 
     /**
      * @inheritdoc
-     * @return \common\models\Product|array|null
+     * @return \common\models\ItemSize|array|null
      */
     public function one($db = null)
     {

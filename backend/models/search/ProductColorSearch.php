@@ -2,7 +2,6 @@
 
 namespace backend\models\search;
 
-use common\models\ProductColorSize;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -19,7 +18,8 @@ class ProductColorSearch extends ProductColor
     public function rules()
     {
         return [
-            [['id', 'product_id', 'color_id'], 'integer'],
+            [['id', 'product_id', 'color_id', 'price', 'discount_price'], 'integer'],
+            [['name', 'slug', 'stock_keeping_unit'], 'safe'],
         ];
     }
 
@@ -41,30 +41,34 @@ class ProductColorSearch extends ProductColor
      */
     public function search($params)
     {
-        $query = ProductColor::find()->joinWith('productColorSizes')->where(['product_id' => $params['id']]);
+        $query = ProductColor::find();
+
         // add conditions that should always apply here
-//        echo '<pre>';
-//        @print_r($query);
-//        echo '</pre>';
-//        exit(__FILE__ .': '. __LINE__);
+
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
-//
-//        $this->load($params);
 
-//        if (!$this->validate()) {
-//            // uncomment the following line if you do not want to return any records when validation fails
-//            // $query->where('0=1');
-//            return $dataProvider;
-//        }
+        $this->load($params);
+
+        if (!$this->validate()) {
+            // uncomment the following line if you do not want to return any records when validation fails
+            // $query->where('0=1');
+            return $dataProvider;
+        }
 
         // grid filtering conditions
-//        $query->andFilterWhere([
-//            'id' => $this->id,
-//            'product_id' => $this->product_id,
-//            'color_id' => $this->color_id,
-//        ]);
+        $query->andFilterWhere([
+            'id' => $this->id,
+            'product_id' => $this->product_id,
+            'color_id' => $this->color_id,
+            'price' => $this->price,
+            'discount_price' => $this->discount_price,
+        ]);
+
+        $query->andFilterWhere(['like', 'name', $this->name])
+            ->andFilterWhere(['like', 'slug', $this->slug])
+            ->andFilterWhere(['like', 'stock_keeping_unit', $this->stock_keeping_unit]);
 
         return $dataProvider;
     }

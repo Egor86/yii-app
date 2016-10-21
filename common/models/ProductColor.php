@@ -2,7 +2,6 @@
 
 namespace common\models;
 
-use voskobovich\behaviors\ManyToManyBehavior;
 use Yii;
 
 /**
@@ -11,6 +10,11 @@ use Yii;
  * @property integer $id
  * @property integer $product_id
  * @property integer $color_id
+ * @property string $name
+ * @property string $slug
+ * @property string $stock_keeping_unit
+ * @property integer $price
+ * @property integer $discount_price
  */
 class ProductColor extends \yii\db\ActiveRecord
 {
@@ -28,10 +32,11 @@ class ProductColor extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['product_id', 'color_id'], 'required'],
-            [['product_id', 'color_id'], 'integer'],
-//            [['product_id', 'color_id'], 'unique'],
-//            ['color_id', 'unique', 'targetAttribute' => ['product_id', 'color_id']],
+            [['product_id', 'color_id', 'name', 'slug', 'stock_keeping_unit', 'price'], 'required'],
+            [['product_id', 'color_id', 'price', 'discount_price'], 'integer'],
+            [['name', 'slug', 'stock_keeping_unit'], 'string', 'max' => 45],
+            [['stock_keeping_unit'], 'unique'],
+            [['slug'], 'unique'],
         ];
     }
 
@@ -44,52 +49,13 @@ class ProductColor extends \yii\db\ActiveRecord
             'id' => 'ID',
             'product_id' => 'Product ID',
             'color_id' => 'Color ID',
-            'color_ids' => Yii::t('backend', 'Цвета'),
-            'productName' => Yii::t('backend', 'Наименование товара'),
-            'color' => Yii::t('backend', 'Цвет'),
-            'amount' => Yii::t('backend', 'Количество'),
+            'name' => 'Name',
+            'slug' => 'Slug',
+            'stock_keeping_unit' => 'Stock Keeping Unit',
+            'price' => 'Price',
+            'discount_price' => 'Discount Price',
         ];
     }
-
-    public function beforeDelete()
-    {
-        if (parent::beforeDelete()) {
-            ProductColorSize::deleteAll(['product_color_id' => $this->id]);
-            return true;
-        }
-        return false;
-    }
-
-    public function getColors()
-    {
-        return $this->hasMany(Color::className(), ['id' => 'color_id']);
-    }
-
-    /**
-     * for ProductColorController actionUpdate
-     * @return \yii\db\ActiveQuery
-     */
-    public function getProductColorSizes()
-    {
-        return $this->hasMany(ProductColorSize::className(), ['product_color_id' => 'id']);
-    }
-
-//    public function getSize()
-//    {
-//        return $this->hasOne(ProductColorSize::className(), ['product_color_id' => 'id'])
-////            ->viaTable('product_color_size', ['product_color_id' => 'id'])
-//            ;
-//    }
-//
-    public function getSizes()
-    {
-        return $this->hasMany(ProductColorSize::className(), ['product_color_id' => 'id']);
-    }
-//
-//    public function getAmount()
-//    {
-//        return $this->hasOne(ProductColorSize::className(), ['product_color_id' => 'id']);
-//    }
 
     /**
      * @inheritdoc

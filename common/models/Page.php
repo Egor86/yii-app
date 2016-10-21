@@ -42,6 +42,7 @@ class Page extends \yii\db\ActiveRecord
             [['text', 'status'], 'string'],
             [['created_at', 'updated_at', 'sort_by'], 'integer'],
             [['name', 'slug'], 'string', 'max' => 45],
+            ['slug', 'match', 'pattern' => '/^[a-zA-Z-]+$/', 'message' => 'URL может состоять из латиницы и тире'],
             [['slug'], 'unique'],
         ];
     }

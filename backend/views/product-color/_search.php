@@ -4,11 +4,11 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
-/* @var $model backend\models\search\ProductSizeSearch */
+/* @var $model backend\models\search\ProductColorSearch */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
-<div class="product-size-search">
+<div class="product-color-search">
 
     <?php $form = ActiveForm::begin([
         'action' => ['index'],
@@ -19,15 +19,17 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'product_id') ?>
 
-    <?= $form->field($model, 'size_id') ?>
+    <?= $form->field($model, 'color_id') ?>
 
-    <?= $form->field($model, 'amount') ?>
+    <?= $form->field($model, 'name') ?>
 
-    <?= $form->field($model, 'status') ?>
+    <?= $form->field($model, 'slug') ?>
 
-    <?php // echo $form->field($model, 'created_at') ?>
+    <?php // echo $form->field($model, 'stock_keeping_unit') ?>
 
-    <?php // echo $form->field($model, 'updated_at') ?>
+    <?php // echo $form->field($model, 'price') ?>
+
+    <?php // echo $form->field($model, 'discount_price') ?>
 
     <div class="form-group">
         <?= Html::submitButton('Search', ['class' => 'btn btn-primary']) ?>

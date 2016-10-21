@@ -55,10 +55,6 @@ class OrderController extends Controller
     public function actionView($id)
     {
         $model = $this->findModel($id);
-        echo '<pre>';
-        @print_r(unserialize($model->value));
-        echo '</pre>';
-        exit(__FILE__ .': '. __LINE__);
         $dataProvider = new ArrayDataProvider([
             'allModels' => unserialize($model->value),
             'sort' => false

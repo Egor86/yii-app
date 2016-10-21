@@ -46,9 +46,9 @@ class Seo extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'class_name' => 'Class Name',
-            'title' => 'Title',
-            'description' => 'Description',
-            'keyword' => 'Keyword',
+            'title' => 'SEO Title',
+            'description' => 'SEO Description',
+            'keyword' => 'SEO Keyword',
             'class_item_id' => 'Class Item ID',
         ];
     }
