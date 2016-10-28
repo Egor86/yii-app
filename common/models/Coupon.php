@@ -26,6 +26,9 @@ class Coupon extends \yii\db\ActiveRecord
 {
     const USED = 1;
     const UNUSED = 0;
+
+    public $email;
+    public $phone;
     /**
      * @inheritdoc
      */
@@ -40,12 +43,15 @@ class Coupon extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['coupon_code', 'subscriber_id'], 'required'],
+            [['coupon_code', 'subscriber_id','email', 'phone',], 'required'],
             [['subscriber_id', 'campaign_id', 'created_at', 'updated_at', 'sort_by', 'discount', 'using_status'], 'integer'],
-            [['coupon_code'], 'string', 'max' => 45],
+            [['coupon_code', 'email'], 'string', 'max' => 45],
+            ['phone', 'string', 'max' => 15],
             [['coupon_code'], 'unique'],
             [['campaign_id'], 'exist', 'skipOnError' => true, 'targetClass' => Campaign::className(), 'targetAttribute' => ['campaign_id' => 'id']],
             [['subscriber_id'], 'exist', 'skipOnError' => true, 'targetClass' => Subscriber::className(), 'targetAttribute' => ['subscriber_id' => 'id']],
+            ['campaign_id', 'default', 'value' => 1],
+            ['using_status', 'default', 'value' => self::UNUSED]
         ];
     }
 
@@ -69,22 +75,37 @@ class Coupon extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'coupon_code' => 'Coupon Code',
+            'coupon_code' => 'Код купона',
             'subscriber_id' => 'Subscriber ID',
             'campaign_id' => 'Campaign ID',
             'using_status' => 'Using Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
             'sort_by' => 'Sort By',
+            'phone' => 'Телефон(моб)',
+            'discount' => 'Скидка',
         ];
     }
+//
+//    public function scenarios()
+//    {
+//        $scenarios = parent::scenarios();
+//        $scenarios['verife_coupon'] = ['email', 'phone', 'coupon_code'];
+//        return $scenarios;
+//    }
 
-    /**
+
+        /**
      * @return \yii\db\ActiveQuery
      */
     public function getCampaign()
     {
         return $this->hasOne(Campaign::className(), ['id' => 'campaign_id']);
+    }
+
+    public function validateCouponCode()
+    {
+
     }
 
     /**

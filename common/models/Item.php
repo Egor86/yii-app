@@ -3,6 +3,7 @@
 namespace common\models;
 
 use common\behavior\SeoBehavior;
+use hscstudio\cart\CartPositionTrait;
 use Yii;
 
 /**
@@ -21,6 +22,8 @@ use Yii;
  */
 class Item extends \yii\db\ActiveRecord
 {
+    use CartPositionTrait;
+
     /**
      * @inheritdoc
      */
@@ -59,6 +62,8 @@ class Item extends \yii\db\ActiveRecord
             'stock_keeping_unit' => 'Артикул',
             'price' => 'Цена',
             'discount_price' => 'Цена со скидкой',
+            'created_at' => 'Дата создания',
+            'updated_at' => 'Дата обновления',
         ];
     }
 
@@ -77,11 +82,63 @@ class Item extends \yii\db\ActiveRecord
     }
 
     /**
+     * Usage for update Items images
+     * @return array|ImageStorage[]
+     */
+    public function getImages()
+    {
+        return ImageStorage::find()->where(['class' => self::className(), 'class_item_id' => $this->id])->all();
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getColor()
+    {
+        return $this->hasOne(Color::className(), ['id' => 'color_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSizes()
+    {
+        return $this->hasMany(Size::className(), ['id' => 'size_id'])
+            ->viaTable(ItemSize::tableName(),['item_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getComments()
+    {
+        return $this->hasMany(Comment::className(), ['item_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getProduct()
+    {
+        return $this->hasOne(Product::className(), ['id' => 'product_id']);
+    }
+
+    /**
      * @inheritdoc
      * @return \common\models\active_query\ItemQuery the active query used by this AR class.
      */
     public static function find()
     {
         return new \common\models\active_query\ItemQuery(get_called_class());
+    }
+
+    /**
+     * @param array $params Parameters for cart position
+     * @return object CartPositionInterface
+     */
+    public function getCartPosition($params = [])
+    {
+        $params['class'] = 'common\models\ItemCartPosition';
+        return \Yii::createObject($params);
     }
 }

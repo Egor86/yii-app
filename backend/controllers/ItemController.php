@@ -11,9 +11,12 @@ use Exception;
 use Yii;
 use common\models\Item;
 use backend\models\search\ItemSearch;
+use yii\helpers\ArrayHelper;
 use yii\web\Controller;
+use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\UploadedFile;
 
 /**
  * ItemController implements the CRUD actions for Item model.
@@ -79,8 +82,7 @@ class ItemController extends Controller
             Model::loadMultiple($item_sizes, Yii::$app->request->post());
 
             $valid = $model->validate();
-            $valid = Model::validateMultiple($item_sizes);
-
+            $valid = Model::validateMultiple($item_sizes) && $valid;
             if ($valid) {
                 $transaction = \Yii::$app->db->beginTransaction();
                 try {
@@ -95,13 +97,20 @@ class ItemController extends Controller
                         $image_storages = Model::createMultiple(ImageStorage::className());
                         Model::loadMultiple($image_storages, Yii::$app->request->post());
 
-                        foreach ($image_storages as $image) {
-                            $flag = $image->uploadImages(self::class, $model->id, 'product_images');
-                            if (! ($flag)) {
-                                $transaction->rollBack();
-                                break;
+                        foreach ($image_storages as $index => $model_image_storage) {
+                            $model_image_storage->image = UploadedFile::getInstance($model_image_storage, "[{$index}]image");
+                        }
+                        if (Model::validateMultiple($image_storages, ['image'])) {
+
+                            foreach ($image_storages as $image) {
+                                $flag = $image->saveImage(get_class($model), $model->id, 'product_images');
+                                if (! ($flag)) {
+                                    $transaction->rollBack();
+                                    break;
+                                }
                             }
                         }
+
                     }
                     if ($flag) {
                         $transaction->commit();
@@ -117,7 +126,7 @@ class ItemController extends Controller
             'product' => $product,
             'model' => $model ,
             'item_sizes' => $item_sizes,
-            'image_storages' => [new ImageStorage()]
+            'image_storages' => (empty($image_storages)) ? [new ImageStorage()] : $image_storages
         ]);
     }
 
@@ -131,13 +140,76 @@ class ItemController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('update', [
-                'model' => $model,
-            ]);
+        if (Yii::$app->request->post()) {
+            if ($model->load(Yii::$app->request->post()) && $model->save()) {
+                return $this->redirect(['/product/view', 'id' => $model->product_id]);
+            } else {
+                return $this->render('update', [                                           //TODO redirect if not saved?
+                    'model' => $model,
+                ]);
+            }
         }
+        throw new NotFoundHttpException('The requested page does not exist.');
+    }
+
+    public function actionUpdateImage($id)
+    {
+        $model = $this->findModel($id);
+        $image_storages = $model->getImages();
+
+        if (Yii::$app->request->post()) {
+
+            $oldIDs = ArrayHelper::map($image_storages, 'id', 'id');
+            $image_storages = Model::createMultiple(ImageStorage::classname(), $image_storages);
+            Model::loadMultiple($image_storages, Yii::$app->request->post());
+            $deletedIDs = array_diff($oldIDs, array_filter(ArrayHelper::map($image_storages, 'id', 'id')));
+
+            foreach ($image_storages as $index => $image_storage) {
+                $image_storage->image = UploadedFile::getInstance($image_storage, "[{$index}]image");
+            }
+
+            $valid = Model::validateMultiple($image_storages, ['image']);
+
+            if ($valid) {
+                $transaction = \Yii::$app->db->beginTransaction();
+                try {
+                    $flag = true;
+                    if (!empty($deletedIDs)) {
+                        foreach (ImageStorage::find()->where(['in', 'id', $deletedIDs])->all() as $image) {
+                            $flag = $image->delete() && $flag;
+                        }
+                    }
+
+                    if ($flag) {
+                        foreach ($image_storages as $image) {
+                            if ($image->deleteImg && empty($image->image)) {
+                                $image->delete();
+                                continue;
+                            }
+
+                            $flag = $image->saveImage(get_class($model), $model->id, 'product_images');
+                            if (! ($flag)) {
+                                $transaction->rollBack();
+                                break;
+                            }
+                        }
+                    }
+
+                    if ($flag) {
+                        $transaction->commit();
+                        return $this->redirect(['/product/view', 'id' => $model->product_id]);
+                    }
+
+                } catch (Exception $e) {
+                    $transaction->rollBack();
+                }
+            }
+        }
+
+        return $this->render('update_image', [
+            'model' => $model,
+            'image_storages' => (empty($image_storages)) ? [new ImageStorage()] : $image_storages
+        ]);
     }
 
     /**

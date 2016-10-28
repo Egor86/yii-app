@@ -8,7 +8,7 @@ use Yii;
  * This is the model class for table "comment".
  *
  * @property integer $id
- * @property integer $product_id
+ * @property integer $item_id
  * @property string $text
  * @property integer $agree
  * @property integer $favorite
@@ -16,7 +16,7 @@ use Yii;
  * @property integer $created_at
  * @property integer $updated_at
  *
- * @property Product $product
+ * @property Item $item
  */
 class Comment extends \yii\db\ActiveRecord
 {
@@ -32,27 +32,16 @@ class Comment extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return array
-     */
-    public static function getStatus()
-    {
-        return [
-            self::NO => 'Нет',
-            self::YES => 'Да'
-        ];
-    }
-
-    /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['product_id', 'text', 'user_name'], 'required'],
-            [['product_id', 'agree', 'favorite', 'created_at', 'updated_at', 'sort_by'], 'integer'],
+            [['item_id', 'text', 'user_name'], 'required'],
+            [['item_id', 'agree', 'favorite', 'created_at', 'updated_at', 'sort_by'], 'integer'],
             [['text'], 'string', 'max' => 1000],
             [['user_name'], 'string', 'max' => 30],
-            [['product_id'], 'exist', 'skipOnError' => true, 'targetClass' => Product::className(), 'targetAttribute' => ['product_id' => 'id']],
+            [['item_id'], 'exist', 'skipOnError' => true, 'targetClass' => Item::className(), 'targetAttribute' => ['item_id' => 'id']],
         ];
     }
 
@@ -63,7 +52,7 @@ class Comment extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'product_id' => 'Наименование товара',
+            'item_id' => 'Наименование товара',
             'text' => 'Текст комментария',
             'agree' => 'Одобрен',
             'favorite' => 'На главной',
@@ -89,16 +78,16 @@ class Comment extends \yii\db\ActiveRecord
     public function scenarios()
     {
         $scenarios = parent::scenarios();
-        $scenarios['add'] = ['user_name', 'text', 'product_id'];
+        $scenarios['add'] = ['user_name', 'text', 'item_id'];
         return $scenarios;
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getProduct()
+    public function getItem()
     {
-        return $this->hasOne(Product::className(), ['id' => 'product_id']);
+        return $this->hasOne(Item::className(), ['id' => 'item_id']);
     }
 
     /**

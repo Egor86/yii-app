@@ -6,6 +6,8 @@ use backend\models\MultipleImageForm;
 use backend\models\search\ProductColorSearch;
 use backend\models\search\ProductSearch;
 use backend\models\VideoForm;
+use common\models\Item;
+use common\models\ItemSize;
 use common\models\ProductColor;
 use common\models\ProductColorSize;
 use Exception;
@@ -76,25 +78,27 @@ class ProductController extends Controller
     public function actionView($id)
     {
         $model = $this->findModel($id);
-        $product_color_ids = [];
-        $product_colors = ProductColor::find()->select('id')
-            ->where('product_id='.$model->id)->asArray()->all();
-
-        for ($i = 0; $i < count($product_colors); $i++){
-            $product_color_ids[] = $product_colors[$i]['id'];
-        }
-
-        $query = ProductColorSize::find()
-            ->where(['product_color_id' => $product_color_ids]);
-
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
-            'sort' => false
-        ]);
+//        $product_color_ids = [];
+//        $product_colors = Item::find()->select('id')
+//            ->where('product_id='.$model->id)->asArray()->all();
+//
+//        for ($i = 0; $i < count($product_colors); $i++){
+//            $product_color_ids[] = $product_colors[$i]['id'];
+//        }
+//
+//        $query = ItemSize::find()
+//            ->where(['item_id' => $product_color_ids]);
+//
+//        $dataProvider = new ActiveDataProvider([
+//            'query' => $query,
+//            'sort' => false
+//        ]);
+        $items = Item::findAll(['product_id' => $model->id]);
 
         return $this->render('view', [
             'model' => $model,
-            'dataProvider'=> $dataProvider,
+            'items' => $items
+//            'dataProvider'=> $dataProvider,
         ]);
     }
 
@@ -142,7 +146,7 @@ class ProductController extends Controller
 
             $video_form->load(Yii::$app->request->post());
             $video_id = $video_form->uploadVideo(get_class($model), $model->id);
-            if ($video_id){
+            if ($video_id) {
                 $model->video_id = $video_id;
                 if(!$model->save()){
                     return $this->render('update', [
@@ -160,6 +164,11 @@ class ProductController extends Controller
         }
     }
 
+    /**
+     * @param $id
+     * @return string
+     * @deprecated not usage
+     */
     public function actionAddImages($id){
 
         $model = $this->findModel($id);
@@ -186,7 +195,7 @@ class ProductController extends Controller
         $model->video_id = null;
         $model->save();
 
-        return $this->redirect(['update', 'id' => $id]);
+        return $this->redirect(['view', 'id' => $id]);
     }
 
     /**

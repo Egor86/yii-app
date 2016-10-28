@@ -31,10 +31,6 @@ class SeoBehavior extends \yii\base\Behavior
         if($this->seoText->load(Yii::$app->request->post())){
 
             if(!$this->seoText->isEmpty()){
-//                echo '<pre>';
-//                @print_r($this->owner->primaryKey()[0]);
-//                echo '</pre>';
-//                exit(__FILE__ .': '. __LINE__);
                 $this->seoText->save();
             }
         }

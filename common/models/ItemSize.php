@@ -35,6 +35,7 @@ class ItemSize extends \yii\db\ActiveRecord
             [['size_id'], 'required'],
             [['item_id', 'size_id', 'amount', 'created_at', 'updated_at'], 'integer'],
             [['size_id'], 'exist', 'skipOnError' => true, 'targetClass' => Size::className(), 'targetAttribute' => ['size_id' => 'id']],
+            ['amount', 'default', 'value' => 0],
         ];
     }
 
@@ -45,7 +46,7 @@ class ItemSize extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'item_id' => 'Product Color ID',
+            'item_id' => 'item_ID',
             'size_id' => 'Размер',
             'amount' => 'Количество',
             'created_at' => 'Created At',
@@ -71,7 +72,15 @@ class ItemSize extends \yii\db\ActiveRecord
      */
     public function getSize()
     {
-        return $this->hasOne(Size::className(), ['id' => 'size_id'])->inverseOf('itemSizes');
+        return $this->hasOne(Size::className(), ['id' => 'size_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getItem()
+    {
+        return $this->hasOne(Item::className(), ['id' => 'item_id']);
     }
 
     /**

@@ -20,12 +20,14 @@ return [
         ],
         'formatter' => [
             'class' => 'yii\i18n\Formatter',
-            'timeZone' => 'GMT+3',
+            'locale' => 'ru-RU',
+            'timeZone' => 'Europe/Kiev',
             'dateFormat' => 'dd.MM.yyyy',
             'decimalSeparator' => ',',
             'thousandSeparator' => ' ',
             'currencyCode' => 'UAH',
             'nullDisplay' => '',
+            'booleanFormat' => ['Нет', 'Да']
         ],
         'urlManager' => [
             'class' => 'yii\web\UrlManager',

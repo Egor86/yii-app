@@ -1,7 +1,11 @@
 <?php
 namespace frontend\controllers;
 
+use common\models\Category;
+use common\models\Comment;
 use common\models\Contact;
+use common\models\Item;
+use common\models\Page;
 use common\models\Product;
 use common\models\Subscriber;
 use Yii;
@@ -74,9 +78,17 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        $product = Product::find()->all();
+        $item = Item::find()->orderBy(['created_at' => SORT_DESC])->all();
+        $comment = Comment::find()->where(['favorite' => Comment::YES])->all();
+        $category = Category::find()->all();
+        $page = Page::find()->where(['status' => Page::PUBLISHED])->all();
 
-        return $this->render('index', ['product' => $product]);
+        return $this->render('index', [
+            'item' => $item,
+            'comment' => $comment,
+            'category' => $category,
+            'page' => $page
+        ]);
     }
 
     /**

@@ -38,7 +38,7 @@ class VideoForm extends Model
     public function uploadVideo($class, $item_id, $path = 'video_storage')
     {
         $this->videoFile = UploadedFile::getInstance($this, 'videoFile');
-        if ($this->validate() || $this->videoFile) {
+        if ($this->validate() && $this->videoFile) {
 
             if (($url = Image::upload($this->videoFile, Yii::getAlias('@front-web'), $path))) {
                 $video = new VideoStorage([

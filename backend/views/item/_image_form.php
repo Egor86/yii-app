@@ -19,7 +19,7 @@ use yii\jui\JuiAsset;
         'widgetBody' => '.form-options-body',
         'widgetItem' => '.form-options-item',
         'min' => 1,
-        'insertButton' => '.add-item',
+        'insertButton' => '.add-image',
         'deleteButton' => '.delete-item',
         'model' => $image_storages[0],
         'formId' => 'dynamic-form',
@@ -45,7 +45,7 @@ use yii\jui\JuiAsset;
                 <i class="fa fa-arrows"></i>
             </td>
             <td class="vcenter">
-                <?= $form->field($image_storage, "[{$index}]type")->label(false)->dropDownList(\common\models\ImageStorage::getTypeList()); ?>
+                <?= $form->field($image_storage, "[{$index}]type")->label(false)->dropDownList(\common\models\ImageStorage::getTypeList(), ['prompt' => '--']); ?>
             </td>
             <td>
                 <?php if (!$image_storage->isNewRecord): ?>
@@ -63,11 +63,12 @@ use yii\jui\JuiAsset;
                     'options' => [
                         'multiple' => false,
                         'accept' => 'image/*',
-                        'class' => 'optionvalue-img'
+                        'class' => 'imagestorage-img'
                     ],
                     'pluginOptions' => [
                         'previewFileType' => 'image',
                         'showCaption' => false,
+                        'showRemove' => false,
                         'showUpload' => false,
                         'browseClass' => 'btn btn-default btn-sm',
                         'browseLabel' => ' Выбрать',
@@ -93,7 +94,7 @@ use yii\jui\JuiAsset;
     <tfoot>
     <tr>
         <td colspan="3"></td>
-        <td><button type="button" class="add-item btn btn-success btn-sm"><span class="fa fa-plus"></span> New</button></td>
+        <td><button type="button" class="add-image btn btn-success btn-sm"><span class="fa fa-plus"></span> New</button></td>
     </tr>
     </tfoot>
 </table>
@@ -103,13 +104,13 @@ use yii\jui\JuiAsset;
 <?php
 $js = <<<'EOD'
 
-$(".optionvalue-img").on("filecleared", function(event) {
+$(".imagestorage-img").on("filecleared", function(event) {
     var regexID = /^(.+?)([-\d-]{1,})(.+)$/i;
     var id = event.target.id;
     var matches = id.match(regexID);
     if (matches && matches.length === 4) {
         var identifiers = matches[2].split("-");
-        $("#optionvalue-" + identifiers[1] + "-deleteimg").val("1");
+        $("#imagestorage-" + identifiers[1] + "-deleteimg").val("1");
     }
 });
 

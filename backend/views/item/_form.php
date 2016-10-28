@@ -18,7 +18,7 @@ use yii\widgets\MaskedInput;
 
 ?>
 
-<div class="customer-form">
+<div class="item-form">
 
     <?php $form = ActiveForm::begin([
         'enableClientValidation' => false,
@@ -40,13 +40,13 @@ use yii\widgets\MaskedInput;
                 ->dropDownList(ArrayHelper::map(Color::find()->asArray()->all(), 'id', 'name')) ?>
         </div>
         <div class="col-sm-6">
-            <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
+            <?= $form->field($model, 'name', ['enableClientValidation' => true,])->textInput(['maxlength' => true]) ?>
         </div>
         <div class="col-sm-6">
-            <?= $form->field($model, 'slug')->textInput(['maxlength' => true]) ?>
+            <?= $form->field($model, 'slug', ['enableClientValidation' => true,])->textInput(['maxlength' => true]) ?>
         </div>
         <div class="col-sm-6">
-            <?= $form->field($model, 'stock_keeping_unit')->textInput(['maxlength' => true]) ?>
+            <?= $form->field($model, 'stock_keeping_unit', ['enableClientValidation' => true,])->textInput(['maxlength' => true]) ?>
         </div>
         <div class="col-sm-6">
             <?= $form->field($model, 'price')->textInput()->widget(MaskedInput::className(),[
@@ -71,7 +71,6 @@ use yii\widgets\MaskedInput;
     </div>
 
     <div class="panel panel-default">
-        <div class="panel-heading"><h4>Укажите размер и количество</h4></div>
         <div class="panel-body">
             <?php DynamicFormWidget::begin([
                 'widgetContainer' => 'dynamicform_wrapper', // required: only alphanumeric characters plus "_" [A-Za-z0-9_]
@@ -79,22 +78,26 @@ use yii\widgets\MaskedInput;
                 'widgetItem' => '.item', // required: css class
                 'limit' => Size::getCount(), // the maximum times, an element can be cloned (default 999)
                 'min' => 1, // 0 or 1 (default 1)
-                'insertButton' => '.add-item', // css class
+                'insertButton' => '.add-size', // css class
                 'deleteButton' => '.remove-item', // css class
                 'model' => $item_sizes[0],
                 'formId' => 'dynamic-form',
                 'formFields' => [
                     'size_id',
-                    'amaount',
+                    'amount',
                 ],
             ]); ?>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <button type="button" class="pull-right add-size btn btn-success btn-xs"><i class="fa fa-plus"></i> Добавить размер</button>
+                    <div class="clearfix"></div>
+                </div>
 
             <div class="container-items"><!-- widgetContainer -->
-                <?php foreach ($item_sizes as $i => $model_item_size): ?>
+                <?php foreach ($item_sizes as $index => $model_item_size): ?>
                     <div class="item panel panel-default"><!-- widgetBody -->
                         <div class="panel-heading">
                             <div class="pull-right">
-                                <button type="button" class="add-item btn btn-success btn-xs"><i class="glyphicon glyphicon-plus"></i></button>
                                 <button type="button" class="remove-item btn btn-danger btn-xs"><i class="glyphicon glyphicon-minus"></i></button>
                             </div>
                             <div class="clearfix"></div>
@@ -103,22 +106,25 @@ use yii\widgets\MaskedInput;
                             <?php
                             // necessary for update action.
                             if (! $model_item_size->isNewRecord) {
-                                echo Html::activeHiddenInput($model_item_size, "[{$i}]id");
+                                echo Html::activeHiddenInput($model_item_size, "[{$index}]id");
                             }
                             ?>
                             <div class="row">
                                 <div class="col-sm-6">
-                                    <?= $form->field($model_item_size, "[{$i}]size_id")->dropDownList(ArrayHelper::map(Size::find()->asArray()->all(), 'id', 'value')) ?>
+                                    <?= $form->field($model_item_size, "[{$index}]size_id", ['enableClientValidation' => true,])
+                                        ->dropDownList(ArrayHelper::map(Size::find()->asArray()->all(), 'id', 'value'), ['prompt' => '--']) ?>
                                 </div>
                                 <div class="col-sm-6">
-                                    <?= $form->field($model_item_size, "[{$i}]amount")->textInput(['maxlength' => true])->widget(MaskedInput::className(),[
+                                    <?= $form->field($model_item_size, "[{$index}]amount")->textInput(['maxlength' => true])
+                                        ->widget(MaskedInput::className(),[
                                         'name' => 'amount',
                                         'mask' => '9',
                                         'clientOptions' => [
                                             'repeat' => 10,
                                             'greedy' => false
                                         ]
-                                    ]); ?>
+                                    ])
+                                    ; ?>
                                 </div>
                             </div><!-- .row -->
                         </div>
@@ -128,7 +134,7 @@ use yii\widgets\MaskedInput;
             <?php DynamicFormWidget::end(); ?>
         </div>
     </div>
-
+    </div>
     <div class="padding-v-md">
         <div class="line line-dashed"></div>
     </div>
@@ -141,14 +147,14 @@ use yii\widgets\MaskedInput;
         <div class="line line-dashed"></div>
     </div>
 
-    <?= $this->render('_image_adding', [
+    <?= $this->render('_image_form', [
         'form' => $form,
         'model' => $model,
         'image_storages' => $image_storages
     ]) ?>
 
     <div class="form-group">
-        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => 'btn btn-primary']) ?>
+        <?= Html::submitButton('Сохранить', ['class' => 'btn btn-primary']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

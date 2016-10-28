@@ -8,22 +8,21 @@ use hscstudio\cart\CostCalculationEvent;
 use yii\base\Component;
 use yii\base\Object;
 
-class ProductCartPosition extends Object implements CartPositionInterface
+class ItemCartPosition extends Object implements CartPositionInterface
 {
     public $id;
     public $size;
-    public $color;
-    protected $_product;
+    protected $_item;
 
     /**
      * @return integer
      */
     public function getPrice()
     {
-        if ($this->getProduct()->discount_price > 0) {
-            return $this->getProduct()->discount_price;
+        if ($this->getItem()->discount_price > 0) {
+            return $this->getItem()->discount_price;
         }
-        return $this->getProduct()->price;
+        return $this->getItem()->price;
     }
 
     /**
@@ -49,7 +48,7 @@ class ProductCartPosition extends Object implements CartPositionInterface
      */
     public function getId()
     {
-        return md5(serialize([$this->id, $this->color, $this->size]));
+        return md5(serialize([$this->id, $this->size]));
     }
 
     /**
@@ -68,11 +67,11 @@ class ProductCartPosition extends Object implements CartPositionInterface
         return $this->quantity;
     }
 
-    public function getProduct()
+    public function getItem()
     {
-        if ($this->_product === null) {
-            $this->_product = Product::findOne($this->id);
+        if ($this->_item === null) {
+            $this->_item = Item::findOne($this->id);
         }
-        return $this->_product;
+        return $this->_item;
     }
 }

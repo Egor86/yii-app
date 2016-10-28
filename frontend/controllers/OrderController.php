@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\models\Coupon;
 use common\models\Order;
 use Yii;
 use yii\data\ArrayDataProvider;
@@ -39,14 +40,17 @@ class OrderController extends \yii\web\Controller
 
     public function actionConfirm()
     {
-        $model = new Order();
+        $model = new Order(Yii::$app->session['discount']);
+
         if (Yii::$app->request->post()) {
             if ($model->load(Yii::$app->request->post())) {
+
                 $cart = Yii::$app->cart;
                 $model->value = Yii::$app->session[$cart->id];
-                $model->total_cost = $cart->getCost();
+                $model->total_cost = $cart->getCost(true);
                 if ($model->save()) {
-                    $cart->deleteAll();
+                    Yii::$app->session->removeAll();
+//                    $cart->deleteAll();
                     $dataProvider = new ArrayDataProvider([
                         'allModels' => unserialize($model->value)
                     ]);

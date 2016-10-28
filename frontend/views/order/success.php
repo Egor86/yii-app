@@ -40,7 +40,7 @@ echo \kartik\grid\GridView::widget([
             'attribute'=>'Name',
             'width'=>'100px',
             'value' => function($model, $key, $index, $widget) {
-                return $model->product->name;
+                return $model->item->name;
             },
             'label' => 'Наименование товара'
         ],
@@ -62,10 +62,10 @@ echo \kartik\grid\GridView::widget([
         [
             'attribute' => 'price',
             'value' => function ($model, $key, $index, $widget) {
-                if ($model->product->discount_price > 0) {
-                    return $model->product->discount_price;
+                if ($model->item->discount_price > 0) {
+                    return $model->item->discount_price;
                 }
-                return $model->product->price;
+                return $model->item->price;
             },
             'label' => 'Цена',
             'width' => '150px',

@@ -7,7 +7,7 @@ use yii\helpers\Html;
 /* @var $model common\models\Item */
 /* @var $product common\models\Product */
 /** @var $item_sizes common\models\ItemSize */
-/* @var $multiple_forms backend\models\MultipleImageForm */
+/* @var $image_storages common\models\ImageStorage */
 
 $this->title = 'Create Item';
 $this->params['breadcrumbs'][] = ['label' => 'Items', 'url' => ['index']];

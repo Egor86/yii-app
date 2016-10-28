@@ -31,6 +31,7 @@ class ImageStorage extends \yii\db\ActiveRecord
     const TYPE_OTHER = 2;
 
     public $image;
+    public $deleteImg;
     /**
      * @inheritdoc
      */
@@ -56,8 +57,9 @@ class ImageStorage extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            ['image', 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg, bmp, gif'],
             [['name', 'class', 'class_item_id', 'file_path'], 'required'],
-            [['class_item_id', 'created_at', 'updated_at', 'type'], 'integer'],
+            [['class_item_id', 'created_at', 'updated_at', 'type', 'deleteImg'], 'integer'],
             [['name', 'class'], 'string', 'max' => 64],
             [['file_path'], 'string', 'max' => 256],
         ];
@@ -92,6 +94,19 @@ class ImageStorage extends \yii\db\ActiveRecord
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
         ];
+    }
+
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+
+            if ($this->file_path !== $this->getOldAttribute('file_path') &&
+                (is_file($filePath = Yii::getAlias('@front-web') . $this->getOldAttribute('file_path')))) {
+                @unlink($filePath);
+            }
+            return true;
+        }
+        return false;
     }
 
     public function afterDelete()
@@ -142,34 +157,51 @@ class ImageStorage extends \yii\db\ActiveRecord
         return new \common\models\active_query\ImageStorageQuery(get_called_class());
     }
 
-    public function uploadImages($class, $item_id, $path = '')
+    /**
+     * @param $class
+     * @param $item_id
+     * @param $path
+     * @return bool
+     */
+    public function saveImage($class, $item_id, $path)
     {
-        $this->image = UploadedFile::getInstances($this, 'image');
-        $this->class =$class;
+        $this->class = $class;
         $this->class_item_id = $item_id;
 
-        if (($this->image && $this->saveImages($class, $item_id, $path))) {
-            $this->image = null;
-            return true;
+        if ($this->image) {
+            if ($this->file_path = Image::upload($this->image, Yii::getAlias('@front-web'), $path)) {
+                $this->name = Upload::getFileName($this->image);
+                 if ($this->save(false)) {
+                     return true;
+                 }
+            }
+            return false;
         }
-        return false;
+
+        if ($this->type !== $this->getOldAttribute('type')) {
+
+            if (!$this->save(false)) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    private function saveImages($class, $item_id, $path)
+    /**
+     * Not used, if will saved two TYPE_MAIN or TYPE_SECOND_MAIN will performed first TYPE_MAIN and firs TYPE_SECOND_MAIN
+     * @param int $id
+     * @return bool
+     */
+    private function checkType($id = 0)
     {
-        if ($this->type == self::TYPE_MAIN || $this->type == self::TYPE_SECOND_MAIN){
-            if (self::findOne(['class' => $class, 'class_item_id' => $item_id, 'type' => $this->type])){
+
+        if ($this->type == self::TYPE_MAIN || $this->type == self::TYPE_SECOND_MAIN) {
+            if (self::find()->where(['class' => $this->class, 'class_item_id' => $this->item_id, 'type' => $this->type])
+                ->andWhere('not', ['id' => $id])->exists()) {
                 $this->addError('image', self::getTypeList()[$this->type] . ' для товара этого цвета уже существует');
                 return false;
             }
         }
-
-        if (($this->file_path = Image::upload($this->image, Yii::getAlias('@front-web'), $path))) {
-            $this->name = Upload::getFileName($this->image);
-            if ($this->save()) {
-                return true;
-            }
-        }
-        return false;
+        return true;
     }
 }

@@ -18,7 +18,7 @@ return [
             'baseUrl' => ''
         ],
         'cart' => [
-            'class' => 'hscstudio\cart\Cart',
+            'class' => 'common\components\MyCart',
         ],
         'user' => [
             'identityClass' => 'common\models\User',
@@ -46,6 +46,7 @@ return [
             'showScriptName' => false,
             'suffix' => '.html',
             'rules' => [
+                'cart' => '/cart/view',
             ],
         ],
     ],

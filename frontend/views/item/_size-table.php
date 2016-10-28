@@ -7,7 +7,7 @@
 use common\models\Category;
 use yii\grid\GridView;
 
-$sizeTableName = Category::findOne($model->category_id)->sizeTableName->name;
+$sizeTableName = Category::findOne($model->product->category_id)->sizeTableName->name;
 
 if ($sizeTableName == 'wear_size_table') {
     echo GridView::widget([

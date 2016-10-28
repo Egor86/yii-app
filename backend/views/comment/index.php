@@ -42,17 +42,13 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
             [
                 'attribute' => 'agree',
-                'value' => function($data){
-                    return Comment::getStatus()[$data->agree];
-                },
-                'filter'=> Comment::getStatus(),
+                'filter'=> ['Нет', 'Да'],
+                'format' => 'boolean'
             ],
             [
                 'attribute' => 'favorite',
-                'value' => function($data){
-                    return Comment::getStatus()[$data->favorite];
-                },
-                'filter'=> Comment::getStatus(),
+                'filter'=> ['Нет', 'Да'],
+                'format' => 'boolean'
             ],
              'created_at:datetime',
 

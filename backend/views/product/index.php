@@ -23,9 +23,11 @@ $this->params['breadcrumbs'][] = $this->title;
     <p>
         <?= Html::a('Создать продукт', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
-<?php Pjax::begin(); ?>    <?= GridView::widget([
+<?php Pjax::begin(); ?>
+    <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
+        'summary' => false,
         'rowOptions' => function ($model, $key, $index, $grid) {
             return ['data-sortable-id' => $model->id];
         },
@@ -72,14 +74,11 @@ $this->params['breadcrumbs'][] = $this->title;
             // 'updated_at',
             [
                 'attribute' => 'published',
-                'value' => function($data){
-                    $list = Product::publishedList();
-                    return $list[$data->published];
-                },
-                'filter'=> Product::publishedList(),
+                'filter'=> ['Нет', 'да'],
                 'options' => [
                     'width' => '15px'
-                ]
+                ],
+                'format' => 'boolean'
             ],
 
             ['class' => 'yii\grid\ActionColumn'],

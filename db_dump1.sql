@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.15, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.16, for Linux (x86_64)
 --
 -- Host: localhost    Database: egoist
 -- ------------------------------------------------------
--- Server version	5.7.15-0ubuntu0.16.04.1
+-- Server version	5.7.16-0ubuntu0.16.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -150,7 +150,7 @@ CREATE TABLE `color` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `name_UNIQUE` (`name`),
   UNIQUE KEY `rgb_code_UNIQUE` (`rgb_code`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -159,7 +159,7 @@ CREATE TABLE `color` (
 
 LOCK TABLES `color` WRITE;
 /*!40000 ALTER TABLE `color` DISABLE KEYS */;
-INSERT INTO `color` VALUES (2,'Салатовый','#b4a7d6',233243,1475161065,NULL),(3,'Белый','#f3eded',1475061120,1475065487,NULL);
+INSERT INTO `color` VALUES (2,'Салатовый','#b4a7d6',233243,1475161065,NULL),(3,'Белый','#f3eded',1475061120,1475065487,NULL),(4,'Синий','#0000ff',1477387400,1477387400,NULL);
 /*!40000 ALTER TABLE `color` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -172,7 +172,7 @@ DROP TABLE IF EXISTS `comment`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `comment` (
   `id` int(11) NOT NULL,
-  `product_id` int(10) unsigned NOT NULL,
+  `item_id` int(11) unsigned NOT NULL,
   `text` text NOT NULL,
   `agree` tinyint(1) NOT NULL DEFAULT '0',
   `favorite` tinyint(1) NOT NULL DEFAULT '0',
@@ -181,8 +181,8 @@ CREATE TABLE `comment` (
   `updated_at` int(11) DEFAULT NULL,
   `sort_by` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_comment_product_id` (`product_id`),
-  CONSTRAINT `fk_comment_product_id` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `fk_comment_item_id_idx` (`item_id`),
+  CONSTRAINT `fk_comment_item_id` FOREIGN KEY (`item_id`) REFERENCES `item` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -192,7 +192,6 @@ CREATE TABLE `comment` (
 
 LOCK TABLES `comment` WRITE;
 /*!40000 ALTER TABLE `comment` DISABLE KEYS */;
-INSERT INTO `comment` VALUES (1,50,'Test comment',0,0,'Егор',1476360990,1476360990,1),(2,52,'комментарияТекст',0,0,'Игорь',1476362403,1476962151,0);
 /*!40000 ALTER TABLE `comment` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -228,7 +227,7 @@ CREATE TABLE `coupon` (
 
 LOCK TABLES `coupon` WRITE;
 /*!40000 ALTER TABLE `coupon` DISABLE KEYS */;
-INSERT INTO `coupon` VALUES (1,'111',4,1,1,300,1212231,1476968892,NULL);
+INSERT INTO `coupon` VALUES (1,'111',4,1,1,300,1212231,1477659716,NULL);
 /*!40000 ALTER TABLE `coupon` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -249,7 +248,7 @@ CREATE TABLE `image_storage` (
   `created_at` int(11) NOT NULL,
   `updated_at` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -258,7 +257,7 @@ CREATE TABLE `image_storage` (
 
 LOCK TABLES `image_storage` WRITE;
 /*!40000 ALTER TABLE `image_storage` DISABLE KEYS */;
-INSERT INTO `image_storage` VALUES (1,'1160160-e49c5650c5.jpg','common\\models\\Product',35,'/data/1160160-6805446aa9.jpg',0,1476097894,1476097894),(3,'12160160-df9599e2f8.jpg','common\\models\\Product',35,'/data/12160160-e16fba6bc6.jpg',2,1476097910,1476097910),(4,'1160160-b8f10764f6.jpg','common\\models\\Product',35,'/data/1160160-7fb05ecffd.jpg',2,1476097910,1476097910),(5,'2160160-c207448002.jpg','common\\models\\Product',35,'/data/2160160-34f1753e17.jpg',2,1476097910,1476097910),(6,'13160160-37a187d6cd.jpg','common\\models\\Product',35,'/data/13160160-1e86c1b167.jpg',1,1476097933,1476097933),(7,'12160160-050e19f855.jpg','common\\models\\Product',27,'/data/12160160-aa26510ffe.jpg',0,1476258179,1476258179);
+INSERT INTO `image_storage` VALUES (30,'album-1-1-6eb27ebec2062bd72dcfa3-57e1c6d5af.jpg','common\\models\\Item',82,'/data/product_images/album-1-1-6eb27ebec2062bd72dcfa3-528ab9be5e.jpg',1,1477487072,1477488542),(32,'logo-c0e9a6860b.png','common\\models\\Item',82,'/data/product_images/logo-9197d593fc.png',1,1477487660,1477488542),(33,'13160160-6d23833e7f.jpg','common\\models\\Item',100,'/data/product_images/13160160-11d57c791f.jpg',0,1477489230,1477494045),(34,'album-1-1-6eb27ebec2062bd72dcfa3-3df96ef1c4.jpg','common\\models\\Item',100,'/data/product_images/album-1-1-6eb27ebec2062bd72dcfa3-55a3e5c06f.jpg',1,1477491337,1477494045);
 /*!40000 ALTER TABLE `image_storage` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -270,7 +269,7 @@ DROP TABLE IF EXISTS `item`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `item` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `product_id` int(11) NOT NULL,
   `color_id` int(11) NOT NULL,
   `name` varchar(45) NOT NULL,
@@ -283,7 +282,7 @@ CREATE TABLE `item` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `stock_keeping_unit_UNIQUE` (`stock_keeping_unit`),
   UNIQUE KEY `slug_UNIQUE` (`slug`)
-) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -292,7 +291,7 @@ CREATE TABLE `item` (
 
 LOCK TABLES `item` WRITE;
 /*!40000 ALTER TABLE `item` DISABLE KEYS */;
-INSERT INTO `item` VALUES (12,27,2,'','as','zx',0.00,NULL,NULL,NULL),(20,49,2,'','sd','qw',0.00,NULL,NULL,NULL),(21,49,3,'','df','we',0.00,NULL,NULL,NULL),(22,11,2,'','fg','er',0.00,NULL,NULL,NULL),(23,11,3,'','gh','rt',0.00,NULL,NULL,NULL),(24,10,2,'','hj','ty',0.00,NULL,NULL,NULL),(25,10,3,'','jk','yu',0.00,NULL,NULL,NULL),(28,50,2,'','kl','ui',0.00,NULL,NULL,NULL),(31,52,2,'','zx','uo',0.00,NULL,NULL,NULL),(32,82,2,'Наименование','URL','Артикул',1232.22,12312.00,1477051834,1477051834);
+INSERT INTO `item` VALUES (82,83,3,'NewProd child11','ccc','1111',500.00,200.00,1477311325,1477406031),(88,83,2,'Cалатовый','sdfdsf','assad',400.00,0.00,1477480984,1477480984),(89,83,4,'Синий','zxcxzc','zxccz',2000.00,1000.00,1477481298,1477481298),(100,80,2,'Наименование','Slugsdf','sdfdfs',200.00,0.00,1477489230,1477489230);
 /*!40000 ALTER TABLE `item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -311,9 +310,11 @@ CREATE TABLE `item_size` (
   `created_at` int(11) DEFAULT NULL,
   `updated_at` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `item_id_size_id_UNIQUE` (`size_id`,`item_id`),
   KEY `fk_product_color_size_size_id_idx` (`size_id`),
-  CONSTRAINT `fk_product_color_size_size_id` FOREIGN KEY (`size_id`) REFERENCES `size` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=77 DEFAULT CHARSET=utf8;
+  KEY `fk_item_size_item_id_idx` (`item_id`),
+  CONSTRAINT `fk_item_size_size_id` FOREIGN KEY (`size_id`) REFERENCES `size` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=180 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -322,7 +323,7 @@ CREATE TABLE `item_size` (
 
 LOCK TABLES `item_size` WRITE;
 /*!40000 ALTER TABLE `item_size` DISABLE KEYS */;
-INSERT INTO `item_size` VALUES (4,12,4,4,1476091421,1476365607),(20,20,2,2211,1476172407,1476365437),(21,21,1,2,1476172407,1476365437),(22,22,4,1,1476173196,1476174694),(23,22,1,1,1476173196,1476174694),(24,23,2,1,1476173196,1476174694),(25,23,1,11,1476173196,1476174694),(26,23,4,111,1476173196,1476174694),(29,24,2,1,1476174903,1476175645),(31,25,2,2,1476174903,1476175645),(32,25,3,2,1476174929,1476175645),(39,28,2,1,1476184071,1476342804),(40,28,1,11,1476184071,1476342804),(41,28,3,11,1476184071,1476342804),(51,21,2,22333,1476195056,1476365437),(52,21,3,2,1476195056,1476365437),(53,31,1,44,1476339965,1476339965),(54,31,3,44,1476339965,1476339965),(60,28,7,111,1476342804,1476342804),(61,32,1,1,NULL,NULL),(62,32,3,2,NULL,NULL),(63,33,1,NULL,1477058209,1477058209);
+INSERT INTO `item_size` VALUES (4,12,4,4,1476091421,1476365607),(20,20,2,2211,1476172407,1476365437),(21,21,1,2,1476172407,1476365437),(22,22,4,1,1476173196,1476174694),(23,22,1,1,1476173196,1476174694),(24,23,2,1,1476173196,1476174694),(25,23,1,11,1476173196,1476174694),(26,23,4,111,1476173196,1476174694),(29,24,2,1,1476174903,1476175645),(31,25,2,2,1476174903,1476175645),(32,25,3,2,1476174929,1476175645),(39,28,2,1,1476184071,1476342804),(40,28,1,11,1476184071,1476342804),(41,28,3,11,1476184071,1476342804),(51,21,2,22333,1476195056,1476365437),(52,21,3,2,1476195056,1476365437),(53,31,1,44,1476339965,1476339965),(54,31,3,44,1476339965,1476339965),(60,28,7,111,1476342804,1476342804),(63,33,1,NULL,1477058209,1477058209),(95,79,1,1,1477298761,1477298761),(96,79,2,2,1477298761,1477298761),(97,79,3,3,1477298761,1477298761),(98,80,1,333,1477299559,1477299559),(147,82,1,0,1477403229,1477403236),(148,82,8,0,1477403236,1477403236),(159,88,2,1,1477480984,1477480984),(160,88,1,2,1477480984,1477480984),(161,89,2,1,1477481298,1477481298),(177,100,8,1,1477489230,1477494085),(179,100,1,11,1477494078,1477494085);
 /*!40000 ALTER TABLE `item_size` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -371,14 +372,14 @@ CREATE TABLE `order` (
   `email` varchar(128) DEFAULT NULL,
   `delivery_date` date DEFAULT NULL,
   `coupon_id` int(11) unsigned DEFAULT NULL,
-  `status_id` tinyint(1) unsigned DEFAULT '1',
+  `status` tinyint(1) unsigned DEFAULT '1',
   `created_at` int(11) unsigned DEFAULT NULL,
   `updated_at` int(11) unsigned DEFAULT NULL,
   `sort_by` int(11) DEFAULT NULL,
   `value` text COMMENT 'Serialized cart data',
   `total_cost` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -387,7 +388,7 @@ CREATE TABLE `order` (
 
 LOCK TABLES `order` WRITE;
 /*!40000 ALTER TABLE `order` DISABLE KEYS */;
-INSERT INTO `order` VALUES (1,'Егор',NULL,'Украина',NULL,NULL,NULL,NULL,NULL,'0981111111',NULL,NULL,NULL,0,1476272326,1476272326,NULL,NULL,NULL),(20,'Егор','','Украина','','Киев','ул. Пушкина 12б, 123','','','0981111111','yehor86@mail.ru','2016-10-21',NULL,1,1476958844,1476958844,NULL,'a:3:{s:32:\"a341bc5744f7aad76fd9a84e52cd6079\";O:33:\"common\\models\\ProductCartPosition\":5:{s:2:\"id\";i:10;s:4:\"size\";s:1:\"2\";s:5:\"color\";s:1:\"2\";s:11:\"\0*\0_product\";O:21:\"common\\models\\Product\":9:{s:36:\"\0yii\\db\\BaseActiveRecord\0_attributes\";a:15:{s:2:\"id\";i:10;s:4:\"name\";s:4:\"Polo\";s:11:\"description\";s:13:\"<p>dsfdsf</p>\";s:8:\"brand_id\";i:1;s:8:\"video_id\";i:0;s:11:\"category_id\";i:1;s:18:\"stock_keeping_unit\";s:6:\"123222\";s:4:\"slug\";s:7:\"polo222\";s:5:\"price\";s:6:\"111.00\";s:14:\"discount_price\";s:6:\"220.00\";s:10:\"created_at\";i:23432;s:10:\"updated_at\";i:1476101274;s:9:\"published\";s:1:\"1\";s:7:\"sort_by\";i:0;s:6:\"amount\";N;}s:39:\"\0yii\\db\\BaseActiveRecord\0_oldAttributes\";a:15:{s:2:\"id\";i:10;s:4:\"name\";s:4:\"Polo\";s:11:\"description\";s:13:\"<p>dsfdsf</p>\";s:8:\"brand_id\";i:1;s:8:\"video_id\";i:0;s:11:\"category_id\";i:1;s:18:\"stock_keeping_unit\";s:6:\"123222\";s:4:\"slug\";s:7:\"polo222\";s:5:\"price\";s:6:\"111.00\";s:14:\"discount_price\";s:6:\"220.00\";s:10:\"created_at\";i:23432;s:10:\"updated_at\";i:1476101274;s:9:\"published\";s:1:\"1\";s:7:\"sort_by\";i:0;s:6:\"amount\";N;}s:33:\"\0yii\\db\\BaseActiveRecord\0_related\";a:0:{}s:23:\"\0yii\\base\\Model\0_errors\";N;s:27:\"\0yii\\base\\Model\0_validators\";N;s:25:\"\0yii\\base\\Model\0_scenario\";s:7:\"default\";s:27:\"\0yii\\base\\Component\0_events\";a:5:{s:12:\"beforeInsert\";a:1:{i:0;a:2:{i:0;a:2:{i:0;O:31:\"yii\\behaviors\\TimestampBehavior\":6:{s:18:\"createdAtAttribute\";s:10:\"created_at\";s:18:\"updatedAtAttribute\";s:10:\"updated_at\";s:5:\"value\";N;s:10:\"attributes\";a:2:{s:12:\"beforeInsert\";a:2:{i:0;s:10:\"created_at\";i:1;s:10:\"updated_at\";}s:12:\"beforeUpdate\";a:1:{i:0;s:10:\"updated_at\";}}s:17:\"skipUpdateOnClean\";b:1;s:5:\"owner\";r:6;}i:1;s:18:\"evaluateAttributes\";}i:1;N;}}s:12:\"beforeUpdate\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:47;i:1;s:18:\"evaluateAttributes\";}i:1;N;}}s:11:\"afterInsert\";a:1:{i:0;a:2:{i:0;a:2:{i:0;O:27:\"common\\behavior\\SeoBehavior\":2:{s:35:\"\0common\\behavior\\SeoBehavior\0_model\";N;s:5:\"owner\";r:6;}i:1;s:11:\"afterInsert\";}i:1;N;}}s:11:\"afterUpdate\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:70;i:1;s:11:\"afterUpdate\";}i:1;N;}}s:11:\"afterDelete\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:70;i:1;s:11:\"afterDelete\";}i:1;N;}}}s:30:\"\0yii\\base\\Component\0_behaviors\";a:2:{s:9:\"timestamp\";r:47;s:11:\"seoBehavior\";r:70;}s:12:\"\0*\0_quantity\";N;}s:8:\"quantity\";s:1:\"1\";}s:32:\"f7112b9a7e2764cd339bb96e0998d97a\";O:33:\"common\\models\\ProductCartPosition\":5:{s:2:\"id\";i:11;s:4:\"size\";s:1:\"4\";s:5:\"color\";s:1:\"3\";s:11:\"\0*\0_product\";O:21:\"common\\models\\Product\":9:{s:36:\"\0yii\\db\\BaseActiveRecord\0_attributes\";a:15:{s:2:\"id\";i:11;s:4:\"name\";s:7:\"T-shirt\";s:11:\"description\";s:13:\"<p>asdsad</p>\";s:8:\"brand_id\";i:1;s:8:\"video_id\";i:0;s:11:\"category_id\";i:2;s:18:\"stock_keeping_unit\";s:5:\"27132\";s:4:\"slug\";s:7:\"t_shirt\";s:5:\"price\";s:7:\"3224.00\";s:14:\"discount_price\";s:6:\"123.00\";s:10:\"created_at\";i:234324;s:10:\"updated_at\";i:1475654949;s:9:\"published\";s:1:\"1\";s:7:\"sort_by\";i:1;s:6:\"amount\";N;}s:39:\"\0yii\\db\\BaseActiveRecord\0_oldAttributes\";a:15:{s:2:\"id\";i:11;s:4:\"name\";s:7:\"T-shirt\";s:11:\"description\";s:13:\"<p>asdsad</p>\";s:8:\"brand_id\";i:1;s:8:\"video_id\";i:0;s:11:\"category_id\";i:2;s:18:\"stock_keeping_unit\";s:5:\"27132\";s:4:\"slug\";s:7:\"t_shirt\";s:5:\"price\";s:7:\"3224.00\";s:14:\"discount_price\";s:6:\"123.00\";s:10:\"created_at\";i:234324;s:10:\"updated_at\";i:1475654949;s:9:\"published\";s:1:\"1\";s:7:\"sort_by\";i:1;s:6:\"amount\";N;}s:33:\"\0yii\\db\\BaseActiveRecord\0_related\";a:0:{}s:23:\"\0yii\\base\\Model\0_errors\";N;s:27:\"\0yii\\base\\Model\0_validators\";N;s:25:\"\0yii\\base\\Model\0_scenario\";s:7:\"default\";s:27:\"\0yii\\base\\Component\0_events\";a:5:{s:12:\"beforeInsert\";a:1:{i:0;a:2:{i:0;a:2:{i:0;O:31:\"yii\\behaviors\\TimestampBehavior\":6:{s:18:\"createdAtAttribute\";s:10:\"created_at\";s:18:\"updatedAtAttribute\";s:10:\"updated_at\";s:5:\"value\";N;s:10:\"attributes\";a:2:{s:12:\"beforeInsert\";a:2:{i:0;s:10:\"created_at\";i:1;s:10:\"updated_at\";}s:12:\"beforeUpdate\";a:1:{i:0;s:10:\"updated_at\";}}s:17:\"skipUpdateOnClean\";b:1;s:5:\"owner\";r:96;}i:1;s:18:\"evaluateAttributes\";}i:1;N;}}s:12:\"beforeUpdate\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:137;i:1;s:18:\"evaluateAttributes\";}i:1;N;}}s:11:\"afterInsert\";a:1:{i:0;a:2:{i:0;a:2:{i:0;O:27:\"common\\behavior\\SeoBehavior\":2:{s:35:\"\0common\\behavior\\SeoBehavior\0_model\";N;s:5:\"owner\";r:96;}i:1;s:11:\"afterInsert\";}i:1;N;}}s:11:\"afterUpdate\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:160;i:1;s:11:\"afterUpdate\";}i:1;N;}}s:11:\"afterDelete\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:160;i:1;s:11:\"afterDelete\";}i:1;N;}}}s:30:\"\0yii\\base\\Component\0_behaviors\";a:2:{s:9:\"timestamp\";r:137;s:11:\"seoBehavior\";r:160;}s:12:\"\0*\0_quantity\";N;}s:8:\"quantity\";s:1:\"3\";}s:32:\"ab0fd07647a72b2c6ab3267576eb6455\";O:33:\"common\\models\\ProductCartPosition\":5:{s:2:\"id\";i:52;s:4:\"size\";s:1:\"1\";s:5:\"color\";s:1:\"2\";s:11:\"\0*\0_product\";O:21:\"common\\models\\Product\":9:{s:36:\"\0yii\\db\\BaseActiveRecord\0_attributes\";a:15:{s:2:\"id\";i:52;s:4:\"name\";s:31:\"НаименованиеProduct\";s:11:\"description\";s:14:\"<p>asdsads</p>\";s:8:\"brand_id\";i:1;s:8:\"video_id\";N;s:11:\"category_id\";i:1;s:18:\"stock_keeping_unit\";s:8:\"27132aSA\";s:4:\"slug\";s:3:\"asA\";s:5:\"price\";s:7:\"3224.00\";s:14:\"discount_price\";s:4:\"0.00\";s:10:\"created_at\";i:1476339943;s:10:\"updated_at\";i:1476339943;s:9:\"published\";s:1:\"0\";s:7:\"sort_by\";N;s:6:\"amount\";N;}s:39:\"\0yii\\db\\BaseActiveRecord\0_oldAttributes\";a:15:{s:2:\"id\";i:52;s:4:\"name\";s:31:\"НаименованиеProduct\";s:11:\"description\";s:14:\"<p>asdsads</p>\";s:8:\"brand_id\";i:1;s:8:\"video_id\";N;s:11:\"category_id\";i:1;s:18:\"stock_keeping_unit\";s:8:\"27132aSA\";s:4:\"slug\";s:3:\"asA\";s:5:\"price\";s:7:\"3224.00\";s:14:\"discount_price\";s:4:\"0.00\";s:10:\"created_at\";i:1476339943;s:10:\"updated_at\";i:1476339943;s:9:\"published\";s:1:\"0\";s:7:\"sort_by\";N;s:6:\"amount\";N;}s:33:\"\0yii\\db\\BaseActiveRecord\0_related\";a:0:{}s:23:\"\0yii\\base\\Model\0_errors\";N;s:27:\"\0yii\\base\\Model\0_validators\";N;s:25:\"\0yii\\base\\Model\0_scenario\";s:7:\"default\";s:27:\"\0yii\\base\\Component\0_events\";a:5:{s:12:\"beforeInsert\";a:1:{i:0;a:2:{i:0;a:2:{i:0;O:31:\"yii\\behaviors\\TimestampBehavior\":6:{s:18:\"createdAtAttribute\";s:10:\"created_at\";s:18:\"updatedAtAttribute\";s:10:\"updated_at\";s:5:\"value\";N;s:10:\"attributes\";a:2:{s:12:\"beforeInsert\";a:2:{i:0;s:10:\"created_at\";i:1;s:10:\"updated_at\";}s:12:\"beforeUpdate\";a:1:{i:0;s:10:\"updated_at\";}}s:17:\"skipUpdateOnClean\";b:1;s:5:\"owner\";r:186;}i:1;s:18:\"evaluateAttributes\";}i:1;N;}}s:12:\"beforeUpdate\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:227;i:1;s:18:\"evaluateAttributes\";}i:1;N;}}s:11:\"afterInsert\";a:1:{i:0;a:2:{i:0;a:2:{i:0;O:27:\"common\\behavior\\SeoBehavior\":2:{s:35:\"\0common\\behavior\\SeoBehavior\0_model\";N;s:5:\"owner\";r:186;}i:1;s:11:\"afterInsert\";}i:1;N;}}s:11:\"afterUpdate\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:250;i:1;s:11:\"afterUpdate\";}i:1;N;}}s:11:\"afterDelete\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:250;i:1;s:11:\"afterDelete\";}i:1;N;}}}s:30:\"\0yii\\base\\Component\0_behaviors\";a:2:{s:9:\"timestamp\";r:227;s:11:\"seoBehavior\";r:250;}s:12:\"\0*\0_quantity\";N;}s:8:\"quantity\";s:1:\"1\";}}',NULL),(21,'Егор','','Украина','','Киев','ул. Пушкина 12б, 123','','','0981111111','yehor86@mail.ru','2016-10-21',1,1,1476961747,1476961747,NULL,'a:3:{s:32:\"a341bc5744f7aad76fd9a84e52cd6079\";O:33:\"common\\models\\ProductCartPosition\":5:{s:2:\"id\";i:10;s:4:\"size\";s:1:\"2\";s:5:\"color\";s:1:\"2\";s:11:\"\0*\0_product\";O:21:\"common\\models\\Product\":9:{s:36:\"\0yii\\db\\BaseActiveRecord\0_attributes\";a:15:{s:2:\"id\";i:10;s:4:\"name\";s:4:\"Polo\";s:11:\"description\";s:13:\"<p>dsfdsf</p>\";s:8:\"brand_id\";i:1;s:8:\"video_id\";i:0;s:11:\"category_id\";i:1;s:18:\"stock_keeping_unit\";s:6:\"123222\";s:4:\"slug\";s:7:\"polo222\";s:5:\"price\";s:6:\"111.00\";s:14:\"discount_price\";s:6:\"220.00\";s:10:\"created_at\";i:23432;s:10:\"updated_at\";i:1476101274;s:9:\"published\";s:1:\"1\";s:7:\"sort_by\";i:0;s:6:\"amount\";N;}s:39:\"\0yii\\db\\BaseActiveRecord\0_oldAttributes\";a:15:{s:2:\"id\";i:10;s:4:\"name\";s:4:\"Polo\";s:11:\"description\";s:13:\"<p>dsfdsf</p>\";s:8:\"brand_id\";i:1;s:8:\"video_id\";i:0;s:11:\"category_id\";i:1;s:18:\"stock_keeping_unit\";s:6:\"123222\";s:4:\"slug\";s:7:\"polo222\";s:5:\"price\";s:6:\"111.00\";s:14:\"discount_price\";s:6:\"220.00\";s:10:\"created_at\";i:23432;s:10:\"updated_at\";i:1476101274;s:9:\"published\";s:1:\"1\";s:7:\"sort_by\";i:0;s:6:\"amount\";N;}s:33:\"\0yii\\db\\BaseActiveRecord\0_related\";a:0:{}s:23:\"\0yii\\base\\Model\0_errors\";N;s:27:\"\0yii\\base\\Model\0_validators\";N;s:25:\"\0yii\\base\\Model\0_scenario\";s:7:\"default\";s:27:\"\0yii\\base\\Component\0_events\";a:5:{s:12:\"beforeInsert\";a:1:{i:0;a:2:{i:0;a:2:{i:0;O:31:\"yii\\behaviors\\TimestampBehavior\":6:{s:18:\"createdAtAttribute\";s:10:\"created_at\";s:18:\"updatedAtAttribute\";s:10:\"updated_at\";s:5:\"value\";N;s:10:\"attributes\";a:2:{s:12:\"beforeInsert\";a:2:{i:0;s:10:\"created_at\";i:1;s:10:\"updated_at\";}s:12:\"beforeUpdate\";a:1:{i:0;s:10:\"updated_at\";}}s:17:\"skipUpdateOnClean\";b:1;s:5:\"owner\";r:6;}i:1;s:18:\"evaluateAttributes\";}i:1;N;}}s:12:\"beforeUpdate\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:47;i:1;s:18:\"evaluateAttributes\";}i:1;N;}}s:11:\"afterInsert\";a:1:{i:0;a:2:{i:0;a:2:{i:0;O:27:\"common\\behavior\\SeoBehavior\":2:{s:35:\"\0common\\behavior\\SeoBehavior\0_model\";N;s:5:\"owner\";r:6;}i:1;s:11:\"afterInsert\";}i:1;N;}}s:11:\"afterUpdate\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:70;i:1;s:11:\"afterUpdate\";}i:1;N;}}s:11:\"afterDelete\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:70;i:1;s:11:\"afterDelete\";}i:1;N;}}}s:30:\"\0yii\\base\\Component\0_behaviors\";a:2:{s:9:\"timestamp\";r:47;s:11:\"seoBehavior\";r:70;}s:12:\"\0*\0_quantity\";N;}s:8:\"quantity\";s:1:\"1\";}s:32:\"f7112b9a7e2764cd339bb96e0998d97a\";O:33:\"common\\models\\ProductCartPosition\":5:{s:2:\"id\";i:11;s:4:\"size\";s:1:\"4\";s:5:\"color\";s:1:\"3\";s:11:\"\0*\0_product\";O:21:\"common\\models\\Product\":9:{s:36:\"\0yii\\db\\BaseActiveRecord\0_attributes\";a:15:{s:2:\"id\";i:11;s:4:\"name\";s:7:\"T-shirt\";s:11:\"description\";s:13:\"<p>asdsad</p>\";s:8:\"brand_id\";i:1;s:8:\"video_id\";i:0;s:11:\"category_id\";i:2;s:18:\"stock_keeping_unit\";s:5:\"27132\";s:4:\"slug\";s:7:\"t_shirt\";s:5:\"price\";s:7:\"3224.00\";s:14:\"discount_price\";s:6:\"123.00\";s:10:\"created_at\";i:234324;s:10:\"updated_at\";i:1475654949;s:9:\"published\";s:1:\"1\";s:7:\"sort_by\";i:1;s:6:\"amount\";N;}s:39:\"\0yii\\db\\BaseActiveRecord\0_oldAttributes\";a:15:{s:2:\"id\";i:11;s:4:\"name\";s:7:\"T-shirt\";s:11:\"description\";s:13:\"<p>asdsad</p>\";s:8:\"brand_id\";i:1;s:8:\"video_id\";i:0;s:11:\"category_id\";i:2;s:18:\"stock_keeping_unit\";s:5:\"27132\";s:4:\"slug\";s:7:\"t_shirt\";s:5:\"price\";s:7:\"3224.00\";s:14:\"discount_price\";s:6:\"123.00\";s:10:\"created_at\";i:234324;s:10:\"updated_at\";i:1475654949;s:9:\"published\";s:1:\"1\";s:7:\"sort_by\";i:1;s:6:\"amount\";N;}s:33:\"\0yii\\db\\BaseActiveRecord\0_related\";a:0:{}s:23:\"\0yii\\base\\Model\0_errors\";N;s:27:\"\0yii\\base\\Model\0_validators\";N;s:25:\"\0yii\\base\\Model\0_scenario\";s:7:\"default\";s:27:\"\0yii\\base\\Component\0_events\";a:5:{s:12:\"beforeInsert\";a:1:{i:0;a:2:{i:0;a:2:{i:0;O:31:\"yii\\behaviors\\TimestampBehavior\":6:{s:18:\"createdAtAttribute\";s:10:\"created_at\";s:18:\"updatedAtAttribute\";s:10:\"updated_at\";s:5:\"value\";N;s:10:\"attributes\";a:2:{s:12:\"beforeInsert\";a:2:{i:0;s:10:\"created_at\";i:1;s:10:\"updated_at\";}s:12:\"beforeUpdate\";a:1:{i:0;s:10:\"updated_at\";}}s:17:\"skipUpdateOnClean\";b:1;s:5:\"owner\";r:96;}i:1;s:18:\"evaluateAttributes\";}i:1;N;}}s:12:\"beforeUpdate\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:137;i:1;s:18:\"evaluateAttributes\";}i:1;N;}}s:11:\"afterInsert\";a:1:{i:0;a:2:{i:0;a:2:{i:0;O:27:\"common\\behavior\\SeoBehavior\":2:{s:35:\"\0common\\behavior\\SeoBehavior\0_model\";N;s:5:\"owner\";r:96;}i:1;s:11:\"afterInsert\";}i:1;N;}}s:11:\"afterUpdate\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:160;i:1;s:11:\"afterUpdate\";}i:1;N;}}s:11:\"afterDelete\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:160;i:1;s:11:\"afterDelete\";}i:1;N;}}}s:30:\"\0yii\\base\\Component\0_behaviors\";a:2:{s:9:\"timestamp\";r:137;s:11:\"seoBehavior\";r:160;}s:12:\"\0*\0_quantity\";N;}s:8:\"quantity\";s:1:\"3\";}s:32:\"ab0fd07647a72b2c6ab3267576eb6455\";O:33:\"common\\models\\ProductCartPosition\":5:{s:2:\"id\";i:52;s:4:\"size\";s:1:\"1\";s:5:\"color\";s:1:\"2\";s:11:\"\0*\0_product\";O:21:\"common\\models\\Product\":9:{s:36:\"\0yii\\db\\BaseActiveRecord\0_attributes\";a:15:{s:2:\"id\";i:52;s:4:\"name\";s:31:\"НаименованиеProduct\";s:11:\"description\";s:14:\"<p>asdsads</p>\";s:8:\"brand_id\";i:1;s:8:\"video_id\";N;s:11:\"category_id\";i:1;s:18:\"stock_keeping_unit\";s:8:\"27132aSA\";s:4:\"slug\";s:3:\"asA\";s:5:\"price\";s:7:\"3224.00\";s:14:\"discount_price\";s:4:\"0.00\";s:10:\"created_at\";i:1476339943;s:10:\"updated_at\";i:1476339943;s:9:\"published\";s:1:\"0\";s:7:\"sort_by\";N;s:6:\"amount\";N;}s:39:\"\0yii\\db\\BaseActiveRecord\0_oldAttributes\";a:15:{s:2:\"id\";i:52;s:4:\"name\";s:31:\"НаименованиеProduct\";s:11:\"description\";s:14:\"<p>asdsads</p>\";s:8:\"brand_id\";i:1;s:8:\"video_id\";N;s:11:\"category_id\";i:1;s:18:\"stock_keeping_unit\";s:8:\"27132aSA\";s:4:\"slug\";s:3:\"asA\";s:5:\"price\";s:7:\"3224.00\";s:14:\"discount_price\";s:4:\"0.00\";s:10:\"created_at\";i:1476339943;s:10:\"updated_at\";i:1476339943;s:9:\"published\";s:1:\"0\";s:7:\"sort_by\";N;s:6:\"amount\";N;}s:33:\"\0yii\\db\\BaseActiveRecord\0_related\";a:0:{}s:23:\"\0yii\\base\\Model\0_errors\";N;s:27:\"\0yii\\base\\Model\0_validators\";N;s:25:\"\0yii\\base\\Model\0_scenario\";s:7:\"default\";s:27:\"\0yii\\base\\Component\0_events\";a:5:{s:12:\"beforeInsert\";a:1:{i:0;a:2:{i:0;a:2:{i:0;O:31:\"yii\\behaviors\\TimestampBehavior\":6:{s:18:\"createdAtAttribute\";s:10:\"created_at\";s:18:\"updatedAtAttribute\";s:10:\"updated_at\";s:5:\"value\";N;s:10:\"attributes\";a:2:{s:12:\"beforeInsert\";a:2:{i:0;s:10:\"created_at\";i:1;s:10:\"updated_at\";}s:12:\"beforeUpdate\";a:1:{i:0;s:10:\"updated_at\";}}s:17:\"skipUpdateOnClean\";b:1;s:5:\"owner\";r:186;}i:1;s:18:\"evaluateAttributes\";}i:1;N;}}s:12:\"beforeUpdate\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:227;i:1;s:18:\"evaluateAttributes\";}i:1;N;}}s:11:\"afterInsert\";a:1:{i:0;a:2:{i:0;a:2:{i:0;O:27:\"common\\behavior\\SeoBehavior\":2:{s:35:\"\0common\\behavior\\SeoBehavior\0_model\";N;s:5:\"owner\";r:186;}i:1;s:11:\"afterInsert\";}i:1;N;}}s:11:\"afterUpdate\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:250;i:1;s:11:\"afterUpdate\";}i:1;N;}}s:11:\"afterDelete\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:250;i:1;s:11:\"afterDelete\";}i:1;N;}}}s:30:\"\0yii\\base\\Component\0_behaviors\";a:2:{s:9:\"timestamp\";r:227;s:11:\"seoBehavior\";r:250;}s:12:\"\0*\0_quantity\";N;}s:8:\"quantity\";s:1:\"1\";}}',NULL),(36,'Егор33','','Украина','','Киев','ул. Пушкина 12б, 2','','','0981111111','yehor86@mail.ru','2016-10-22',1,1,1476968892,1476968892,NULL,'a:2:{s:32:\"c835612d70a229edb922244676602fa6\";O:33:\"common\\models\\ProductCartPosition\":5:{s:2:\"id\";i:49;s:4:\"size\";s:1:\"2\";s:5:\"color\";s:1:\"2\";s:11:\"\0*\0_product\";O:21:\"common\\models\\Product\":9:{s:36:\"\0yii\\db\\BaseActiveRecord\0_attributes\";a:15:{s:2:\"id\";i:49;s:4:\"name\";s:24:\"Наименование\";s:11:\"description\";s:48:\"<p><strong>Наименование</strong></p>\";s:8:\"brand_id\";i:1;s:8:\"video_id\";N;s:11:\"category_id\";i:2;s:18:\"stock_keeping_unit\";s:6:\"2713dd\";s:4:\"slug\";s:1:\"v\";s:5:\"price\";s:7:\"3224.00\";s:14:\"discount_price\";s:6:\"234.00\";s:10:\"created_at\";i:1476103505;s:10:\"updated_at\";i:1476365453;s:9:\"published\";s:1:\"0\";s:7:\"sort_by\";N;s:6:\"amount\";N;}s:39:\"\0yii\\db\\BaseActiveRecord\0_oldAttributes\";a:15:{s:2:\"id\";i:49;s:4:\"name\";s:24:\"Наименование\";s:11:\"description\";s:48:\"<p><strong>Наименование</strong></p>\";s:8:\"brand_id\";i:1;s:8:\"video_id\";N;s:11:\"category_id\";i:2;s:18:\"stock_keeping_unit\";s:6:\"2713dd\";s:4:\"slug\";s:1:\"v\";s:5:\"price\";s:7:\"3224.00\";s:14:\"discount_price\";s:6:\"234.00\";s:10:\"created_at\";i:1476103505;s:10:\"updated_at\";i:1476365453;s:9:\"published\";s:1:\"0\";s:7:\"sort_by\";N;s:6:\"amount\";N;}s:33:\"\0yii\\db\\BaseActiveRecord\0_related\";a:0:{}s:23:\"\0yii\\base\\Model\0_errors\";N;s:27:\"\0yii\\base\\Model\0_validators\";N;s:25:\"\0yii\\base\\Model\0_scenario\";s:7:\"default\";s:27:\"\0yii\\base\\Component\0_events\";a:5:{s:12:\"beforeInsert\";a:1:{i:0;a:2:{i:0;a:2:{i:0;O:31:\"yii\\behaviors\\TimestampBehavior\":6:{s:18:\"createdAtAttribute\";s:10:\"created_at\";s:18:\"updatedAtAttribute\";s:10:\"updated_at\";s:5:\"value\";N;s:10:\"attributes\";a:2:{s:12:\"beforeInsert\";a:2:{i:0;s:10:\"created_at\";i:1;s:10:\"updated_at\";}s:12:\"beforeUpdate\";a:1:{i:0;s:10:\"updated_at\";}}s:17:\"skipUpdateOnClean\";b:1;s:5:\"owner\";r:6;}i:1;s:18:\"evaluateAttributes\";}i:1;N;}}s:12:\"beforeUpdate\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:47;i:1;s:18:\"evaluateAttributes\";}i:1;N;}}s:11:\"afterInsert\";a:1:{i:0;a:2:{i:0;a:2:{i:0;O:27:\"common\\behavior\\SeoBehavior\":2:{s:35:\"\0common\\behavior\\SeoBehavior\0_model\";N;s:5:\"owner\";r:6;}i:1;s:11:\"afterInsert\";}i:1;N;}}s:11:\"afterUpdate\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:70;i:1;s:11:\"afterUpdate\";}i:1;N;}}s:11:\"afterDelete\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:70;i:1;s:11:\"afterDelete\";}i:1;N;}}}s:30:\"\0yii\\base\\Component\0_behaviors\";a:2:{s:9:\"timestamp\";r:47;s:11:\"seoBehavior\";r:70;}s:12:\"\0*\0_quantity\";N;}s:8:\"quantity\";s:1:\"1\";}s:32:\"582a7a14a12ed76341cf00e1f875f983\";O:33:\"common\\models\\ProductCartPosition\":5:{s:2:\"id\";i:50;s:4:\"size\";s:1:\"2\";s:5:\"color\";s:1:\"2\";s:11:\"\0*\0_product\";O:21:\"common\\models\\Product\":9:{s:36:\"\0yii\\db\\BaseActiveRecord\0_attributes\";a:15:{s:2:\"id\";i:50;s:4:\"name\";s:8:\"TestName\";s:11:\"description\";s:94:\"<p>TestName<strong>Описание</strong><span class=\"redactor-invisible-space\"></span></p>\";s:8:\"brand_id\";i:1;s:8:\"video_id\";N;s:11:\"category_id\";i:1;s:18:\"stock_keeping_unit\";s:14:\"Описани\";s:4:\"slug\";s:7:\"testsss\";s:5:\"price\";s:6:\"123.00\";s:14:\"discount_price\";s:6:\"234.00\";s:10:\"created_at\";i:1476184042;s:10:\"updated_at\";i:1476184042;s:9:\"published\";s:1:\"0\";s:7:\"sort_by\";N;s:6:\"amount\";N;}s:39:\"\0yii\\db\\BaseActiveRecord\0_oldAttributes\";a:15:{s:2:\"id\";i:50;s:4:\"name\";s:8:\"TestName\";s:11:\"description\";s:94:\"<p>TestName<strong>Описание</strong><span class=\"redactor-invisible-space\"></span></p>\";s:8:\"brand_id\";i:1;s:8:\"video_id\";N;s:11:\"category_id\";i:1;s:18:\"stock_keeping_unit\";s:14:\"Описани\";s:4:\"slug\";s:7:\"testsss\";s:5:\"price\";s:6:\"123.00\";s:14:\"discount_price\";s:6:\"234.00\";s:10:\"created_at\";i:1476184042;s:10:\"updated_at\";i:1476184042;s:9:\"published\";s:1:\"0\";s:7:\"sort_by\";N;s:6:\"amount\";N;}s:33:\"\0yii\\db\\BaseActiveRecord\0_related\";a:0:{}s:23:\"\0yii\\base\\Model\0_errors\";N;s:27:\"\0yii\\base\\Model\0_validators\";N;s:25:\"\0yii\\base\\Model\0_scenario\";s:7:\"default\";s:27:\"\0yii\\base\\Component\0_events\";a:5:{s:12:\"beforeInsert\";a:1:{i:0;a:2:{i:0;a:2:{i:0;O:31:\"yii\\behaviors\\TimestampBehavior\":6:{s:18:\"createdAtAttribute\";s:10:\"created_at\";s:18:\"updatedAtAttribute\";s:10:\"updated_at\";s:5:\"value\";N;s:10:\"attributes\";a:2:{s:12:\"beforeInsert\";a:2:{i:0;s:10:\"created_at\";i:1;s:10:\"updated_at\";}s:12:\"beforeUpdate\";a:1:{i:0;s:10:\"updated_at\";}}s:17:\"skipUpdateOnClean\";b:1;s:5:\"owner\";r:96;}i:1;s:18:\"evaluateAttributes\";}i:1;N;}}s:12:\"beforeUpdate\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:137;i:1;s:18:\"evaluateAttributes\";}i:1;N;}}s:11:\"afterInsert\";a:1:{i:0;a:2:{i:0;a:2:{i:0;O:27:\"common\\behavior\\SeoBehavior\":2:{s:35:\"\0common\\behavior\\SeoBehavior\0_model\";N;s:5:\"owner\";r:96;}i:1;s:11:\"afterInsert\";}i:1;N;}}s:11:\"afterUpdate\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:160;i:1;s:11:\"afterUpdate\";}i:1;N;}}s:11:\"afterDelete\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:160;i:1;s:11:\"afterDelete\";}i:1;N;}}}s:30:\"\0yii\\base\\Component\0_behaviors\";a:2:{s:9:\"timestamp\";r:137;s:11:\"seoBehavior\";r:160;}s:12:\"\0*\0_quantity\";N;}s:8:\"quantity\";s:1:\"2\";}}',702),(37,'Егор33','','','','Киев','ул. Пушкина 12б, 123','','','0982222222','qwe@mail.ru','2016-10-29',NULL,1,1476969286,1476969286,NULL,'a:1:{s:32:\"f7112b9a7e2764cd339bb96e0998d97a\";O:33:\"common\\models\\ProductCartPosition\":5:{s:2:\"id\";i:11;s:4:\"size\";s:1:\"4\";s:5:\"color\";s:1:\"3\";s:11:\"\0*\0_product\";O:21:\"common\\models\\Product\":9:{s:36:\"\0yii\\db\\BaseActiveRecord\0_attributes\";a:15:{s:2:\"id\";i:11;s:4:\"name\";s:7:\"T-shirt\";s:11:\"description\";s:13:\"<p>asdsad</p>\";s:8:\"brand_id\";i:1;s:8:\"video_id\";i:0;s:11:\"category_id\";i:2;s:18:\"stock_keeping_unit\";s:5:\"27132\";s:4:\"slug\";s:7:\"t_shirt\";s:5:\"price\";s:7:\"3224.00\";s:14:\"discount_price\";s:6:\"123.00\";s:10:\"created_at\";i:234324;s:10:\"updated_at\";i:1475654949;s:9:\"published\";s:1:\"1\";s:7:\"sort_by\";i:1;s:6:\"amount\";N;}s:39:\"\0yii\\db\\BaseActiveRecord\0_oldAttributes\";a:15:{s:2:\"id\";i:11;s:4:\"name\";s:7:\"T-shirt\";s:11:\"description\";s:13:\"<p>asdsad</p>\";s:8:\"brand_id\";i:1;s:8:\"video_id\";i:0;s:11:\"category_id\";i:2;s:18:\"stock_keeping_unit\";s:5:\"27132\";s:4:\"slug\";s:7:\"t_shirt\";s:5:\"price\";s:7:\"3224.00\";s:14:\"discount_price\";s:6:\"123.00\";s:10:\"created_at\";i:234324;s:10:\"updated_at\";i:1475654949;s:9:\"published\";s:1:\"1\";s:7:\"sort_by\";i:1;s:6:\"amount\";N;}s:33:\"\0yii\\db\\BaseActiveRecord\0_related\";a:0:{}s:23:\"\0yii\\base\\Model\0_errors\";N;s:27:\"\0yii\\base\\Model\0_validators\";N;s:25:\"\0yii\\base\\Model\0_scenario\";s:7:\"default\";s:27:\"\0yii\\base\\Component\0_events\";a:5:{s:12:\"beforeInsert\";a:1:{i:0;a:2:{i:0;a:2:{i:0;O:31:\"yii\\behaviors\\TimestampBehavior\":6:{s:18:\"createdAtAttribute\";s:10:\"created_at\";s:18:\"updatedAtAttribute\";s:10:\"updated_at\";s:5:\"value\";N;s:10:\"attributes\";a:2:{s:12:\"beforeInsert\";a:2:{i:0;s:10:\"created_at\";i:1;s:10:\"updated_at\";}s:12:\"beforeUpdate\";a:1:{i:0;s:10:\"updated_at\";}}s:17:\"skipUpdateOnClean\";b:1;s:5:\"owner\";r:6;}i:1;s:18:\"evaluateAttributes\";}i:1;N;}}s:12:\"beforeUpdate\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:47;i:1;s:18:\"evaluateAttributes\";}i:1;N;}}s:11:\"afterInsert\";a:1:{i:0;a:2:{i:0;a:2:{i:0;O:27:\"common\\behavior\\SeoBehavior\":2:{s:35:\"\0common\\behavior\\SeoBehavior\0_model\";N;s:5:\"owner\";r:6;}i:1;s:11:\"afterInsert\";}i:1;N;}}s:11:\"afterUpdate\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:70;i:1;s:11:\"afterUpdate\";}i:1;N;}}s:11:\"afterDelete\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:70;i:1;s:11:\"afterDelete\";}i:1;N;}}}s:30:\"\0yii\\base\\Component\0_behaviors\";a:2:{s:9:\"timestamp\";r:47;s:11:\"seoBehavior\";r:70;}s:12:\"\0*\0_quantity\";N;}s:8:\"quantity\";s:1:\"1\";}}',123);
+INSERT INTO `order` VALUES (38,'Егор','','Украина','','Киев','ул. Пушкина 12б, 123','','','0981111111','qwe@mail.ru','2028-10-20',NULL,1,1477574496,1477574496,NULL,'a:1:{s:32:\"dbeba26caad9d604da10b7007f8109ba\";O:30:\"common\\models\\ItemCartPosition\":4:{s:2:\"id\";i:89;s:4:\"size\";s:1:\"2\";s:8:\"\0*\0_item\";O:18:\"common\\models\\Item\":9:{s:36:\"\0yii\\db\\BaseActiveRecord\0_attributes\";a:10:{s:2:\"id\";i:89;s:10:\"product_id\";i:83;s:8:\"color_id\";i:4;s:4:\"name\";s:10:\"Синий\";s:4:\"slug\";s:6:\"zxcxzc\";s:18:\"stock_keeping_unit\";s:5:\"zxccz\";s:5:\"price\";s:5:\"11.00\";s:14:\"discount_price\";s:5:\"11.00\";s:10:\"created_at\";i:1477481298;s:10:\"updated_at\";i:1477481298;}s:39:\"\0yii\\db\\BaseActiveRecord\0_oldAttributes\";a:10:{s:2:\"id\";i:89;s:10:\"product_id\";i:83;s:8:\"color_id\";i:4;s:4:\"name\";s:10:\"Синий\";s:4:\"slug\";s:6:\"zxcxzc\";s:18:\"stock_keeping_unit\";s:5:\"zxccz\";s:5:\"price\";s:5:\"11.00\";s:14:\"discount_price\";s:5:\"11.00\";s:10:\"created_at\";i:1477481298;s:10:\"updated_at\";i:1477481298;}s:33:\"\0yii\\db\\BaseActiveRecord\0_related\";a:0:{}s:23:\"\0yii\\base\\Model\0_errors\";N;s:27:\"\0yii\\base\\Model\0_validators\";N;s:25:\"\0yii\\base\\Model\0_scenario\";s:7:\"default\";s:27:\"\0yii\\base\\Component\0_events\";a:5:{s:12:\"beforeInsert\";a:1:{i:0;a:2:{i:0;a:2:{i:0;O:31:\"yii\\behaviors\\TimestampBehavior\":6:{s:18:\"createdAtAttribute\";s:10:\"created_at\";s:18:\"updatedAtAttribute\";s:10:\"updated_at\";s:5:\"value\";N;s:10:\"attributes\";a:2:{s:12:\"beforeInsert\";a:2:{i:0;s:10:\"created_at\";i:1;s:10:\"updated_at\";}s:12:\"beforeUpdate\";a:1:{i:0;s:10:\"updated_at\";}}s:17:\"skipUpdateOnClean\";b:1;s:5:\"owner\";r:5;}i:1;s:18:\"evaluateAttributes\";}i:1;N;}}s:12:\"beforeUpdate\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:36;i:1;s:18:\"evaluateAttributes\";}i:1;N;}}s:11:\"afterInsert\";a:1:{i:0;a:2:{i:0;a:2:{i:0;O:27:\"common\\behavior\\SeoBehavior\":2:{s:35:\"\0common\\behavior\\SeoBehavior\0_model\";N;s:5:\"owner\";r:5;}i:1;s:11:\"afterInsert\";}i:1;N;}}s:11:\"afterUpdate\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:59;i:1;s:11:\"afterUpdate\";}i:1;N;}}s:11:\"afterDelete\";a:1:{i:0;a:2:{i:0;a:2:{i:0;r:59;i:1;s:11:\"afterDelete\";}i:1;N;}}}s:30:\"\0yii\\base\\Component\0_behaviors\";a:2:{s:9:\"timestamp\";r:36;s:11:\"seoBehavior\";r:59;}s:12:\"\0*\0_quantity\";N;}s:8:\"quantity\";s:1:\"1\";}}',11);
 /*!40000 ALTER TABLE `order` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -499,7 +500,7 @@ CREATE TABLE `product` (
   KEY `fk_product_category_id_idx` (`category_id`),
   CONSTRAINT `fk_product_brand_id` FOREIGN KEY (`brand_id`) REFERENCES `brand` (`id`),
   CONSTRAINT `fk_product_category_id` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=83 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -508,7 +509,7 @@ CREATE TABLE `product` (
 
 LOCK TABLES `product` WRITE;
 /*!40000 ALTER TABLE `product` DISABLE KEYS */;
-INSERT INTO `product` VALUES (10,'Polo','<p>dsfdsf</p>',1,0,1,23432,1476101274,'1',2),(11,'T-shirt','<p>asdsad</p>',1,0,2,234324,1475654949,'1',0),(27,'Polo2','<p><strong>Описание</strong></p><p>Polo2</p>',1,NULL,1,1475590260,1476365474,'1',3),(49,'Наименование','<p><strong>Наименование</strong></p>',1,NULL,2,1476103505,1476365453,'0',4),(50,'TestName','<p>TestName<strong>Описание</strong><span class=\"redactor-invisible-space\"></span></p>',1,NULL,1,1476184042,1476184042,'0',5),(51,'22','<p><strong>Описаниеwww</strong></p>',1,29,1,1476264530,1476266403,'0',6),(52,'НаименованиеProduct','<p>asdsads</p>',1,NULL,1,1476339943,1476339943,'0',1),(80,'New product','New product Описание',1,NULL,2,1477041396,1477041396,'1',NULL),(81,'New product','New product Описание',1,NULL,2,1477041480,1477041480,'1',NULL),(82,'New product','New product Описание',1,30,2,1477041501,1477041501,'1',NULL);
+INSERT INTO `product` VALUES (10,'Polo','<p>dsfdsf</p>',1,0,1,23432,1476101274,'1',2),(11,'T-shirt','<p>asdsad</p>',1,0,2,234324,1475654949,'1',0),(27,'Polo2','<p><strong>Описание</strong></p><p>Polo2</p>',1,NULL,1,1475590260,1476365474,'1',3),(49,'Наименование','<p><strong>Наименование</strong></p>',1,NULL,2,1476103505,1476365453,'0',4),(50,'TestName','<p>TestName<strong>Описание</strong><span class=\"redactor-invisible-space\"></span></p>',1,NULL,1,1476184042,1476184042,'0',5),(51,'22','<p><strong>Описаниеwww</strong></p>',1,29,1,1476264530,1476266403,'0',6),(52,'НаименованиеProduct','<p>asdsads</p>',1,NULL,1,1476339943,1476339943,'0',1),(80,'New product2222','New product Описа222',1,31,2,1477041396,1477310951,'0',NULL),(81,'New product','New produc333',1,32,2,1477041480,1477310984,'1',NULL),(83,'New product','Описание',1,33,2,1477311241,1477311241,'0',NULL);
 /*!40000 ALTER TABLE `product` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -528,7 +529,7 @@ CREATE TABLE `seo` (
   `class_item_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `class_name_goods_id` (`class_name`,`class_item_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=83 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -537,7 +538,7 @@ CREATE TABLE `seo` (
 
 LOCK TABLES `seo` WRITE;
 /*!40000 ALTER TABLE `seo` DISABLE KEYS */;
-INSERT INTO `seo` VALUES (1,'common\\models\\Page','seo Title',' seo Description','seo Keyword',2),(4,'common\\models\\Page','O нас','about us Description','about us',1),(6,'common\\models\\Product','seo Title','Description seo','seo Keyword',10),(8,'common\\models\\Product','seo Title112233','Description112233','seo Keyword112233',27),(11,'common\\models\\Category','seo Title','Description','seo Keyword',1),(13,'common\\models\\Category','seo Titled','Descriptiond','Keywordd',4),(17,'common\\models\\Product','seo Title','Цена','Keyword',49),(18,'common\\models\\Product','TitlePageTest2','Description','seo Keyword',50),(19,'common\\models\\Product','seo Title','ffffff','KeywordTitlePageTest2',51),(20,'common\\models\\Product','seo Title','Asasa','Keyword',52),(21,'common\\models\\Item','SEO Title','SEO Description','SEO Keyword',32);
+INSERT INTO `seo` VALUES (1,'common\\models\\Page','seo Title',' seo Description','seo Keyword',2),(4,'common\\models\\Page','O нас','about us Description','about us',1),(6,'common\\models\\Product','seo Title','Description seo','seo Keyword',10),(8,'common\\models\\Product','seo Title112233','Description112233','seo Keyword112233',27),(11,'common\\models\\Category','seo Title','Description','seo Keyword',1),(13,'common\\models\\Category','seo Titled','Descriptiond','Keywordd',4),(17,'common\\models\\Product','seo Title','Цена','Keyword',49),(18,'common\\models\\Product','TitlePageTest2','Description','seo Keyword',50),(19,'common\\models\\Product','seo Title','ffffff','KeywordTitlePageTest2',51),(20,'common\\models\\Product','seo Title','Asasa','Keyword',52),(21,'common\\models\\Item','SEO Title','SEO Description','SEO Keyword',32),(61,'common\\models\\Item','SEO Title','SEO Descriptio','SEO Keyword',78),(62,'common\\models\\Item','SEO Title','SEO Descriptio','SEO Keyword',79),(63,'common\\models\\Item','seo Title','Description','Keyword',80),(64,'common\\models\\Item','222111','Description222','seo Keyword222',82),(70,'common\\models\\Item','seo Title','SEO Description','seo Keyword',88),(71,'common\\models\\Item','TitlePageTest2','SEO Description','seo Keyword',89),(82,'common\\models\\Item','seo Title','SEO Description','Keyword',100);
 /*!40000 ALTER TABLE `seo` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -706,7 +707,7 @@ CREATE TABLE `video_storage` (
   `created_at` int(11) unsigned NOT NULL,
   `updated_at` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -715,7 +716,7 @@ CREATE TABLE `video_storage` (
 
 LOCK TABLES `video_storage` WRITE;
 /*!40000 ALTER TABLE `video_storage` DISABLE KEYS */;
-INSERT INTO `video_storage` VALUES (25,'video1-ac60022786.mp4','common\\models\\Product',30,'/data/video1-a9049cbc6f.mp4',1475753095,1475753095),(26,'video1-37a340bba0.mp4','common\\models\\Product',33,'/data/video1-dd5c7bec38.mp4',1476097432,1476097432),(29,'video1-10f62f6b8b.mp4','common\\models\\Product',51,'/data/video_storage/video1-882d4c1fa6.mp4',1476266403,1476266403),(30,'video1-6c329545aa.mp4','common\\models\\Product',82,'/data/video_storage/video1-1415593259.mp4',1477041501,1477041501);
+INSERT INTO `video_storage` VALUES (29,'video1-10f62f6b8b.mp4','common\\models\\Product',51,'/data/video_storage/video1-882d4c1fa6.mp4',1476266403,1476266403),(31,'video1-99f14bd9ed.mp4','common\\models\\Product',80,'/data/video_storage/video1-7173442461.mp4',1477310618,1477310618),(32,'video1-8a769f1cdb.mp4','common\\models\\Product',81,'/data/video_storage/video1-30bd85403f.mp4',1477310984,1477310984),(33,'video1-0141ad830a.mp4','common\\models\\Product',83,'/data/video_storage/video1-05b38306aa.mp4',1477311241,1477311241);
 /*!40000 ALTER TABLE `video_storage` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -759,4 +760,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-10-21 18:15:43
+-- Dump completed on 2016-10-28 18:17:42
