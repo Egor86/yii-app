@@ -106,10 +106,12 @@ $this->params['breadcrumbs'][] = $this->title;
                 ]
             ],
         ],
-        'deleteOptions' => ['url' => Url::to(['product/delete?id='.$model->id])],
+        'deleteOptions' => [
+            'url' => 'delete',
+            'params' => ['id' => $model->id]],
     ]) ?>
 </div>
 
 <?= Html::a('Созадать дочерний товар', ['/item/create', 'product_id' => $model->id], ['class' => 'btn btn-primary']) ?>
-<?= $this->render('_items', ['items' => $items])?>
+<?= $this->render('//item/_items', ['items' => $items])?>
 

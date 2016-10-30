@@ -34,6 +34,14 @@ class Category extends \yii\db\ActiveRecord
         return 'category';
     }
 
+    public function beforeDelete() {
+        if (self::find()->where(['parent' => $this->id])->one() ||
+            Product::find()->where(['category_id' => $this->id])->one()) {
+            return false;
+        }
+        return parent::beforeDelete();
+    }
+
     /**
      * @inheritdoc
      */
@@ -43,6 +51,7 @@ class Category extends \yii\db\ActiveRecord
             [['name', 'slug', 'size_table_name_id'], 'required'],
             [['description'], 'string'],
             [['parent', 'size_table_name_id', 'created_at', 'updated_at', 'sort_by'], 'integer'],
+            ['parent', 'default', 'value' => 0],
             [['slug'], 'string', 'max' => 30],
             ['slug', 'match', 'pattern' => '/^[a-zA-Z-]+$/', 'message' => 'URL может состоять из латиницы и тире'],
             [['name'], 'unique'],

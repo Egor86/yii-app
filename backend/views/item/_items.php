@@ -157,10 +157,13 @@ use yii\widgets\MaskedInput;
                     $model = $widget->model;
                     return \common\widgets\SeoForm::widget(['model' => $model]);
                 },
-                'labelColOptions' => ['class'=>'kv-edit-hidden', 'style' => 'float: right'],
+//                'rowOptions' => ['class'=>'kv-edit-hidden', 'style' => 'float: left'],
+                'valueColOptions'=>['style'=>'width:70%'],
             ],
         ],
-        'deleteOptions' => ['url' => Url::to(['item/delete?id='.$model->id])],
+        'deleteOptions' => [
+            'url' => 'delete',
+            'params' => ['id' => $model->id]],
     ]) ?>
 </div>
 <?php endforeach;?>

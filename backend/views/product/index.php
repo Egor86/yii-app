@@ -14,6 +14,26 @@ use yii\widgets\Pjax;
 
 $this->title = 'Products';
 $this->params['breadcrumbs'][] = $this->title;
+
+$this->registerJs('
+$( ".delete" ).click(function() {
+    var id = $(this).data("product-id");
+    $.ajax({
+    url: "product/delete",
+    method: "post",
+    data: {id: id},
+    success: function(data){
+    var data = JSON.parse(data);
+        if (data["success"]) {
+            $("#error-box").addClass("alert alert-success").text("Товар # " + id + " был удален");
+            $("[data-key = " + id +"]").remove();   
+        } else {
+            $("#error-box").addClass("alert alert-danger").text(data["messages"]["kv-detail-error"]);
+        }
+    }
+    })
+});
+', \yii\web\View::POS_END)
 ?>
 <div class="product-index">
 
@@ -23,6 +43,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <p>
         <?= Html::a('Создать продукт', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
+    <div id="error-box"></div>
 <?php Pjax::begin(); ?>
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -80,8 +101,18 @@ $this->params['breadcrumbs'][] = $this->title;
                 ],
                 'format' => 'boolean'
             ],
-
-            ['class' => 'yii\grid\ActionColumn'],
+            ['class' => 'yii\grid\ActionColumn',
+                'template' => '{view}{delete}',
+                'buttons' => [
+                    'delete' => function($url, $model) {
+                        return Html::a('<span class="glyphicon glyphicon-trash"></span>', '#', [
+                            'title' => Yii::t('backend', 'Удалить'),
+                            'class' => 'delete',
+                            'data-product-id' => $model->id
+                        ]);
+                    }
+                ]
+            ],
         ],
         'options' => [
             'data' => [

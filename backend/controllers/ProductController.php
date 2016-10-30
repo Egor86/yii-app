@@ -19,6 +19,9 @@ use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use yii\db\Query;
 use yii\filters\AccessControl;
+use yii\helpers\Json;
+use yii\helpers\Url;
+use yii\web\HttpException;
 use yii\web\Response;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -211,14 +214,34 @@ class ProductController extends Controller
 
     /**
      * Deletes an existing Product model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
-     * @return mixed
+     * If deletion is successful, echo success.
+     * @throws HttpException
      */
-    public function actionDelete($id)
+    public function actionDelete()
     {
-        $this->findModel($id)->delete();
-        return $this->redirect(['index']);
+        $post = Yii::$app->request->post();
+        if (Yii::$app->request->isAjax) {
+            $id = $post['id'];
+            if ($this->findModel($id)->delete()) {
+                echo Json::encode([
+                    'success' => true,
+                    'messages' => [
+                        'kv-detail-info' => 'Товар # ' . $id . ' был удален. <a href="' .
+                            Url::to(['/product']) . '" class="btn btn-sm btn-info">' .
+                            '<i class="glyphicon glyphicon-hand-right"></i>  Вернуться к товарам</a>.'
+                    ]
+                ]);
+            } else {
+                echo Json::encode([
+                    'success' => false,
+                    'messages' => [
+                        'kv-detail-error' => 'Товар # ' . $id . ' не был удален, проверьте, возможно это родительский товар.'
+                    ]
+                ]);
+            }
+            return;
+        }
+        throw new HttpException("You are not allowed to do this operation. Contact the administrator.");
     }
 
     /**

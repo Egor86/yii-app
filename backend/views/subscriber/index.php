@@ -47,7 +47,6 @@ $this->params['breadcrumbs'][] = $this->title;
                     return $data->coupons ? $data->coupons[0]->using_status ? 'Да' : 'Нет' : '--';
                 },
             ],
-            ['class' => 'yii\grid\ActionColumn'],
             [
                 'attribute' => 'mail_chimp_status',
                 'value' => function($data){
@@ -56,6 +55,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 },
                 'filter'=> Subscriber::getMailChimpStatus(),
             ],
+            ['class' => 'yii\grid\ActionColumn'],
         ],
         'options' => [
             'data' => [

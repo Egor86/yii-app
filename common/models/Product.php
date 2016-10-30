@@ -44,12 +44,12 @@ class Product extends \yii\db\ActiveRecord
 
     public function beforeDelete()
     {
-        if (parent::beforeDelete()) {
-            Item::deleteAll(['product_id' => $this->id]);
-            VideoStorage::deleteAll(['id' => $this->video_id]);
-            return true;
+        if (Item::find()->where(['product_id' => $this->id])->one()) {
+            return false;
         }
-        return false;
+
+        $this->video_id ? VideoStorage::findOne($this->video_id)->delete() : null;
+        return parent::beforeDelete();
     }
 
     /**
@@ -99,14 +99,6 @@ class Product extends \yii\db\ActiveRecord
             'sort_by' => 'Sort By',
             'videoStorage' => 'Видео',
         ];
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getComments()
-    {
-        return $this->hasMany(Comment::className(), ['product_id' => 'id'])->inverseOf('product');
     }
 
     /**

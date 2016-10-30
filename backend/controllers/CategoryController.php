@@ -5,8 +5,12 @@ namespace backend\controllers;
 use Yii;
 use common\models\Category;
 use backend\models\search\CategorySearch;
+use yii\base\InvalidCallException;
 use yii\filters\AccessControl;
+use yii\helpers\Json;
+use yii\helpers\Url;
 use yii\web\Controller;
+use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
@@ -116,17 +120,38 @@ class CategoryController extends Controller
         }
     }
 
+
     /**
      * Deletes an existing Category model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
-     * @return mixed
+     * If deletion is successful, echo success.
+     * @throws HttpException
      */
-    public function actionDelete($id)
+    public function actionDelete()
     {
-        $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
+        $post = Yii::$app->request->post();
+        if (Yii::$app->request->isAjax) {
+            $id = $post['id'];
+            if ($this->findModel($id)->delete()) {
+                echo Json::encode([
+                    'success' => true,
+                    'messages' => [
+                        'kv-detail-info' => 'Категория # ' . $id . ' была удалена. <a href="' .
+                            Url::to(['/category']) . '" class="btn btn-sm btn-info">' .
+                            '<i class="glyphicon glyphicon-hand-right"></i>  Вернуться к категориям</a>.'
+                    ]
+                ]);
+            } else {
+                echo Json::encode([
+                    'success' => false,
+                    'messages' => [
+                        'kv-detail-error' => 'Категория # ' . $id . ' не была удалена, проверьте, возможно это родительская категория, '.
+                            'или у этой категории есть продукты.'
+                    ]
+                ]);
+            }
+            return;
+        }
+        throw new HttpException("You are not allowed to do this operation. Contact the administrator.");
     }
 
     /**
