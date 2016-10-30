@@ -90,18 +90,22 @@ class CartController extends Controller
     public function actionView()
     {
         $cart = Yii::$app->cart;
-        $coupon_form = new CouponForm([], Yii::$app->session['discount'] ?? false);
-        $order = new Order();
+        if (!$cart->getIsEmpty()) {
+            $coupon_form = new CouponForm([], Yii::$app->session['discount'] ?? false);
+            $order = new Order();
 
-        $dataProvider = new  ArrayDataProvider([
-            'allModels' => $cart->items,
-            'sort' => false
-        ]);
+            $dataProvider = new  ArrayDataProvider([
+                'allModels' => $cart->items,
+                'sort' => false
+            ]);
 
-        return $this->render('view', [
-            'dataProvider' => $dataProvider,
-            'coupon_form' => $coupon_form,
-            'order' => $order,
-        ]);
+            return $this->render('view', [
+                'dataProvider' => $dataProvider,
+                'coupon_form' => $coupon_form,
+                'order' => $order,
+            ]);
+        }
+
+        return $this->render('empty_cart');
     }
 }

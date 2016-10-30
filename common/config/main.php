@@ -18,6 +18,9 @@ return [
         'devicedetect' => [
             'class' => 'alexandernst\devicedetect\DeviceDetect'
         ],
+        'cart' => [
+            'class' => 'common\components\MyCart',
+        ],
         'formatter' => [
             'class' => 'yii\i18n\Formatter',
             'locale' => 'ru-RU',

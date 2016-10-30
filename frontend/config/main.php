@@ -17,9 +17,6 @@ return [
             'csrfParam' => '_csrf-frontend',
             'baseUrl' => ''
         ],
-        'cart' => [
-            'class' => 'common\components\MyCart',
-        ],
         'user' => [
             'identityClass' => 'common\models\User',
             'enableAutoLogin' => true,

@@ -59,53 +59,33 @@ class Order extends \yii\db\ActiveRecord
 
     public static function getStatus(){
         return [
-            self::FAST_ORDER => 'Быстрый заказ',
-            self::NEW_ORDER => 'Новый',
-            self::PROCESSED_ORDER => 'В процессе',
-            self::REVOKED_ORDER => 'Отменен',
-            self::DONE_ORDER => 'Завершен',
+            self::FAST_ORDER        => 'Быстрый заказ',
+            self::NEW_ORDER         => 'Новый',
+            self::PROCESSED_ORDER   => 'В процессе',
+            self::REVOKED_ORDER     => 'Отменен',
+            self::DONE_ORDER        => 'Завершен',
         ];
     }
 
-//    public function beforeValidate()
-//    {
-//        if ($this->coupon_code) {
-//            $coupon = Coupon::findOne(['coupon_code' => $this->coupon_code]);
-//            if ($coupon && $coupon->using_status == Coupon::UNUSED) {
-//                $subscriber = $coupon->subscriber;
-//                if ($subscriber->email == $this->email && $subscriber->phone = $this->phone) {
-//                    $this->coupon_id = $coupon->id;
-//                    return true;
-//                } else {
-//                    $this->addError('coupon_code', 'Указанный купон принадлежит другому пользователю');
-//                    return false;
-//                }
-//
-//            } else {
-//                $this->addError('coupon_code', $coupon ? 'Указанный купон уже использован' : 'Неверно указан код купона');
-//                return false;
-//            }
-//        }
-//        return parent::beforeValidate();
-//    }
+    public function beforeValidate()
+    {
+        $cart = Yii::$app->cart;
+        if (!$cart->getIsEmpty()) {
+            $this->value = Yii::$app->session[$cart->id];
+            $this->total_cost = $cart->getCost(true);
+        }
+        return parent::beforeValidate();
+    }
 
-//    public function afterSave($insert, $changedAttributes)
-//    {
-//        parent::afterSave($insert, $changedAttributes);
-//
-//        if ($this->coupon_id) {
-//            $coupon = Coupon::findOne($this->coupon_id);
-//            $coupon->using_status = Coupon::USED;
-//            $coupon->save();
-//        }
-//
-//
-//    }
-
-public function afterFind()
-{
-    parent::afterFind();
-}
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+        $cart = Yii::$app->cart;
+        if (!$cart->getIsEmpty()) {
+            $cart->deleteAll();
+            Yii::$app->session->remove('discount');
+        }
+    }
 
     /**
      * @inheritdoc
@@ -120,10 +100,11 @@ public function afterFind()
             [['surname', 'country', 'region', 'city', 'organization_name', 'post_index',], 'string', 'max' => 45],
             [['address'], 'string', 'max' => 255],
             [['email'], 'string', 'max' => 128],
+            ['email', 'email'],
             [['value'], 'string'],
             ['country', 'default', 'value' => 'Украина'],
             ['status', 'default', 'value' => self::NEW_ORDER],
-            ['delivery_date', 'compare', 'compareValue' => date("d-m-Y"), 'operator' => '>=', 'message' => "Дата доставки не может быть ранее ".date("d-m-Y")."."]
+            ['delivery_date', 'compare', 'compareValue' => date("Y-m-d"), 'operator' => '>=', 'message' => "Дата доставки не может быть ранее ".date("Y-m-d")."."],
         ];
     }
 
@@ -184,14 +165,6 @@ public function afterFind()
         return $this->hasOne(Coupon::className(), ['id' => 'coupon_id']);
     }
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getOrderProducts()
-    {
-        return $this->hasMany(OrderProduct::className(), ['order_id' => 'id'])->inverseOf('order');
-    }
-
     public function getFullName()
     {
         return $this->name.' '.$this->surname;
@@ -201,7 +174,7 @@ public function afterFind()
     {
         return ($this->organization_name ? $this->organization_name . ', ' : '') .
             $this->address . ', ' . $this->city . ', ' . ($this->region ? $this->region . ', ' : '') .
-            $this->country . $this->post_index;
+            $this->country . ' ' . $this->post_index;
     }
 
     /**

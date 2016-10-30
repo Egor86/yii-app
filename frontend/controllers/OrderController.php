@@ -26,7 +26,7 @@ class OrderController extends \yii\web\Controller
 
     public function actionFastCreate()
     {
-        $model = new Order(['scenario' => 'fast']);
+        $model = new Order(false, ['scenario' => 'fast']);
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             if ($model->save()) {
                 Yii::$app->response->format = Response::FORMAT_JSON;
@@ -41,25 +41,17 @@ class OrderController extends \yii\web\Controller
     public function actionConfirm()
     {
         $model = new Order(Yii::$app->session['discount']);
+        if (Yii::$app->request->post() && $model->load(Yii::$app->request->post())) {
 
-        if (Yii::$app->request->post()) {
-            if ($model->load(Yii::$app->request->post())) {
+            if ($model->save()) {
+                $dataProvider = new ArrayDataProvider([
+                    'allModels' => unserialize($model->value)
+                ]);
 
-                $cart = Yii::$app->cart;
-                $model->value = Yii::$app->session[$cart->id];
-                $model->total_cost = $cart->getCost(true);
-                if ($model->save()) {
-                    Yii::$app->session->removeAll();
-//                    $cart->deleteAll();
-                    $dataProvider = new ArrayDataProvider([
-                        'allModels' => unserialize($model->value)
-                    ]);
-
-                    return $this->render('success', [
-                        'model' => $model,
-                        'dataProvider' => $dataProvider
-                    ]);
-                }
+                return $this->render('success', [
+                    'model' => $model,
+                    'dataProvider' => $dataProvider
+                ]);
             }
         }
         return $this->render('index', ['model' => $model]);

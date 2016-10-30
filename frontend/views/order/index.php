@@ -16,7 +16,7 @@ use yii\widgets\ActiveForm;
 
         <?= $form->field($model, 'surname') ?>
 
-        <?= $form->field($model, 'country') ?>
+        <?= $form->field($model, 'country')->textInput(['value' => 'Украина']) ?>
 
         <?= $form->field($model, 'region') ?>
 
@@ -44,7 +44,7 @@ use yii\widgets\ActiveForm;
             ]);
         } ?>
 
-        <?= $form->field($model, 'delivery_date')->widget(\yii\jui\DatePicker::className(),[]) ?>
+        <?= $form->field($model, 'delivery_date')->widget(\yii\jui\DatePicker::className(), ['dateFormat' => 'yyyy-MM-dd', 'language' => 'ru']) ?>
 
         <?= $form->field($model, 'organization_name') ?>
 

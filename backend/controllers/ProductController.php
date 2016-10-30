@@ -18,6 +18,7 @@ use yii\bootstrap\Modal;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use yii\db\Query;
+use yii\filters\AccessControl;
 use yii\web\Response;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -34,6 +35,16 @@ class ProductController extends Controller
     public function behaviors()
     {
         return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'actions' => ['index', 'view', 'create', 'update', 'delete', 'add-images', 'delete-video'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
@@ -206,9 +217,7 @@ class ProductController extends Controller
      */
     public function actionDelete($id)
     {
-
         $this->findModel($id)->delete();
-
         return $this->redirect(['index']);
     }
 

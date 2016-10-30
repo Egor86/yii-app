@@ -7,13 +7,14 @@ use yii\widgets\ActiveForm;
 use yii\widgets\MaskedInput;
 use yii\widgets\Pjax;
 
-$this->registerJs(
-    '$("document").ready(function(){
-            $("#new_note").on("pjax:end", function() {
-            $.pjax.reload({container:"#coupon"});  
-        });
-    });'
-);
+//$this->registerJs(
+//    '$("document").ready(function(){
+//            $("#new_note").on("pjax:end", function() {
+//            console.log(12213);
+//            $.pjax.reload({container:"#coupon"});
+//        });
+//    });'
+//);
 ?>
 <div class="coupon-form">
     <?php Pjax::begin(['id' => 'coupon' , 'enablePushState' => false]); ?>

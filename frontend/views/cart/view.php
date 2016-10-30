@@ -14,7 +14,7 @@ $this->title = 'Корзина';
 
 /*
  * calling func when changed quantity
- * from @front-web/assets/5fe37ffd/js/bootstrap-editable.js 245 line
+ * from @front-web/assets/------/js/bootstrap-editable.js 245 line
  */
 $this->registerJs("
 var channged_quantity = function(response) {
@@ -136,18 +136,6 @@ if (!$coupon_form->coupon) {
     </div>
 </div>
 
-    <div class="order-form">
-<!--        --><?php //Pjax::begin(['id' => 'container' , 'enablePushState' => false]); ?>
-
-            <?php $form = ActiveForm::begin(['action' => '/order/confirm'.Yii::$app->urlManager->suffix, 'options' => ['data-pjax' => true ]]); ?>
-
-            <?= $form->field($order, 'coupon_id')->hiddenInput(['id' => 'coupon-id', 'value' => $coupon_form->coupon ? $coupon_form->coupon->id : ''])->label(false) ?>
-
-            <div class="form-group">
-                <?= Html::submitButton('Оформить заказ', ['class' => 'btn btn-primary']) ?>
-            </div>
-
-            <?php ActiveForm::end(); ?>
-
-<!--        --><?php //Pjax::end(); ?>
-    </div>
+<div class="form-group">
+    <?= Html::a('Оформить заказ', '/order/confirm'.Yii::$app->urlManager->suffix,['class' => 'btn btn-primary']) ?>
+</div>

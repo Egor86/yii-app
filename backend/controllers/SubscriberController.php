@@ -6,6 +6,7 @@ use common\models\Coupon;
 use Yii;
 use common\models\Subscriber;
 use backend\models\search\SubscriberSearch;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -21,6 +22,16 @@ class SubscriberController extends Controller
     public function behaviors()
     {
         return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'actions' => ['index', 'view', 'create', 'update', 'delete'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
@@ -48,7 +59,7 @@ class SubscriberController extends Controller
     public function actionIndex()
     {
         $searchModel = new SubscriberSearch();
-//        $list_id = 'd4e475d3f6';        TODO: create cron extention to update  mail_chimp_status periodically
+//        $list_id = 'd4e475d3f6';        TODO: create cron extention to update  mail_chimp_status periodically or cashing data with life-period 12 hours
 //        $emails = Subscriber::find()->select('mail_chimp_leid')->asArray()->all();
 //        $email_list = [];
 //
