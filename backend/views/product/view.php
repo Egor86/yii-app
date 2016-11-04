@@ -4,7 +4,6 @@ use common\models\Brand;
 use common\models\Category;
 use kartik\detail\DetailView;
 use kartik\file\FileInput;
-use kartik\grid\GridView;
 use yii\bootstrap\BootstrapPluginAsset;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;

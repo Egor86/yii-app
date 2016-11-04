@@ -3,14 +3,16 @@
 use yii\helpers\Html;
 
 /* @var $this yii\web\View */
-/* @var $model common\models\Subscriber */
+/* @var $model common\models\Campaign */
 
-$this->title = 'Обновление подписчика: ' . $model->name;
-$this->params['breadcrumbs'][] = ['label' => 'Subscribers', 'url' => ['index']];
+$this->title = 'Update Campaign: ' . $model->name;
+$this->params['breadcrumbs'][] = ['label' => 'Campaigns', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['view', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = 'Update';
 ?>
-<div class="subscriber-update">
+<div class="campaign-update">
+
+    <h1><?= Html::encode($this->title) ?></h1>
 
     <?= $this->render('_form', [
         'model' => $model,

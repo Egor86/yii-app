@@ -8,6 +8,22 @@ use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 use yii\captcha\Captcha;
 
+//$this->registerJs('
+//
+//    $("#submit").click("submit", function(event){
+//        console.log(this);
+//        event.preventDefault();
+//        var form = $("#subscribe");
+//        $.ajax({
+//            url: "/subscriber/create.html",
+//            type: "POST",
+//            data: form.serialize(),
+//            success: function (data) {
+//                console.log(data);
+//            }
+//        })
+//    })
+//', \yii\web\View::POS_END);
 $this->title = 'Contact';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
@@ -21,7 +37,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <div class="row">
         <div class="col-lg-5">
-            <?php $form = ActiveForm::begin(['id' => 'contact-form']); ?>
+            <?php $form = ActiveForm::begin(['action' => '/subscriber/create.html', 'id' => 'subscribe']); ?>
 
                 <?= $form->field($model, 'name')->textInput(['autofocus' => true]) ?>
 
@@ -30,7 +46,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <?= $form->field($model, 'phone') ?>
 
                 <div class="form-group">
-                    <?= Html::submitButton('Submit', ['class' => 'btn btn-primary', 'name' => 'contact-button']) ?>
+                    <?= Html::submitButton('Submit', ['class' => 'btn btn-primary', 'id' => 'submit', 'name' => 'contact-button']) ?>
                 </div>
 
             <?php ActiveForm::end(); ?>

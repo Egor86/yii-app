@@ -6,11 +6,8 @@
  * Time: 18:34
  */
 
-namespace frontend\models;
+namespace common\models;
 
-
-use common\models\Coupon;
-use common\models\Subscriber;
 use yii\base\Model;
 
 class CouponForm extends Model
@@ -19,8 +16,9 @@ class CouponForm extends Model
     public $email;
     public $phone;
     public $coupon_code;
+    public $order_id;
 
-    public function __construct(array $config, $coupon_id = false)
+    public function __construct(array $config = [], $coupon_id = false)
     {
         $coupon_id ? $this->coupon = Coupon::findOne($coupon_id) : false;
         parent::__construct($config);
@@ -33,6 +31,7 @@ class CouponForm extends Model
             [['coupon_code', 'email'], 'string', 'max' => 45],
             ['phone', 'string', 'max' => 15],
             ['coupon_code', 'validateCouponCode'],
+            ['order_id', 'safe']
         ];
     }
 

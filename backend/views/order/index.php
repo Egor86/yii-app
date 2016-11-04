@@ -1,53 +1,77 @@
 <?php
 
+use common\models\Coupon;
+use common\models\Order;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
 /* @var $this yii\web\View */
-/* @var $searchModel backend\models\OrderSearch */
+/* @var $searchModel backend\models\search\OrderSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Orders';
+$this->title = 'Заказы';
+if (Yii::$app->controller->action->id != 'index') {
+    $this->title = 'Архив заказов';
+}
+
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="order-index">
 
-    <h1><?= Html::encode($this->title) ?></h1>
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <?php Pjax::begin(); ?>
         <?= GridView::widget([
             'dataProvider' => $dataProvider,
             'filterModel' => $searchModel,
+            'summary' => false,
             'columns' => [
     //            ['class' => 'yii\grid\SerialColumn'],
 
-                'id',
-                'name',
-                'surname',
+                [
+                    'attribute' => 'id',
+                    'filter'=> false,
+                    'options' => [
+                        'width' => '15px'
+                    ]
+                ],
+                'fullName',
+//                'surname',
     //            'country',
     //            'region',
-                 'city',
-                 'address',
+//                 'city',
+                 'fullAddress',
                 // 'organization_name',
     //             'post_index',
                  'phone',
                 // 'email:email',
-                 'delivery_date:date',
+                [
+                    'attribute' => 'delivery_date',
+                    'format' => 'date',
+                    'filter' => \yii\jui\DatePicker::widget([
+                        'attribute' => 'delivery_date',
+                        'model'=>$searchModel, 'dateFormat' => 'yyyy-MM-dd', 'language' => 'ru']),
+                ],
                 [
                     'attribute' => 'coupon_id',
                     'value' => function($data){
-                        return $data->coupon ? $data->coupon->coupon_code : null;
+                        return $data->coupon_id ? $data->coupon->coupon_code : null;
                     },
                 ],
                 [
-                    'attribute' => 'status_id',
+                    'attribute' => 'status',
                     'value' => function($data){
-                        return $data::getStatus()[$data->status_id];
+                        return Order::getStatus()[$data->status];
                     },
+                    'filter'=> Order::getStatus(),
                 ],
-                 'created_at:datetime',
+                [
+                    'attribute' => 'created_at',
+                    'format' => 'datetime',
+                    'filter' => false,
+                ],
+                'total_cost:currency',
     //             'updated_at:datetime',
                 // 'sort_by',
 

@@ -42,7 +42,7 @@ class ProductController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['index', 'view', 'create', 'update', 'delete', 'add-images', 'delete-video'],
+                        'actions' => ['index', 'view', 'create', 'update', 'delete', 'add-images', 'delete-video', 'get-product'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -242,6 +242,28 @@ class ProductController extends Controller
             return;
         }
         throw new HttpException("You are not allowed to do this operation. Contact the administrator.");
+    }
+
+    /**
+     * Select published Product by category id and return Json data
+     */
+    public function actionGetProduct()
+    {
+        $out = [];
+        $post = Yii::$app->request->post();
+        if (isset($post['depdrop_parents'])) {
+            $category_id = end($post['depdrop_parents']);
+            $list = Product::find()->where(['category_id' => $category_id])->andWhere(['published' => Product::PUBLISHED])->asArray()->all();
+            if ($category_id != null && count($list) > 0) {
+                foreach ($list as $i => $product) {
+                    $out[] = ['id' => $product['id'], 'name' => $product['name']];
+                }
+                // Shows how you can preselect a value
+                echo Json::encode(['output' => $out]);
+                return;
+            }
+        }
+        echo Json::encode(['output' => '']);
     }
 
     /**

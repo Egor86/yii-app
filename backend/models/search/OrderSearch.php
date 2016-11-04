@@ -18,7 +18,7 @@ class OrderSearch extends Order
     public function rules()
     {
         return [
-            [['id', 'coupon_id', 'status_id', 'created_at', 'updated_at', 'sort_by'], 'integer'],
+            [['id', 'coupon_id', 'status', 'created_at', 'updated_at', 'sort_by'], 'integer'],
             [['name', 'surname', 'country', 'region', 'city', 'address', 'organization_name', 'post_index', 'phone', 'email', 'delivery_date'], 'safe'],
         ];
     }
@@ -37,16 +37,25 @@ class OrderSearch extends Order
      *
      * @param array $params
      *
+     * @param bool $other If true show ORDER_REVOKED and ORDER_DONE instead fast? new and processed
      * @return ActiveDataProvider
      */
-    public function search($params)
+    public function search($params, $other = false)
     {
-        $query = Order::find();
+        $query = Order::find()
+            ->where(['not in', 'status', [Order::ORDER_DONE, Order::ORDER_REVOKED]])
+            ->orderBy(['status' => SORT_ASC, 'created_at' => SORT_ASC]);
 
+        if ($other) {
+            $query = Order::find()
+                ->where(['not in', 'status', [Order::ORDER_FAST, Order::ORDER_NEW, Order::ORDER_PROCESSED]])
+                ->orderBy(['updated_at' => SORT_ASC]);
+        }
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => false
         ]);
 
         $this->load($params);
@@ -60,9 +69,9 @@ class OrderSearch extends Order
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'delivery_date' => $this->delivery_date,
+//            'delivery_date' => $this->delivery_date,
             'coupon_id' => $this->coupon_id,
-            'status_id' => $this->status_id,
+            'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'sort_by' => $this->sort_by,
@@ -77,7 +86,8 @@ class OrderSearch extends Order
             ->andFilterWhere(['like', 'organization_name', $this->organization_name])
             ->andFilterWhere(['like', 'post_index', $this->post_index])
             ->andFilterWhere(['like', 'phone', $this->phone])
-            ->andFilterWhere(['like', 'email', $this->email]);
+            ->andFilterWhere(['like', 'email', $this->email])
+            ->andFilterWhere(['delivery_date' => $this->delivery_date]);
 
         return $dataProvider;
     }

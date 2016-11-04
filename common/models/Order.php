@@ -25,18 +25,19 @@ use Yii;
  * @property integer $updated_at
  * @property integer $sort_by
  * @property string $value
- * @property string $coupon_code
  * @property integer $total_cost
  *
  * @property OrderProduct[] $orderProducts
  */
 class Order extends \yii\db\ActiveRecord
 {
-    const FAST_ORDER = 0;
-    const NEW_ORDER = 1;
-    const PROCESSED_ORDER = 2;
-    const REVOKED_ORDER = 3;
-    const DONE_ORDER = 4;
+    const ORDER_FAST = 0;
+    const ORDER_NEW = 1;
+    const ORDER_PROCESSED = 2;
+    const ORDER_REVOKED = 3;
+    const ORDER_DONE = 4;
+
+    const EVENT_CHANGE_STATUS = 'change using status';
 
     public function __construct($coupon_id = false, array $config = [])
     {
@@ -57,24 +58,28 @@ class Order extends \yii\db\ActiveRecord
         return 'order';
     }
 
-    public static function getStatus(){
+    public static function getStatus()
+    {
         return [
-            self::FAST_ORDER        => 'Быстрый заказ',
-            self::NEW_ORDER         => 'Новый',
-            self::PROCESSED_ORDER   => 'В процессе',
-            self::REVOKED_ORDER     => 'Отменен',
-            self::DONE_ORDER        => 'Завершен',
+            self::ORDER_FAST        => 'Быстрый заказ',
+            self::ORDER_NEW         => 'Новый',
+            self::ORDER_PROCESSED   => 'В процессе',
+            self::ORDER_REVOKED     => 'Отменен',
+            self::ORDER_DONE        => 'Завершен',
         ];
     }
 
     public function beforeValidate()
     {
         $cart = Yii::$app->cart;
-        if (!$cart->getIsEmpty()) {
-            $this->value = Yii::$app->session[$cart->id];
-            $this->total_cost = $cart->getCost(true);
+        if (parent::beforeValidate()) {
+            if (!$cart->getIsEmpty() && $value = base64_encode(Yii::$app->session[$cart->id])) {
+                $this->value = $value;
+                $this->total_cost = $cart->getCost(true);
+            }
+            return true;
         }
-        return parent::beforeValidate();
+        return false;
     }
 
     public function afterSave($insert, $changedAttributes)
@@ -97,13 +102,15 @@ class Order extends \yii\db\ActiveRecord
             [['delivery_date'], 'safe'],
             [['coupon_id', 'status', 'total_cost', 'created_at', 'updated_at', 'sort_by'], 'integer'],
             [['name', 'phone'], 'string', 'max' => 64],
+            [['coupon', 'phone'], 'string', 'max' => 15],
+            [['name'], 'trim'],
             [['surname', 'country', 'region', 'city', 'organization_name', 'post_index',], 'string', 'max' => 45],
             [['address'], 'string', 'max' => 255],
             [['email'], 'string', 'max' => 128],
             ['email', 'email'],
             [['value'], 'string'],
             ['country', 'default', 'value' => 'Украина'],
-            ['status', 'default', 'value' => self::NEW_ORDER],
+            ['status', 'default', 'value' => self::ORDER_NEW],
             ['delivery_date', 'compare', 'compareValue' => date("Y-m-d"), 'operator' => '>=', 'message' => "Дата доставки не может быть ранее ".date("Y-m-d")."."],
         ];
     }
@@ -114,7 +121,7 @@ class Order extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
+            'id' => 'Номер заказа',
             'name' => 'Имя',
             'surname' => 'Фамилия',
             'country' => 'Страна',
@@ -154,7 +161,7 @@ class Order extends \yii\db\ActiveRecord
     public function scenarios()
     {
         $scenarios = parent::scenarios();
-        $scenarios['fast'] = ['name', 'phone', 'verifyCode', 'status'];
+        $scenarios['fast'] = ['name', 'phone', 'status'];
         return $scenarios;
     }
     /**
@@ -175,6 +182,72 @@ class Order extends \yii\db\ActiveRecord
         return ($this->organization_name ? $this->organization_name . ', ' : '') .
             $this->address . ', ' . $this->city . ', ' . ($this->region ? $this->region . ', ' : '') .
             $this->country . ' ' . $this->post_index;
+    }
+
+    public function createSubscriber()
+    {
+        if (!$this->coupon_id) {
+            $subscriber = new Subscriber();
+            $subscriber->name = $this->name;
+            $subscriber->phone = $this->phone;
+            $subscriber->email = $this->email;
+            $subscriber->group = Subscriber::GROUP_CUSTOMER;
+            $subscriber->save();
+        }
+    }
+
+    public function setOrderId()
+    {
+        $items = $this->getValue();
+        foreach ($items as $key => $value) {
+            $items[$this->id. '_' . $key] = $value;
+            unset($items[$key]);
+        }
+
+        return $items;
+    }
+
+    /**
+     * @return array
+     */
+    public function getValue()
+    {
+        return unserialize(base64_decode($this->value));
+    }
+
+    public function setValue($item_id, $item)
+    {
+        $value = $this->getValue();
+        $new_id = $item->getId();
+        if ($new_id != $item_id && array_key_exists($new_id, $value)) {
+            return false;
+        }
+        $value[$item_id] = $item;
+        $this->reCount($value);
+        return $this->saveOrder($value);
+    }
+
+    public function deleteItem($item_id)
+    {
+        $value = $this->getValue();
+        unset($value[$item_id]);
+        $this->reCount($value);
+        return $this->saveOrder($value);
+    }
+
+    public function reCount($value)
+    {
+        $new_cost = 0;
+        foreach ($value as $item) {
+            $new_cost += $item->getCost();
+        }
+        $this->total_cost = $this->coupon ? max(0, $new_cost - $this->coupon->discount) : $new_cost;
+    }
+
+    public function saveOrder($value)
+    {
+        $this->value = base64_encode(serialize($value));
+        return $this->save(false);
     }
 
     /**

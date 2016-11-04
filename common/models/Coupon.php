@@ -26,15 +26,27 @@ class Coupon extends \yii\db\ActiveRecord
 {
     const USED = 1;
     const UNUSED = 0;
+    const COUPON_CODE_LENGTH = 6;
+    const EVENT_GET_COUPON = 'generate coupon code';
 
     public $email;
     public $phone;
+
+
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
         return 'coupon';
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+        if ($insert) {
+            // send email with coupon code
+        }
     }
 
     /**
@@ -94,6 +106,43 @@ class Coupon extends \yii\db\ActiveRecord
 //        return $scenarios;
 //    }
 
+    public function createCoupon($event)
+    {
+        $this->subscriber_id = $event->sender->id;
+        $this->coupon_code = $this->generateCouponCode();
+        $this->save();
+    }
+
+    public function generateCouponCode()
+    {
+        $existed_code = self::find()->select('coupon_code')->asArray()->column();
+        $arr = ['a','b','c','d','e','f',
+            'g','h','i','j','k','l',
+            'm','n','o','p','r','s',
+            't','u','v','x','y','z',
+            'A','B','C','D','E','F',
+            'G','H','I','J','K','L',
+            'M','N','O','P','R','S',
+            'T','U','V','X','Y','Z',
+            '1','2','3','4','5','6',
+            '7','8','9','0'
+//            ,'.',',',
+//            '(',')','[',']','!','?',
+//            '&','^','%','@','*','$',
+//            '<','>','/','|','+','-',
+//            '{','}','`','~'
+        ];
+        $code = "";
+        do {
+            for($i = 0; $i < self::COUPON_CODE_LENGTH; $i++)
+            {
+                $index = mt_rand(0, count($arr) - 1);
+                $code .= $arr[$index];
+            }
+        } while (in_array($code, $existed_code));
+
+        return $code;
+    }
 
         /**
      * @return \yii\db\ActiveQuery
@@ -101,11 +150,6 @@ class Coupon extends \yii\db\ActiveRecord
     public function getCampaign()
     {
         return $this->hasOne(Campaign::className(), ['id' => 'campaign_id']);
-    }
-
-    public function validateCouponCode()
-    {
-
     }
 
     /**

@@ -60,7 +60,12 @@
                             ],
                         ],
                     ],
-                    ['label' => 'Заказы', 'icon' => 'fa fa-circle-o', 'url' => ['order/']],
+                    ['label' => 'Заказы', 'icon' => 'fa fa-circle-o', 'url' => '#',
+                        'items' => [
+                            ['label' => 'Заказы в работе', 'icon' => 'fa fa-file-circle-o', 'url' => ['order/index'],],
+                            ['label' => 'Архив', 'icon' => 'fa fa-file-circle-o', 'url' => ['order/archive'],]
+                        ]
+                    ],
                     ['label' => 'Товары', 'icon' => 'fa fa-circle-o', 'url' => ['product/']],
                     ['label' => 'Категории товаров', 'icon' => 'fa fa-circle-o', 'url' => ['category/']],
                     ['label' => 'Доступные цвета', 'icon' => 'fa fa-circle-o', 'url' => ['color/']],

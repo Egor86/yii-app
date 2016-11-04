@@ -35,7 +35,8 @@
         "hscstudio/yii2-cart": "*",
         "kartik-v/yii2-editable": "@dev",
         "yii2mod/yii2-editable": "*",
-        "kartik-v/yii2-detail-view": "*"
+        "kartik-v/yii2-detail-view": "*",
+        "kartik-v/yii2-widget-depdrop": "@dev"
     },
     "require-dev": {
         "yiisoft/yii2-codeception": "*",

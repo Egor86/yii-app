@@ -10,12 +10,11 @@ use yii\widgets\Pjax;
 /* @var $searchModel backend\models\search\CommentSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Comments';
+$this->title = 'Комментарии';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="comment-index">
 
-    <h1><?= Html::encode($this->title) ?></h1>
 
 <?php Pjax::begin(); ?>    <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -24,14 +23,13 @@ $this->params['breadcrumbs'][] = $this->title;
             return ['data-sortable-id' => $model->id];
         },
         'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
             [
                 'class' => \kotchuprik\sortable\grid\Column::className(),
             ],
             [
-                'attribute' => 'product_id',
+                'attribute' => 'item_id',
                 'value' => function($data){
-                    return $data->product->name;
+                    return $data->item->name;
                 },
                 'filter'=> ArrayHelper::map(Product::find()->all(), 'id', 'name'),
             ],
@@ -50,8 +48,11 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter'=> ['Нет', 'Да'],
                 'format' => 'boolean'
             ],
-             'created_at:datetime',
-
+            [
+                'attribute' => 'created_at',
+                'filter'=> false,
+                'format' => 'datetime'
+            ],
             ['class' => 'yii\grid\ActionColumn'],
         ],
         'options' => [

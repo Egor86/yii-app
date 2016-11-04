@@ -19,10 +19,10 @@ class ItemCartPosition extends Object implements CartPositionInterface
      */
     public function getPrice()
     {
-        if ($this->getItem()->discount_price > 0) {
-            return $this->getItem()->discount_price;
+        if ($this->item->discount_price > 0) {
+            return $this->item->discount_price;
         }
-        return $this->getItem()->price;
+        return $this->item->price;
     }
 
     /**

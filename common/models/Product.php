@@ -59,8 +59,8 @@ class Product extends \yii\db\ActiveRecord
     {
         return [
             [['name', 'description', 'brand_id', 'category_id'], 'required'],
-            [['description', 'published'], 'string'],
-            [['brand_id', 'video_id', 'category_id', 'created_at', 'updated_at', 'sort_by'], 'integer'],
+            [['description'], 'string'],
+            [['brand_id', 'video_id', 'category_id', 'created_at', 'updated_at', 'sort_by', 'published'], 'integer'],
             [['name'], 'string', 'max' => 255],
             ['published', 'in', 'range' => array_keys(self::publishedList())],
             [['brand_id'], 'exist', 'skipOnError' => true, 'targetClass' => Brand::className(), 'targetAttribute' => ['brand_id' => 'id']],
@@ -115,6 +115,10 @@ class Product extends \yii\db\ActiveRecord
         return $this->hasOne(VideoStorage::className(), ['id' => 'video_id']);
     }
 
+    public function getItems()
+    {
+        return $this->hasMany(Item::className(), ['product_id' => 'id']);
+    }
     /**
      * @return \yii\db\ActiveQuery
      */

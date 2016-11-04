@@ -149,7 +149,7 @@ class SiteController extends Controller
             $model->mail_chimp_euid = $result['euid'];
             $model->mail_chimp_leid = $result['leid'];
 
-            if(!$model->validate() || !$model->save()){
+            if(!$model->save()){
 
                 return $this->render('contact', [
                     'model' => $model,

@@ -44,4 +44,4 @@ db_dump.sql
 # upload file
 /frontend/web/data
 
-.extentions.txt
+extentions.txt

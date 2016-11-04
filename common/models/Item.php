@@ -3,6 +3,7 @@
 namespace common\models;
 
 use common\behavior\SeoBehavior;
+use common\models\active_query\ItemQuery;
 use hscstudio\cart\CartPositionTrait;
 use Yii;
 
@@ -124,12 +125,25 @@ class Item extends \yii\db\ActiveRecord
     }
 
     /**
+     * Get size_id sizes with amount > 0
+     * Usage
+     * 1.ItemController::actionGetSize() in view with depDrop select
+     * 2. In Order view GridView
+     * 3. ItemController::actionGetSize
+     * @return array
+     */
+    public function getPresentSizes()
+    {
+        return ItemSize::find()->select('size_id')->where(['item_id' => $this->id])->andWhere(['>', 'amount', 0])->column();
+    }
+
+    /**
      * @inheritdoc
-     * @return \common\models\active_query\ItemQuery the active query used by this AR class.
+     * @return ItemQuery the active query used by this AR class.
      */
     public static function find()
     {
-        return new \common\models\active_query\ItemQuery(get_called_class());
+        return new ItemQuery(get_called_class());
     }
 
     /**

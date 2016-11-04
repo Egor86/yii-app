@@ -58,7 +58,6 @@ $( ".delete" ).click(function() {
             ],
             [
                 'attribute' => 'id',
-                'format' => 'html',
                 'filter'=> false,
                 'options' => [
                     'width' => '15px'

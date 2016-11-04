@@ -6,13 +6,11 @@ use yii\widgets\DetailView;
 /* @var $this yii\web\View */
 /* @var $model common\models\Comment */
 
-$this->title = $model->id;
+$this->title = 'Комментарий #' . $model->id . ' к продукту #' . $model->item->id . ' - ' . $model->item->name;;
 $this->params['breadcrumbs'][] = ['label' => 'Comments', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="comment-view">
-
-    <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
         <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
@@ -28,15 +26,18 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= DetailView::widget([
         'model' => $model,
         'attributes' => [
-            'product.name',
+            [
+                'attribute' => 'item.name',
+                'label' => 'Комментарий к товару'
+            ],
             'text:ntext',
             [
                 'attribute' => 'agree',
-                'value' => \common\models\Comment::getStatus()[$model->agree]
+                'format' => 'boolean'
             ],
             [
                 'attribute' => 'favorite',
-                'value' => \common\models\Comment::getStatus()[$model->favorite]
+                'format' => 'boolean'
             ],
             'user_name',
             'created_at:datetime',

@@ -1,5 +1,6 @@
 <?php
 
+use common\models\Coupon;
 use common\models\Subscriber;
 use yii\helpers\Html;
 use yii\widgets\DetailView;
@@ -13,17 +14,8 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="subscriber-view">
 
-    <h1><?= Html::encode($this->title) ?></h1>
-
     <p>
         <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete', 'id' => $model->id], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
-                'method' => 'post',
-            ],
-        ]) ?>
     </p>
 
     <?= DetailView::widget([
@@ -31,18 +23,18 @@ $this->params['breadcrumbs'][] = $this->title;
         'attributes' => [
             'id',
             'name',
-            'email:email',
+            'email',
             'phone',
             'created_at:datetime',
             'updated_at:datetime',
             [
                 'attribute' => 'coupon',
-                'value' => ($coupon = \common\models\Coupon::findOne(['subscriber_id' => $model->id])) ?
-                    $coupon->coupon_code : '--'
+                'value' => ($coupon = Coupon::findOne(['subscriber_id' => $model->id])) ?
+                    $coupon->coupon_code : null
             ],
             [
                 'attribute' => 'couponUsingStatus',
-                'value' => $coupon ? $coupon->using_status ? "Да" : 'Нет' : '--'
+                'value' => $coupon ? $coupon->using_status ? "Да" : 'Нет' : null
             ],
             [
                 'attribute' => 'mail_chimp_status',

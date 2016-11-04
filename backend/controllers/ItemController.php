@@ -7,6 +7,7 @@ use backend\models\MultipleImageForm;
 use common\models\ImageStorage;
 use common\models\ItemSize;
 use common\models\Product;
+use common\models\Size;
 use Exception;
 use Yii;
 use common\models\Item;
@@ -36,7 +37,7 @@ class ItemController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['index', 'view', 'create', 'update', 'delete', 'update-image'],
+                        'actions' => ['index', 'view', 'create', 'update', 'delete', 'update-image', 'get-item', 'get-size'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -257,6 +258,46 @@ class ItemController extends Controller
         throw new HttpException("You are not allowed to do this operation. Contact the administrator.");
     }
 
+    public function actionGetItem()
+    {
+        $out = [];
+        $post = Yii::$app->request->post();
+        if (isset($post['depdrop_parents'])) {
+            $product_id = end($post['depdrop_parents']);
+            $list = Item::find()->where(['product_id' => $product_id])->all();
+            if ($product_id != null && count($list) > 0) {
+                foreach ($list as $i => $item) {
+                    if ($item->getPresentSizes()) {
+                        $out[] = [
+                            'id' => $item->id,
+                            'name' => $item->name . ' Цена:' . Yii::$app->formatter->asCurrency($item->price) .
+                                ($item->discount_price > 0 ? '; Цена со скидкой: ' . Yii::$app->formatter->asCurrency($item->discount_price) : '')
+                        ];
+                    }
+                }
+                // Shows how you can preselect a value
+                echo Json::encode(['output' => $out]);
+                return;
+            }
+        }
+        echo Json::encode(['output' => '', 'selected'=>'']);
+    }
+
+    public function actionGetSize()
+    {
+        $out = [];
+        $post = Yii::$app->request->post();
+        if (isset($post['depdrop_parents'])) {
+            $item_id = end($post['depdrop_parents']);
+            $model = $this->findModel($item_id);
+            $sizes_ids = $model->getPresentSizes();
+            $out = Size::find()->select(['id', 'value'])->where(['in', 'id', $sizes_ids])->asArray()->all();
+            echo Json::encode(['output' => $out]);
+            return;
+        }
+
+        echo Json::encode(['output' => '', 'selected'=>'']);
+    }
     /**
      * Finds the Item model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.

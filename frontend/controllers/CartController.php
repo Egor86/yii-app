@@ -2,10 +2,9 @@
 
 namespace frontend\controllers;
 
-use common\models\Coupon;
+use common\models\CouponForm;
 use common\models\Item;
 use common\models\Order;
-use frontend\models\CouponForm;
 use Yii;
 use yii\data\ArrayDataProvider;
 use yii\web\Controller;
@@ -35,7 +34,7 @@ class CartController extends Controller
                 'size' => $post['sizes']
             ]);
 
-            $item_cart_position->item;
+            $item_cart_position->item;  // add Item model to ItemCartPosition _item property
             Yii::$app->cart->create($item_cart_position, $post['quantity']);
             return $this->redirect(['/site/index']);
         }
@@ -64,7 +63,8 @@ class CartController extends Controller
     }
 
     /**
-     * @return array|bool data to update total_sum and total_pay (including discount if present)
+     * @return array
+     * @throws NotFoundHttpException
      */
     public function actionUpdate()
     {
@@ -94,7 +94,7 @@ class CartController extends Controller
             $coupon_form = new CouponForm([], Yii::$app->session['discount'] ?? false);
             $order = new Order();
 
-            $dataProvider = new  ArrayDataProvider([
+            $dataProvider = new ArrayDataProvider([
                 'allModels' => $cart->items,
                 'sort' => false
             ]);

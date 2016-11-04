@@ -111,7 +111,7 @@ $(document).ready(function () {
 
 <div class="row">
     <div class="col-md-12 top-10">
-        <?php $this->render('_size-table', [
+        <?= $this->render('_size-table', [
             'dataProvider' => $dataProvider,
             'model' => $model
         ])?>

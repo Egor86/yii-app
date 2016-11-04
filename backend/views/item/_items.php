@@ -158,7 +158,8 @@ use yii\widgets\MaskedInput;
                     return \common\widgets\SeoForm::widget(['model' => $model]);
                 },
 //                'rowOptions' => ['class'=>'kv-edit-hidden', 'style' => 'float: left'],
-                'valueColOptions'=>['style'=>'width:70%'],
+                'valueColOptions'=>['style'=>'width:80%'],
+                'labelColOptions'=>['class'=>'kv-edit-hidden', 'style'=>'float: right'],
             ],
         ],
         'deleteOptions' => [

@@ -47,6 +47,7 @@ class SubscriberSearch extends Subscriber
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => false
         ]);
 
         $this->load($params);

@@ -9,17 +9,13 @@ use yii\widgets\Pjax;
 /* @var $searchModel backend\models\search\SubscriberSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Subscribers';
+$this->title = 'Подписчики';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="subscriber-index">
 
-    <h1><?= Html::encode($this->title) ?></h1>
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
-    <p>
-        <?//= Html::a('Create Subscriber', ['create'], ['class' => 'btn btn-success']) ?>
-    </p>
 <?php Pjax::begin(); ?>    <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
@@ -31,20 +27,27 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'class' => \kotchuprik\sortable\grid\Column::className(),
             ],
-            'id',
-//            'name',
-            'email:email',
+            [
+                'attribute' => 'id',
+                'format' => 'html',
+                'filter'=> false,
+                'options' => [
+                    'width' => '15px'
+                ]
+            ],
+            'name',
+            'email',
             'phone',
             [
                 'attribute' => 'coupon',
                 'value' => function ($data) {
-                    return $data->coupons ? $data->coupons[0]->coupon_code : '--';
+                    return $data->coupons ? $data->coupons[0]->coupon_code : null;
                 },
             ],
             [
                 'attribute' => 'couponUsingStatus',
                 'value' => function ($data) {
-                    return $data->coupons ? $data->coupons[0]->using_status ? 'Да' : 'Нет' : '--';
+                    return $data->coupons ? $data->coupons[0]->using_status ? 'Да' : 'Нет' : null;
                 },
             ],
             [
@@ -55,7 +58,10 @@ $this->params['breadcrumbs'][] = $this->title;
                 },
                 'filter'=> Subscriber::getMailChimpStatus(),
             ],
-            ['class' => 'yii\grid\ActionColumn'],
+            [
+                'class' => 'yii\grid\ActionColumn',
+                'template'=>'{view} {update}',
+            ],
         ],
         'options' => [
             'data' => [

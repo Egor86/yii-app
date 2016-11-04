@@ -7,6 +7,7 @@ use common\models\Order;
 use Yii;
 use yii\data\ArrayDataProvider;
 use yii\i18n\Formatter;
+use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 class OrderController extends \yii\web\Controller
@@ -26,16 +27,20 @@ class OrderController extends \yii\web\Controller
 
     public function actionFastCreate()
     {
-        $model = new Order(false, ['scenario' => 'fast']);
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            if ($model->save()) {
-                Yii::$app->response->format = Response::FORMAT_JSON;
-                return 'Ваш заказ принят! Ожидайте, в ближфйшее время с Вами свяжутся.';
+        if (Yii::$app->request->isAjax) {
+            $model = new Order(false, ['scenario' => 'fast']);
+            $response['success'] = false;
+            if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+                if ($model->save()) {
+                    Yii::$app->response->format = Response::FORMAT_JSON;
+                    $response['success'] = true;
+                    $response['message'] = 'Ваш заказ принят! Ожидайте, в ближайшее время с Вами свяжутся.';
+                    return $response;
+                }
             }
+            return $model->errors;
         }
-        return $this->render('fast-create', [
-            'model' => $model,
-        ]);
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 
     public function actionConfirm()
@@ -44,8 +49,10 @@ class OrderController extends \yii\web\Controller
         if (Yii::$app->request->post() && $model->load(Yii::$app->request->post())) {
 
             if ($model->save()) {
+                $model->createSubscriber(); // TODO do not working
+                $items = $model->setOrderId();
                 $dataProvider = new ArrayDataProvider([
-                    'allModels' => unserialize($model->value)
+                    'allModels' => $items
                 ]);
 
                 return $this->render('success', [
@@ -56,4 +63,6 @@ class OrderController extends \yii\web\Controller
         }
         return $this->render('index', ['model' => $model]);
     }
+
+
 }
