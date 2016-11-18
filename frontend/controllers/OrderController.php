@@ -25,31 +25,35 @@ class OrderController extends \yii\web\Controller
         ];
     }
 
+    /**
+     * @return array
+     * @throws NotFoundHttpException
+     */
     public function actionFastCreate()
     {
         if (Yii::$app->request->isAjax) {
-            $model = new Order(false, ['scenario' => 'fast']);
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            $model = new Order(false, ['scenario' => 'short']);
             $response['success'] = false;
-            if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-                if ($model->save()) {
-                    Yii::$app->response->format = Response::FORMAT_JSON;
-                    $response['success'] = true;
-                    $response['message'] = 'Ваш заказ принят! Ожидайте, в ближайшее время с Вами свяжутся.';
-                    return $response;
-                }
+            if ($model->load(Yii::$app->request->post()) && $model->save()) {
+                $response['success'] = true;
+                $response['message'] = 'Ваш заказ принят! Ожидайте, в ближайшее время с Вами свяжутся.';
+                return $response;
             }
-            return $model->errors;
+            return $response['errors'] = $model->errors;
         }
         throw new NotFoundHttpException('The requested page does not exist.');
     }
 
+    /**
+     * @return string
+     */
     public function actionConfirm()
     {
         $model = new Order(Yii::$app->session['discount']);
-        if (Yii::$app->request->post() && $model->load(Yii::$app->request->post())) {
+        if ($model->load(Yii::$app->request->post())) {
 
             if ($model->save()) {
-                $model->createSubscriber(); // TODO do not working
                 $items = $model->setOrderId();
                 $dataProvider = new ArrayDataProvider([
                     'allModels' => $items
@@ -60,9 +64,8 @@ class OrderController extends \yii\web\Controller
                     'dataProvider' => $dataProvider
                 ]);
             }
+            return $this->redirect('cart/view');
         }
         return $this->render('index', ['model' => $model]);
     }
-
-
 }

@@ -49,13 +49,13 @@ use yii\widgets\ActiveForm;
         <?= Html::a('Удалить видео', ['/product/delete-video?id='.$model->id], ['class'=>'product-form btn btn-primary']) ?>
     <?php endif; ?>
 
-    <?= $form->field($model, 'published')->widget(SwitchInput::classname(), ['pluginOptions' => [
+    <?php $form->field($model, 'published')->widget(SwitchInput::classname(), ['pluginOptions' => [
         'onText' => 'Да',
         'offText' => 'Нет',
     ]]); ?>
 
     <div class="form-group">
-        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+        <?= Html::submitButton('Сохранить', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

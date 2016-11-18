@@ -41,12 +41,13 @@ class CampaignSearch extends Campaign
      */
     public function search($params)
     {
-        $query = Campaign::find();
+        $query = Campaign::find()->orderBy(['status' => SORT_DESC]);
 
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => false
         ]);
 
         $this->load($params);

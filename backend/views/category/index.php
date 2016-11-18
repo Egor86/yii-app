@@ -2,6 +2,7 @@
 
 use common\models\Category;
 use common\models\SizeTableName;
+use kotchuprik\sortable\grid\Column;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\grid\GridView;
@@ -10,7 +11,7 @@ use yii\widgets\Pjax;
 /* @var $searchModel backend\models\search\CategorySearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Categories';
+$this->title = 'Категории';
 $this->params['breadcrumbs'][] = $this->title;
 
 $this->registerJs('
@@ -34,11 +35,10 @@ $( ".delete" ).click(function() {
 ', \yii\web\View::POS_END)
 ?>
 <div class="category-index">
-    <h1><?= Html::encode($this->title) ?></h1>
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>
-        <?= Html::a('Create Category', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Создать категорию', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
     <div id="error-box"></div>
 <?php Pjax::begin(); ?>
@@ -51,7 +51,7 @@ $( ".delete" ).click(function() {
         },
         'columns' => [
             [
-                'class' => \kotchuprik\sortable\grid\Column::className(),
+                'class' => Column::className(),
             ],
             [
                 'attribute' => 'id',
@@ -65,7 +65,7 @@ $( ".delete" ).click(function() {
             [
                 'attribute' => 'parent',
                 'value' => function($data){
-                    return $data->parent ? Category::findOne($data->parent)->name : 'родитель';
+                    return $data->parent ? Category::findOne($data->parent)->name : 'Родитель';
                 },
                 'format' => 'html',
                 'filter'=> Category::getParentsList(),
@@ -80,7 +80,7 @@ $( ".delete" ).click(function() {
                 'filter'=> ArrayHelper::map(SizeTableName::find()->all(), 'id', 'name'),
             ],
             ['class' => 'yii\grid\ActionColumn',
-            'template' => '{view}{delete}',
+            'template' => '{view} {update} {delete}',
             'buttons' => [
                 'delete' => function($url, $model) {
                     return Html::a('<span class="glyphicon glyphicon-trash"></span>', '#', [

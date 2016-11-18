@@ -12,6 +12,7 @@ return [
     'controllerNamespace' => 'backend\controllers',
     'bootstrap' => ['log'],
     'homeUrl' => '/admin',
+    'language' => 'ru-RU',
     'components' => [
         'request' => [
             'csrfParam' => '_csrf-backend',
@@ -45,14 +46,20 @@ return [
                 ],
             ],
         ],
-        /*
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
             ],
         ],
-        */
+
+        'urlManagerFrontEnd' => [
+            'class' => 'yii\web\urlManager',
+            'baseUrl' => '/',
+            'enablePrettyUrl' => true,
+            'showScriptName' => false,
+        ],
+
     ],
     'params' => $params,
 ];

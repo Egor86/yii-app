@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use frontend\models\MailSender;
 use Yii;
 
 /**
@@ -9,16 +10,29 @@ use Yii;
  *
  * @property integer $id
  * @property integer $subscriber_id
- * @property integer $product_id
- * @property integer $color_id
+ * @property integer $item_id
  * @property integer $size_id
  * @property integer $created_at
  * @property integer $updated_at
+ * @property integer $status
+ * @property string $name
+ * @property string $email
+ * @property string $phone
  *
- * @property Subscriber $subscriber
+ * @property Item $item
+ * @property Size $size
  */
 class PreOrder extends \yii\db\ActiveRecord
 {
+    const STATUS_PROGRESS = 0;
+    const STATUS_DONE = 1;
+
+    public function init()
+    {
+        parent::init();
+        $this->on(Subscriber::EVENT_NEW_SUBSCRIBER, [new Subscriber(), 'createSubscriber'], Subscriber::GROUP_PRE_ORDER);
+        $this->on(PreOrder::EVENT_AFTER_DELETE, [Item::className(), 'deleteDeleted']);
+    }
     /**
      * @inheritdoc
      */
@@ -27,15 +41,46 @@ class PreOrder extends \yii\db\ActiveRecord
         return 'pre_order';
     }
 
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+        if ($insert) {
+            $this->trigger(Subscriber::EVENT_NEW_SUBSCRIBER);
+
+            MailSender::sendEmail(
+                $this->email,
+                'Предзаказ товара - ' . $this->item_id .', размер'. $this->size_id,
+                'Как только появится товар - ' . $this->item_id .', размер'. $this->size_id . 'мы Вам сообщим', 'pre_order-html');
+        }
+        return true;
+    }
+
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['subscriber_id', 'product_id', 'color_id', 'size_id', 'created_at', 'updated_at'], 'required'],
-            [['subscriber_id', 'product_id', 'color_id', 'size_id', 'created_at', 'updated_at'], 'integer'],
-            [['subscriber_id'], 'exist', 'skipOnError' => true, 'targetClass' => Subscriber::className(), 'targetAttribute' => ['subscriber_id' => 'id']],
+            [['item_id', 'size_id', 'name', 'email', 'phone'], 'required'],
+            [['item_id', 'size_id', 'created_at', 'updated_at', 'status'], 'integer'],
+            [['name', 'email'], 'string', 'max' => 45],
+            [['phone'], 'string', 'max' => 10],
+            ['status', 'default', 'value' => self::STATUS_PROGRESS],
+            [['item_id'], 'exist', 'skipOnError' => true, 'targetClass' => Item::className(), 'targetAttribute' => ['item_id' => 'id']],
+            [['size_id'], 'exist', 'skipOnError' => true, 'targetClass' => Size::className(), 'targetAttribute' => ['size_id' => 'id']],
+        ];
+    }
+
+    public function behaviors()
+    {
+        return [
+            'timestamp' => [
+                'class' => 'yii\behaviors\TimestampBehavior',
+                'attributes' => [
+                    \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    \yii\db\ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
+                ],
+            ],
         ];
     }
 
@@ -46,21 +91,30 @@ class PreOrder extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'subscriber_id' => 'Subscriber ID',
-            'product_id' => 'Product ID',
-            'color_id' => 'Color ID',
-            'size_id' => 'Size ID',
-            'created_at' => 'Created At',
+            'item_id' => 'Артикул / название товара',
+            'size_id' => 'Размер',
+            'created_at' => 'Создан',
             'updated_at' => 'Updated At',
+            'name' => 'Name',
+            'email' => 'Email',
+            'phone' => 'Phone',
         ];
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getSubscriber()
+    public function getItem()
     {
-        return $this->hasOne(Subscriber::className(), ['id' => 'subscriber_id'])->inverseOf('preOrders');
+        return $this->hasOne(Item::className(), ['id' => 'item_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSize()
+    {
+        return $this->hasOne(Size::className(), ['id' => 'size_id']);
     }
 
     /**

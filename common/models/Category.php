@@ -129,7 +129,13 @@ class Category extends \yii\db\ActiveRecord
                     ->select('parent')
                     ->from('category')
                     ->distinct()])
-            ->all();
+            ->asArray()->all();
+
+        $parents[] = [
+            'id' => 0,
+            'name' => 'Родитель'
+        ];
+
         return ArrayHelper::map($parents, 'id', 'name');
     }
 }

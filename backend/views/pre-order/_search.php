@@ -19,13 +19,11 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'subscriber_id') ?>
 
-    <?= $form->field($model, 'product_id') ?>
-
-    <?= $form->field($model, 'color_id') ?>
+    <?= $form->field($model, 'item_id') ?>
 
     <?= $form->field($model, 'size_id') ?>
 
-    <?php // echo $form->field($model, 'created_at') ?>
+    <?= $form->field($model, 'created_at') ?>
 
     <?php // echo $form->field($model, 'updated_at') ?>
 

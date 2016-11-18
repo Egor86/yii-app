@@ -8,10 +8,10 @@ use yii\widgets\ActiveForm;
 /* @var $product common\models\Product */
 /** @var $image_storages common\models\ImageStorage */
 
-$this->title = 'Update images: ' . $model->name;
-$this->params['breadcrumbs'][] = ['label' => 'Items', 'url' => ['index']];
-$this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = 'Update';
+$this->title = 'Обновление изображений: ' . $model->name;
+$this->params['breadcrumbs'][] = ['label' => 'Продукты', 'url' => ['product/index']];
+$this->params['breadcrumbs'][] = ['label' => $model->product->name, 'url' => ['product/view', 'id' => $model->product->id]];
+$this->params['breadcrumbs'][] = 'Обновление';
 ?>
 <div class="item-update">
     <?php $form = ActiveForm::begin([
@@ -32,7 +32,7 @@ $this->params['breadcrumbs'][] = 'Update';
 
 
     <div class="form-group">
-        <?= Html::submitButton('Update', ['class' => 'btn btn-primary']) ?>
+        <?= Html::submitButton('Сохранить', ['class' => 'btn btn-primary']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

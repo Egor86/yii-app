@@ -5,12 +5,12 @@ namespace backend\models\search;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\ProductSize;
+use common\models\Size;
 
 /**
- * ProductSizeSearch represents the model behind the search form about `common\models\ProductSize`.
+ * SizeSearch represents the model behind the search form about `common\models\Size`.
  */
-class ProductSizeSearch extends ProductSize
+class SizeSearch extends Size
 {
     /**
      * @inheritdoc
@@ -18,7 +18,8 @@ class ProductSizeSearch extends ProductSize
     public function rules()
     {
         return [
-            [['id', 'product_id', 'size_id', 'amount', 'status', 'created_at', 'updated_at'], 'integer'],
+            [['id', 'size_table_name_id', 'created_at', 'updated_at'], 'integer'],
+            [['value'], 'safe'],
         ];
     }
 
@@ -40,7 +41,7 @@ class ProductSizeSearch extends ProductSize
      */
     public function search($params)
     {
-        $query = ProductSize::find();
+        $query = Size::find();
 
         // add conditions that should always apply here
 
@@ -59,13 +60,12 @@ class ProductSizeSearch extends ProductSize
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'product_id' => $this->product_id,
-            'size_id' => $this->size_id,
-            'amount' => $this->amount,
-            'status' => $this->status,
+            'size_table_name_id' => $this->size_table_name_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ]);
+
+        $query->andFilterWhere(['like', 'value', $this->value]);
 
         return $dataProvider;
     }

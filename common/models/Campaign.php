@@ -19,12 +19,33 @@ use Yii;
  */
 class Campaign extends \yii\db\ActiveRecord
 {
+    const CAMPAIGN_ACTIVE = 1;
+    const CAMPAIGN_CLOSED = 0;
+
+    public static function getStatus()
+    {
+        return [
+            self::CAMPAIGN_CLOSED => 'Закрыта',
+            self::CAMPAIGN_ACTIVE => 'Активная'
+        ];
+    }
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
         return 'campaign';
+    }
+
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            if ($this->status == self::CAMPAIGN_ACTIVE) {
+                Campaign::updateAll(['status' => self::CAMPAIGN_CLOSED]);
+            }
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -34,8 +55,9 @@ class Campaign extends \yii\db\ActiveRecord
     {
         return [
             [['name', 'discount', 'coupon_action_time'], 'required'],
-            [['discount', 'coupon_action_time', 'status', 'created_at', 'updated_at'], 'integer'],
+            [['discount', 'status', 'created_at', 'updated_at'], 'integer'],
             [['name'], 'string', 'max' => 45],
+            ['coupon_action_time', 'actionTimeCreate']
         ];
     }
 
@@ -59,13 +81,19 @@ class Campaign extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'name' => 'Name',
-            'discount' => 'Discount',
-            'coupon_action_time' => 'Coupon Action Time',
-            'status' => 'Status',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+            'name' => 'Название',
+            'discount' => 'Сумма скидки',
+            'coupon_action_time' => 'Срок действия скидки',
+            'status' => 'Статус',
+            'created_at' => 'Создана',
+            'updated_at' => 'Обновлена',
         ];
+    }
+
+    public function actionTimeCreate($attribute)
+    {
+        $this->coupon_action_time = (($this->coupon_action_time['day'] * 24 + $this->coupon_action_time['hour']) *
+                60 + $this->coupon_action_time['minute']) * 60;
     }
 
     /**

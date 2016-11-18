@@ -1,7 +1,11 @@
 <?php
 
-/** @var $items common\models\Item*/
+/** @var $model common\models\Item*/
+/* @var $this yii\web\View */
+
+use common\helpers\Image;
 use common\models\Color;
+use common\models\ImageStorage;
 use common\models\Item;
 use kartik\detail\DetailView;
 use yii\helpers\ArrayHelper;
@@ -9,12 +13,9 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\MaskedInput;
 
+
 ?>
 
-<?php foreach ($items as $model) : ?>
-<p>
-    <h4><a class="dashed-link collapsed" data-toggle="collapse" href="#item-view<?= $model->id?>" aria-expanded="false" aria-controls="item-view<?= $model->id?>"><?= $model->name?></a></h4>
-</p>
 <div class="collapse" id="item-view<?= $model->id?>" class="item-view">
 
     <p>
@@ -33,7 +34,7 @@ use yii\widgets\MaskedInput;
         ],
         'mode'=>DetailView::MODE_VIEW,
         'panel'=>[
-            'heading'=>'# ' . $model->id.' '.$model->name,
+            'heading'=>'# ' . $model->id . ' '. $model->name,
             'type'=>DetailView::TYPE_INFO,
         ],
         'attributes' => [
@@ -46,7 +47,11 @@ use yii\widgets\MaskedInput;
                     [
                         'attribute' => 'color_id',
                         'format' => 'raw',
-                        'value' => "<span class='badge' style='background-color: {$model->color->rgb_code}'> </span> " . $model->color->name,
+                        'value' => ($model->color->type == Color::COLOR_RGB ?
+                            "<span class='badge' style='background-color: {$model->color->rgb_code}'> </span>" :
+                            (($img = ImageStorage::findOne(['class' => get_class($model->color),'class_item_id' => $model->color->id])) ?
+                            Html::img(Image::thumb($img->file_path, Yii::getAlias('@front-web'), 40, 40)) : 'Изображение отсутствует '))
+                        . " " . $model->color->name,
                         'updateMarkup' => function($form, $widget) {
                             $model = $widget->model;
                             $color_list = Item::find()->select('color_id')
@@ -127,6 +132,40 @@ use yii\widgets\MaskedInput;
                 'rowOptions' => ['class'=>'kv-edit-hidden'],
             ],
             [
+                'columns' => [
+                    [
+                        'attribute' => 'status',
+                        'format'=>'raw',
+                        'value'=>$model->status ? '<span class="label label-success">Да</span>' : '<span class="label label-danger">Нет</span>',
+                        'type' => DetailView::INPUT_SWITCH,
+                        'widgetOptions' => [
+                            'pluginOptions' => [
+                                'onText' => 'Да',
+                                'offText' => 'Нет',
+                            ]
+                        ]
+                    ],
+                    [
+                        'attribute' => 'recommended',
+                        'format'=>'raw',
+                        'value'=>$model->recommended ? '<span class="label label-success">Да</span>' : '<span class="label label-danger">Нет</span>',
+                        'type' => DetailView::INPUT_SWITCH,
+                        'widgetOptions' => [
+                            'pluginOptions' => [
+                                'onText' => 'Да',
+                                'offText' => 'Нет',
+                            ]
+                        ]
+                    ],
+                ]
+            ],
+            [
+                'label' => 'Количество',
+                'format'=>'raw',
+                'value' => $model->getAmount() ? '<span class="label label-success">' . $model->getAmount() . '</span>' : '<span class="label label-danger">Нет в наличии</span>',
+                'rowOptions'=>['class'=>'warning kv-edit-hidden']
+            ],
+            [
                 'group'=>true,
                 'label'=>'Seo параметры',
                 'rowOptions'=>['class'=>'info'],
@@ -136,13 +175,13 @@ use yii\widgets\MaskedInput;
                 'columns' => [
                     [
                         'label' => 'Seo title',
-                        'value' => $model->seo->title,
+                        'value' => $model->seo ? $model->seo->title : '',
                         'inputContainer' => ['class'=>'col-sm-6'],
                         'valueColOptions'=>['style'=>'width:30%'],
                     ],
                     [
                         'label' => 'Seo keyword',
-                        'value' => $model->seo->keyword,
+                        'value' => $model->seo ? $model->seo->keyword : '',
                         'inputContainer' => ['class'=>'col-sm-6'],
                         'valueColOptions'=>['style'=>'width:30%'],
                     ],
@@ -152,7 +191,7 @@ use yii\widgets\MaskedInput;
             [
                 'attribute' => 'Seo',
                 'label' => 'Seo description',
-                'value' => $model->seo->description,
+                'value' => $model->seo ? $model->seo->description : '',
                 'updateMarkup' => function($form, $widget) {
                     $model = $widget->model;
                     return \common\widgets\SeoForm::widget(['model' => $model]);
@@ -163,8 +202,8 @@ use yii\widgets\MaskedInput;
             ],
         ],
         'deleteOptions' => [
-            'url' => 'delete',
-            'params' => ['id' => $model->id]],
+            'url' => '/admin/item/delete',
+            'params' => ['id' => $model->id],
+            ]
     ]) ?>
 </div>
-<?php endforeach;?>

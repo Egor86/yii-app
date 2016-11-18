@@ -9,13 +9,12 @@ use yii\helpers\Html;
 /** @var $item_sizes common\models\ItemSize */
 /* @var $image_storages common\models\ImageStorage */
 
-$this->title = 'Create Item';
+$this->title = 'Создать товар';
 $this->params['breadcrumbs'][] = ['label' => 'Items', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="item-create">
 
-    <h1><?= Html::encode($this->title) ?></h1>
 
     <?= $this->render('_form', [
         'model' => $model,

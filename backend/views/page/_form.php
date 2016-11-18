@@ -2,6 +2,7 @@
 
 use common\widgets\SeoForm;
 use kartik\switchinput\SwitchInput;
+use vova07\imperavi\Widget;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
@@ -17,7 +18,7 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'text')->widget(\vova07\imperavi\Widget::className(),[
+    <?= $form->field($model, 'text')->widget(Widget::className(),[
         'settings' => [
             'lang' => 'ru',
             'limiter' => 10,
@@ -43,7 +44,7 @@ use yii\widgets\ActiveForm;
     <?= SeoForm::widget(['model' => $model]) ?>
 
     <div class="form-group">
-        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+        <?= Html::submitButton('Сохранить', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

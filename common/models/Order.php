@@ -25,6 +25,7 @@ use Yii;
  * @property integer $updated_at
  * @property integer $sort_by
  * @property string $value
+ * @property string $comment
  * @property integer $total_cost
  *
  * @property OrderProduct[] $orderProducts
@@ -37,7 +38,7 @@ class Order extends \yii\db\ActiveRecord
     const ORDER_REVOKED = 3;
     const ORDER_DONE = 4;
 
-    const EVENT_CHANGE_STATUS = 'change using status';
+    const EVENT_CHANGE_STATUS = 'changeUsingStatus';
 
     public function __construct($coupon_id = false, array $config = [])
     {
@@ -50,6 +51,14 @@ class Order extends \yii\db\ActiveRecord
         parent::__construct($config);
     }
 
+
+    public function init()
+    {
+        parent::init();
+        $this->on(self::EVENT_CHANGE_STATUS, [new Coupon(), 'changeStatus']);
+        $this->on(self::EVENT_CHANGE_STATUS, [new ItemSize(), 'changeAmount']);
+        $this->on(Subscriber::EVENT_NEW_SUBSCRIBER, [new Subscriber(), 'createSubscriber'], Subscriber::GROUP_ORDER);
+    }
     /**
      * @inheritdoc
      */
@@ -90,6 +99,10 @@ class Order extends \yii\db\ActiveRecord
             $cart->deleteAll();
             Yii::$app->session->remove('discount');
         }
+
+        if ($insert) {
+            $this->trigger(Subscriber::EVENT_NEW_SUBSCRIBER);
+        }
     }
 
     /**
@@ -98,15 +111,13 @@ class Order extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'city', 'address', 'phone', 'email', 'delivery_date', 'city'], 'required', 'message'=>'Поле "{attribute}" не может быть пустым.'],
+            [['name', 'city', 'address', 'phone', 'email', 'delivery_date', 'city'], 'required'],
             [['delivery_date'], 'safe'],
             [['coupon_id', 'status', 'total_cost', 'created_at', 'updated_at', 'sort_by'], 'integer'],
-            [['name', 'phone'], 'string', 'max' => 64],
-            [['coupon', 'phone'], 'string', 'max' => 15],
+            [['phone'], 'string', 'max' => 15], // if used inputMask max=15
             [['name'], 'trim'],
-            [['surname', 'country', 'region', 'city', 'organization_name', 'post_index',], 'string', 'max' => 45],
-            [['address'], 'string', 'max' => 255],
-            [['email'], 'string', 'max' => 128],
+            [['surname', 'country', 'region', 'city', 'organization_name', 'post_index', 'email', 'name'], 'string', 'max' => 45],
+            [['address', 'comment'], 'string', 'max' => 255],
             ['email', 'email'],
             [['value'], 'string'],
             ['country', 'default', 'value' => 'Украина'],
@@ -121,7 +132,7 @@ class Order extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'Номер заказа',
+            'id' => 'ID заказа',
             'name' => 'Имя',
             'surname' => 'Фамилия',
             'country' => 'Страна',
@@ -141,6 +152,7 @@ class Order extends \yii\db\ActiveRecord
             'fullName' => 'ФИО покупателя',
             'fullAddress' => 'Адрес доставки',
             'total_cost' => 'Сумма заказа',
+            'comment' => 'Комментарий'
         ];
     }
 
@@ -161,7 +173,7 @@ class Order extends \yii\db\ActiveRecord
     public function scenarios()
     {
         $scenarios = parent::scenarios();
-        $scenarios['fast'] = ['name', 'phone', 'status'];
+        $scenarios['short'] = ['name', 'phone', 'status'];
         return $scenarios;
     }
     /**
@@ -184,17 +196,17 @@ class Order extends \yii\db\ActiveRecord
             $this->country . ' ' . $this->post_index;
     }
 
-    public function createSubscriber()
-    {
-        if (!$this->coupon_id) {
-            $subscriber = new Subscriber();
-            $subscriber->name = $this->name;
-            $subscriber->phone = $this->phone;
-            $subscriber->email = $this->email;
-            $subscriber->group = Subscriber::GROUP_CUSTOMER;
-            $subscriber->save();
-        }
-    }
+//    public function createSubscriber()
+//    {
+//        if (!$this->coupon_id) {
+//            $subscriber = new Subscriber();
+//            $subscriber->name = $this->name;
+//            $subscriber->phone = $this->phone;
+//            $subscriber->email = $this->email;
+//
+//            $subscriber->save();
+//        }
+//    }
 
     public function setOrderId()
     {
@@ -241,7 +253,7 @@ class Order extends \yii\db\ActiveRecord
         foreach ($value as $item) {
             $new_cost += $item->getCost();
         }
-        $this->total_cost = $this->coupon ? max(0, $new_cost - $this->coupon->discount) : $new_cost;
+        $this->total_cost = $this->coupon ? max(0, $new_cost - $this->coupon->campaign->discount) : $new_cost;
     }
 
     public function saveOrder($value)

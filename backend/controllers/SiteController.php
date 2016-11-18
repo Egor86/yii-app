@@ -1,6 +1,7 @@
 <?php
 namespace backend\controllers;
 
+use common\models\Subscriber;
 use Yii;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
@@ -60,6 +61,13 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
+//        $mailChimp = new \Mailchimp(Yii::$app->params['mailchimpAPIkey']);
+//        $list_id = $mailChimp->lists->getList(['list_name' => Subscriber::LIST_NAME]);
+//
+//        echo '<pre>';
+//        @print_r($mailChimp->lists->interestGroupings($list_id['data'][0]['id']));
+//        echo '</pre>';
+//        exit(__FILE__ .': '. __LINE__);
         return $this->render('index');
     }
 

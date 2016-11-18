@@ -2,6 +2,7 @@
 
 namespace backend\models\search;
 
+use common\models\Coupon;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -12,6 +13,9 @@ use common\models\Subscriber;
  */
 class SubscriberSearch extends Subscriber
 {
+    public $couponUsingStatus;
+    public $coupon;
+
     /**
      * @inheritdoc
      */
@@ -19,7 +23,7 @@ class SubscriberSearch extends Subscriber
     {
         return [
             [['id', 'created_at', 'updated_at', 'sort_by'], 'integer'],
-            [['name', 'email', 'phone', 'mail_chimp_euid', 'mail_chimp_leid', ], 'safe'],
+            [['name', 'email', 'phone', 'euid', 'leid', 'coupon', 'couponUsingStatus','mail_chimp_status'], 'safe'],
         ];
     }
 
@@ -52,6 +56,13 @@ class SubscriberSearch extends Subscriber
 
         $this->load($params);
 
+        if (!$this->coupon) {
+            $query->joinWith('coupon')->andFilterWhere(['not in', 'subscriber_id', $this->coupon]);
+        } elseif ($this->coupon) {
+            $query->leftJoin('coupon', 'subscriber.id = coupon.subscriber_id')
+                ->andFilterWhere(['not in', 'subscriber.id', Coupon::find()->select('subscriber_id')->asArray()->column()]);
+        }
+
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
             // $query->where('0=1');
@@ -64,13 +75,16 @@ class SubscriberSearch extends Subscriber
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'sort_by' => $this->sort_by,
+            'mail_chimp_status' => $this->mail_chimp_status,
         ]);
 
         $query->andFilterWhere(['like', 'name', $this->name])
             ->andFilterWhere(['like', 'email', $this->email])
             ->andFilterWhere(['like', 'phone', $this->phone])
-            ->andFilterWhere(['like', 'mail_chimp_euid', $this->mail_chimp_euid])
-            ->andFilterWhere(['like', 'mail_chimp_leid', $this->mail_chimp_leid]);
+            ->andFilterWhere(['like', 'euid', $this->euid])
+            ->andFilterWhere(['like', 'leid', $this->leid])
+            ->andFilterWhere(['like', 'mail_chimp_status', $this->mail_chimp_status])
+            ->andFilterWhere(['like', 'coupon.using_status', $this->couponUsingStatus]);;
 
         return $dataProvider;
     }

@@ -6,6 +6,7 @@ use backend\models\search\OrderSearch;
 use common\models\Coupon;
 use common\models\CouponForm;
 use common\models\Item;
+use common\models\PreOrder;
 use common\models\Product;
 use Yii;
 use common\models\Order;
@@ -32,18 +33,6 @@ class OrderController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => [
-                            'index',
-                            'view',
-                            'create',
-                            'update',
-                            'delete',
-                            'change-status',
-                            'update-value',
-                            'delete-item',
-                            'add-item',
-                            'archive'
-                        ],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -119,24 +108,29 @@ class OrderController extends Controller
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
-    public function actionCreate()
-    {
-        $model = new Order();
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
-        }
-    }
+//    public function actionCreateShort($pre_order_id)
+//    {
+//        $pre_order = PreOrder::findOne($pre_order_id);
+//
+//        if (!$pre_order) {
+//            throw new NotFoundHttpException('The requested page does not exist.');
+//        }
+//
+//        $model = new Order(false, ['scenario' => 'short']);
+//
+//        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+//            return $this->redirect(['view', 'id' => $model->id]);
+//        } else {
+//            return $this->render('create', [
+//                'model' => $model,
+//            ]);
+//        }
+//    }
 
     /**
-     * Updates an existing Order model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
+     * @param $id
+     * @return Response
+     * @throws NotFoundHttpException
      */
     public function actionUpdate($id)
     {
@@ -231,17 +225,18 @@ class OrderController extends Controller
         $model = $this->findModel($id);
         $model->status = $status;
 
-        if ($model->save()) {
+        if ($model->save(false)) {
             if ($model->status == Order::ORDER_REVOKED || $model->status == Order::ORDER_DONE) {
-                if ($model->coupon_id && $coupon = Coupon::findOne($model->coupon_id)) {
-                    $coupon->using_status = Coupon::UNUSED;
-                    $coupon->save();
-                }
+                $model->trigger(Order::EVENT_CHANGE_STATUS);
                 return $this->redirect('index');
             }
             return $this->redirect(['view', 'id' => $id]);
         }
-        throw new NotFoundHttpException('The requested page does not exist.');
+
+        return $this->redirect([
+            'view',
+            'id' => $id
+        ]);
     }
 
     /**

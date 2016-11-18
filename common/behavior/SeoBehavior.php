@@ -29,10 +29,10 @@ class SeoBehavior extends \yii\base\Behavior
     public function afterInsert()
     {
         if($this->seoText->load(Yii::$app->request->post())){
-
-            if(!$this->seoText->isEmpty()){
+//
+//            if(!$this->seoText->isEmpty()){
                 $this->seoText->save();
-            }
+//            }
         }
     }
 

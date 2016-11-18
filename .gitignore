@@ -43,5 +43,5 @@ db_dump.sql
 
 # upload file
 /frontend/web/data
-
+/frontend/web/data/video_storage
 extentions.txt

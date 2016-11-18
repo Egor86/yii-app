@@ -44,7 +44,10 @@ $this->params['breadcrumbs'][] = $this->title;
                  'fullAddress',
                 // 'organization_name',
     //             'post_index',
-                 'phone',
+                [
+                    'attribute' => 'phone',
+                    'filter' => false,
+                ],
                 // 'email:email',
                 [
                     'attribute' => 'delivery_date',
@@ -53,12 +56,12 @@ $this->params['breadcrumbs'][] = $this->title;
                         'attribute' => 'delivery_date',
                         'model'=>$searchModel, 'dateFormat' => 'yyyy-MM-dd', 'language' => 'ru']),
                 ],
-                [
-                    'attribute' => 'coupon_id',
-                    'value' => function($data){
-                        return $data->coupon_id ? $data->coupon->coupon_code : null;
-                    },
-                ],
+//                [
+//                    'attribute' => 'coupon_id',
+//                    'value' => function($data){
+//                        return $data->coupon_id ? $data->coupon->coupon_code : null;
+//                    },
+//                ],
                 [
                     'attribute' => 'status',
                     'value' => function($data){
@@ -75,7 +78,8 @@ $this->params['breadcrumbs'][] = $this->title;
     //             'updated_at:datetime',
                 // 'sort_by',
 
-                ['class' => 'yii\grid\ActionColumn'],
+                ['class' => 'yii\grid\ActionColumn',
+                'template' => '{view}'],
             ],
         ]); ?>
     <?php Pjax::end(); ?>

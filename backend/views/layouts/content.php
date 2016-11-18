@@ -8,7 +8,7 @@ use dmstr\widgets\Alert;
         <?php if (isset($this->blocks['content-header'])) { ?>
             <h1><?= $this->blocks['content-header'] ?></h1>
         <?php } else { ?>
-            <h1>
+            <h1 style="text-align: center">
                 <?php
                 if ($this->title !== null) {
                     echo \yii\helpers\Html::encode($this->title);
@@ -37,9 +37,9 @@ use dmstr\widgets\Alert;
 
 <footer class="main-footer">
     <div class="pull-right hidden-xs">
-        <b>Version</b> 2.0
+        <b>Version</b> 1.0
     </div>
-    <strong>Copyright &copy; 2014-2015 <a href="http://almsaeedstudio.com">Almsaeed Studio</a>.</strong> All rights
+    <strong>Copyright &copy; 2016 <a href="http://jaws.com.ua/">JAWS</a>.</strong> All rights
     reserved.
 </footer>
 

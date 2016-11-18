@@ -13,7 +13,7 @@ use yii\widgets\MaskedInput;
 /* @var $coupon_form common\models\CouponForm */
 
 $this->title = 'Заказ # ' . $model->id;
-$this->params['breadcrumbs'][] = ['label' => 'Orders', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Заказы', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 /*
  * func changeCost calling in /backend/web/assets/------/js/bootstrap-editable.js
@@ -82,8 +82,9 @@ function changeCost(response){
                 'attribute' => 'fullName',
                 'updateMarkup' => function($form, $widget) {
                     $model = $widget->model;
-                    return $form->field($model, 'name', ['template' => "{label}{input}{error}",]) . '<br>' .
-                    $form->field($model, 'surname', ['template' => "{label}{input}{error}",]);
+                    $inputs = '<div class="col-sm-6">' . $form->field($model, 'name', ['template' => "{label}{input}{error}",]) .
+                        '</div><div class="col-sm-6">' . $form->field($model, 'surname', ['template' => "{label}{input}{error}",]) . '</div>';
+                    return $inputs;
                 },
                 'valueColOptions'=>['style'=>'width:70%'],
             ],
@@ -91,12 +92,14 @@ function changeCost(response){
                 'attribute' => 'fullAddress',
                 'updateMarkup' => function($form, $widget) {
                     $model = $widget->model;
-                    return $form->field($model, 'organization_name', ['template' => "{label}{input}{error}",]) . '<br>' .
-                    $form->field($model, 'address', ['template' => "{label}{input}{error}",]) . '<br>' .
-                    $form->field($model, 'city', ['template' => "{label}{input}{error}",]) . '<br>' .
-                    $form->field($model, 'region', ['template' => "{label}{input}{error}",]) . '<br>' .
-                    $form->field($model, 'country', ['template' => "{label}{input}{error}",]) . '<br>' .
-                    $form->field($model, 'post_index', ['template' => "{label}{input}{error}",]);
+                    $inputs = '<div class="col-sm-6">' . $form->field($model, 'organization_name', ['template' => "{label}{input}{error}",]) .
+                        '</div><div class="col-sm-6">' . $form->field($model, 'address', ['template' => "{label}{input}{error}",]) . '</div>' .
+                        '<div class="col-sm-6">' . $form->field($model, 'city', ['template' => "{label}{input}{error}",]) .
+                        '</div><div class="col-sm-6">' . $form->field($model, 'region', ['template' => "{label}{input}{error}",]) . '</div>' .
+                        '<div class="col-sm-6">' . $form->field($model, 'country', ['template' => "{label}{input}{error}",]) .
+                        '</div><div class="col-sm-6">' . $form->field($model, 'post_index', ['template' => "{label}{input}{error}",]) . '</div>';
+                    return $inputs;
+
                 },
                 'valueColOptions'=>['style'=>'width:70%'],
             ],
@@ -138,7 +141,10 @@ function changeCost(response){
             [
                 'attribute' => 'coupon_id',
                 'label' => 'Купон',
-                'value' => $model->coupon_id ? $model->coupon->coupon_code . ' (Получатель купона:   ' . $model->coupon->subscriber->email . ',   ' . $model->coupon->subscriber->phone . ')' : '',
+                'value' => $model->coupon_id ?
+                    $model->coupon->coupon_code . ' 
+                    (Получатель купона:   ' . $model->coupon->subscriber->email . ',   ' . $model->coupon->subscriber->phone . ') 
+                    Сумма скидки: ' . Yii::$app->formatter->asCurrency($model->coupon->campaign->discount) : '',
                 'valueColOptions'=>['style'=>'width:70%'],
                 'rowOptions' => ['class'=>'kv-edit-hidden'],
             ],
@@ -157,6 +163,14 @@ function changeCost(response){
                 'format' => 'currency',
                 'rowOptions' => ['class'=>'kv-edit-hidden'],
                 'valueColOptions' => ['id' => 'total-sum']
+            ],
+            [
+                'attribute' => 'comment',
+                'format' => 'text',
+                'updateMarkup' => function($form, $widget) {
+                    $model = $widget->model;
+                    return $form->field($model, 'comment')->textArea();
+                },
             ],
         ],
     ]) ?>

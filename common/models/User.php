@@ -186,4 +186,15 @@ class User extends ActiveRecord implements IdentityInterface
     {
         $this->password_reset_token = null;
     }
+
+    /**
+     * Change user password.
+     *
+     * @return boolean true if password was successfully changed
+     */
+    public function password($password)
+    {
+        $this->setPassword($password);
+        return $this->save(false);
+    }
 }

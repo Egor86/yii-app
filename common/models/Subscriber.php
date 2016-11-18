@@ -5,6 +5,8 @@ namespace common\models;
 use common\models\active_query\SubscriberQuery;
 use Mailchimp;
 use Yii;
+use yii\base\Event;
+use yii\db\Exception;
 
 /**
  * This is the model class for table "subscriber".
@@ -13,21 +15,27 @@ use Yii;
  * @property string $name
  * @property string $email
  * @property string $phone
- * @property string $mail_chimp_euid
- * @property string $mail_chimp_leid
+ * @property string $euid
+ * @property string $leid
  * @property integer $created_at
  * @property integer $updated_at
  * @property integer $sort_by
- * @property string $mail_chimp_status
+ * @property integer $mail_chimp_status
  * @property string $group
  */
 class Subscriber extends \yii\db\ActiveRecord
 {
-    const GROUPINGS_ID     = 741;
-    const GROUP_CUSTOMER   = 'customer';
-    const GROUP_SUBSCRIBER = 'subscriber';
-    const GROUP_COUPON     = 'coupon';
     const LIST_NAME        = 'List2_customer';
+    const GROUPINGS_ID     = 741;
+    const GROUP_ORDER      = 1;
+    const GROUP_PRE_ORDER  = 2;
+    const GROUP_COUPON     = 3;
+    const PENDING          = 0;
+    const SUBSCRIBED       = 1;
+    const UNSUBSCRIBED     = 2;
+    const CLEANED          = 3;
+
+    const EVENT_NEW_SUBSCRIBER = 'createNewSubscriber';
 
     public function init()
     {
@@ -38,16 +46,31 @@ class Subscriber extends \yii\db\ActiveRecord
      * @inheritdoc
      */
 
-    public static function getMailChimpStatus(){
-
+    public static function getGroup()
+    {
         return [
-            'pending'       => 'В ожидании',
-            'subscribed'    => 'Подписан',
-            'unsubscribed'  => 'Отписальса',
-            'cleaned'       => 'Недоставленные'
+            self::GROUP_PRE_ORDER   => 'pre-order',
+            self::GROUP_ORDER       => 'order',
+            self::GROUP_COUPON      => 'coupon'
         ];
     }
-
+//    public static function getMailChimpStatus()
+//    {
+//        return [
+//            self::PENDING       => 'В ожидании',
+//            self::SUBSCRIBED    => 'Подписан',
+//            self::UNSUBSCRIBED  => 'Отписался',
+//            self::CLEANED       => 'Недоставленные'
+//        ];
+//    }
+    public static function getMailChimpStatus(){
+        return [
+            'pending' => 'В ожидании',
+            'subscribed' => 'Подписан',
+            'unsubscribed'  => 'Отписался',
+            'cleaned' => 'Недоставленные'
+        ];
+    }
     public static function tableName()
     {
         return 'subscriber';
@@ -91,7 +114,8 @@ class Subscriber extends \yii\db\ActiveRecord
     {
         if (parent::beforeSave($insert)) {
             if ($insert) {
-                $merge_vars['groupings'] = [['id' => self::GROUPINGS_ID, 'groups' => [$this->group]]];
+                $merge_vars['groupings'] = [['id' => self::GROUPINGS_ID, 'groups' => [self::getGroup()[$this->group]]]];
+                $merge_vars['FNAME'] = $this->name;
                 $email['email'] = $this->email;
                 $mailchimp = new Mailchimp(Yii::$app->params['mailchimpAPIkey']);
                 $list_id = $mailchimp->lists->getList(['list_name' => self::LIST_NAME]);    // set the desired list_name
@@ -101,9 +125,12 @@ class Subscriber extends \yii\db\ActiveRecord
                     $email,
                     $merge_vars
                 );
+                if (empty($result)) {
+                    return false;
+                }
 
-                $this->mail_chimp_euid = $result['euid'];
-                $this->mail_chimp_leid = $result['leid'];
+                $this->euid = $result['euid'];
+                $this->leid = $result['leid'];
             }
             return true;
         }
@@ -130,14 +157,15 @@ class Subscriber extends \yii\db\ActiveRecord
     {
         return [
             [['name', 'email', 'phone'], 'required'],
-            [['created_at', 'updated_at', 'sort_by'], 'integer'],
-            ['email', 'unique'],
-            ['phone', 'unique'],
-            [['name', 'email', 'mail_chimp_leid', 'group', 'mail_chimp_euid'], 'string', 'max' => 45],
+            [['created_at', 'updated_at', 'sort_by', 'group'], 'integer'],
+            [['email', 'phone'], 'unique', 'targetAttribute' => ['email', 'phone']],
+            ['email', 'email', 'message' => 'Некорректный email'],
+            ['email', 'unique', 'message' => 'Указанный email уже зарегистрирован'],
+//            ['phone', 'unique'],
+            [['name', 'email', 'leid', 'euid', 'mail_chimp_status'], 'string', 'max' => 45],
             [['phone'], 'string', 'max' => 10],
-            [['mail_chimp_status'], 'string', 'max' => 15, ],
             ['mail_chimp_status', 'default', 'value' => 'pending'],
-            ['group', 'default', 'value' => self::GROUP_SUBSCRIBER],
+            ['group', 'default', 'value' => self::GROUP_COUPON],
             [['coupon'], 'safe']
         ];
     }
@@ -162,34 +190,80 @@ class Subscriber extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'name' => 'Name',
+            'name' => 'Имя',
             'email' => 'Email',
-            'phone' => 'Phone',
-            'mail_chimp_euid' => 'Mail Chimp Euid',
-            'mail_chimp_leid' => 'Mail Chimp Leid',
+            'phone' => 'Телефон (моб)',
+            'euid' => 'Mail Chimp Euid',
+            'leid' => 'Mail Chimp Leid',
             'created_at' => 'Создан',
             'updated_at' => 'Обновлен',
             'sort_by' => 'Sort By',
             'coupon' => 'Купон',
             'couponUsingStatus' => 'Использован',
-            'mail_chimp_status' => 'Статус подписки', // TODO request to the mailchimp by Lists::memberInfo
+            'mail_chimp_status' => 'Статус подписки',
         ];
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCoupons()
+    public function getCoupon()
     {
-        return $this->hasMany(Coupon::className(), ['subscriber_id' => 'id']);
+        return $this->hasOne(Coupon::className(), ['subscriber_id' => 'id']);
     }
-
     /**
      * @return \yii\db\ActiveQuery
      */
     public function getPreOrders()
     {
         return $this->hasMany(PreOrder::className(), ['subscriber_id' => 'id']);
+    }
+
+    /**
+     * @param $event Event
+     * $event->data - const subscriber group index
+     * @return bool
+     */
+    public function createSubscriber($event)
+    {
+        if (!self::find()
+            ->where(['email' => $event->sender->email, 'phone' => $event->sender->phone])
+            ->one()
+        ) {
+            $subscriber = new self();
+            $subscriber->load(Yii::$app->request->post(), $event->sender->formName());
+            $subscriber->group = $event->data;
+            if ($subscriber->validate()) {
+                $subscriber->save(false);
+            }
+        }
+        return true;
+    }
+
+    public static function updateMailChimp()
+    {
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $email_list = Subscriber::find()->select('leid')->asArray()->all();
+
+            $mailChimp = new Mailchimp(Yii::$app->params['mailchimpAPIkey']);
+            $list_id = $mailChimp->lists->getList(['list_name' => self::LIST_NAME]);
+
+            $memberInfo = $mailChimp->lists->memberInfo($list_id['data'][0]['id'], $email_list)['data'];
+            for ($j = 0; $j < count($memberInfo); $j++){
+                $subscriber = Subscriber::findOne(['leid' => $memberInfo[$j]['leid']]);
+                if ($subscriber && $subscriber->mail_chimp_status != $memberInfo[$j]['status']){
+                    $subscriber->mail_chimp_status = $memberInfo[$j]['status'];
+                    $subscriber->save();
+                }
+            }
+        } catch (Exception $e) {
+            $transaction->rollBack();
+            return false;
+        }
+
+        $transaction->commit();
+        return true;
     }
 
     /**

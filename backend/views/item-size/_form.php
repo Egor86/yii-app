@@ -38,10 +38,7 @@ use yii\widgets\MaskedInput;
 ]); ?>
 <div class="panel panel-default">
     <div class="panel-heading">
-        <button type="button" class="pull-left btn btn-success btn-xs">
-            <i class="fa fa-arrow-left"></i>
-            <?= Html::a('Вернуться к продукту', ['/product/view', 'id' => $item->product_id]) ?>
-        </button>
+        <?= Html::a('<i class="fa fa-arrow-left"></i> Вернуться', ['/item/view', 'id' => $item->product_id], ['class' => "pull-left btn btn-success btn-xs"])?>
         <button type="button" class="pull-right add-item btn btn-success btn-xs"><i class="fa fa-plus"></i> Добавить размер</button>
         <div class="clearfix"></div>
     </div>
@@ -86,7 +83,7 @@ use yii\widgets\MaskedInput;
 <?php DynamicFormWidget::end(); ?>
 
 <div class="form-group">
-    <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => 'btn btn-primary']) ?>
+    <?= Html::submitButton('Сохранить', ['class' => 'btn btn-primary']) ?>
 </div>
 
 <?php ActiveForm::end(); ?>

@@ -18,7 +18,8 @@ class PreOrderSearch extends PreOrder
     public function rules()
     {
         return [
-            [['id', 'subscriber_id', 'product_id', 'color_id', 'size_id', 'created_at', 'updated_at'], 'integer'],
+            [['id', 'item_id', 'size_id', 'created_at', 'updated_at'], 'integer'],
+            [['name', 'email', 'phone'], 'safe'],
         ];
     }
 
@@ -40,12 +41,12 @@ class PreOrderSearch extends PreOrder
      */
     public function search($params)
     {
-        $query = PreOrder::find();
+        $query = PreOrder::find()->where(['status' => self::STATUS_PROGRESS])->orderBy(['id' => SORT_DESC]);
 
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
-            'query' => $query
+            'query' => $query,
         ]);
 
         $this->load($params);
@@ -59,13 +60,15 @@ class PreOrderSearch extends PreOrder
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'subscriber_id' => $this->subscriber_id,
-            'product_id' => $this->product_id,
-            'color_id' => $this->color_id,
+            'item_id' => $this->item_id,
             'size_id' => $this->size_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ]);
+
+        $query->andFilterWhere(['like', 'name', $this->name])
+            ->andFilterWhere(['like', 'email', $this->email])
+            ->andFilterWhere(['like', 'phone', $this->phone]);
 
         return $dataProvider;
     }

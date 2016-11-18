@@ -36,7 +36,7 @@ class CartController extends Controller
 
             $item_cart_position->item;  // add Item model to ItemCartPosition _item property
             Yii::$app->cart->create($item_cart_position, $post['quantity']);
-            return $this->redirect(['/site/index']);
+            return $this->redirect('/');
         }
         throw new NotFoundHttpException('The requested page does not exist.');
     }
@@ -86,12 +86,30 @@ class CartController extends Controller
         throw new NotFoundHttpException('The requested page does not exist.');
     }
 
+    public function actionPreView()
+    {
+        if (Yii::$app->request->isAjax) {
+            $cart = Yii::$app->cart;
+            $response['success'] = false;
+            if (!$cart->getIsEmpty()) {
+                Yii::$app->response->format = Response::FORMAT_HTML;
+                $response['success'] = true;
+                return $this->renderPartial([
+                    '_pre_view',
+                    'items' => $cart->items
+                ]);
+            }
+            $response['error'] = "Корзина пуста";
+            return $response;
+        }
+        throw new NotFoundHttpException('The requested page does not exist.');
+    }
 
     public function actionView()
     {
         $cart = Yii::$app->cart;
         if (!$cart->getIsEmpty()) {
-            $coupon_form = new CouponForm([], Yii::$app->session['discount'] ?? false);
+            $coupon_form = new CouponForm([], Yii::$app->session['discount']);
             $order = new Order();
 
             $dataProvider = new ArrayDataProvider([
@@ -105,7 +123,6 @@ class CartController extends Controller
                 'order' => $order,
             ]);
         }
-
         return $this->render('empty_cart');
     }
 }

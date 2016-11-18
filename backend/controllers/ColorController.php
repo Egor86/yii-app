@@ -2,6 +2,7 @@
 
 namespace backend\controllers;
 
+use backend\models\ImageForm;
 use Yii;
 use common\models\Color;
 use yii\data\ActiveDataProvider;
@@ -25,7 +26,6 @@ class ColorController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['index', 'view', 'create', 'update', 'delete'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -85,6 +85,28 @@ class ColorController extends Controller
         }
     }
 
+    public function actionCreateCaver()
+    {
+        $model = new Color(['scenario' => 'caver']);
+        $imageForm = new ImageForm();
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            if ($imageForm->uploadImage(get_class($model), $model->id, 'color_caver')) {
+                return $this->redirect(['view',
+                    'id' => $model->id
+                ]);
+            }
+            return $this->render('update', [
+                'model' => $model,
+            ]);
+        }
+
+        return $this->render('create_caver', [
+            'model' => $model,
+            'imageForm' => $imageForm
+        ]);
+    }
+
     /**
      * Updates an existing Color model.
      * If update is successful, the browser will be redirected to the 'view' page.
@@ -95,11 +117,18 @@ class ColorController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post()) && $model->save()) { // TODO check type and load img
+            if ($model->type == Color::COLOR_COVER) {
+                $imageForm = new ImageForm();
+                if ($imageForm->uploadImage(get_class($model), $model->id, 'color_caver')) {
+                    return $this->redirect('index');
+                }
+            }
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [
                 'model' => $model,
+                'imageForm' => $model->type == Color::COLOR_COVER ? new ImageForm() : null
             ]);
         }
     }
@@ -110,12 +139,12 @@ class ColorController extends Controller
      * @param integer $id
      * @return mixed
      */
-    public function actionDelete($id)
-    {
-        $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
-    }
+//    public function actionDelete($id)
+//    {
+//        $this->findModel($id)->delete();
+//
+//        return $this->redirect(['index']);
+//    }
 
     /**
      * Finds the Color model based on its primary key value.

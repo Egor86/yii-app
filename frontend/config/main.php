@@ -43,7 +43,32 @@ return [
             'showScriptName' => false,
             'suffix' => '.html',
             'rules' => [
+//                '/' => '/subscriber/soon',
+                [
+                    'pattern' => 'soon',
+                    'route' => '/subscriber/soon',
+                    'suffix' => ''
+                ],
                 'cart' => '/cart/view',
+                [
+                    'pattern' => 'page/<slug:[A-Za-z-]+>',
+                    'route' => 'page/view',
+                    'encodeParams' => false,
+                ],
+                [
+                    'pattern' => '<slug:[A-Za-z-]+>/',
+                    'route' => 'category/filter',
+                    'mode' => 'PARSING_ONLY',
+//                    'encodeParams' => false,
+                    'suffix' => ''
+                ],
+                [
+                    'pattern' => '<slug:[A-Za-z-]+>',
+                    'route' => 'category/view',
+                    'encodeParams' => false,
+                    'suffix' => '/'
+                ],
+                '<slug>' => 'item/view',
             ],
         ],
     ],

@@ -1,5 +1,6 @@
 <?php
 
+use backend\models\VideoForm;
 use common\models\Brand;
 use common\models\Category;
 use kartik\detail\DetailView;
@@ -15,12 +16,33 @@ use yii\helpers\Url;
 
 BootstrapPluginAsset::register($this);
 $this->title = $model->name;
-$this->params['breadcrumbs'][] = ['label' => 'Products', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Товары', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
+
+$this->registerJs('
+$(".video").click(function(event){ // нажатие на кнопку - выпадает модальное окно
+        event.preventDefault(); 
+    
+        $.ajax({
+            url: "/admin/product/get-video?id='. $model->id . '",
+            type: "get",
+            success: function (data) {
+                if(data) {
+                    $("source").attr("src", data);
+                    $("video").load();
+                    var clickedbtn = $(this);         
+                    var modalContainer = $("#my-modal");
+                    var modalBody = modalContainer.find(".modal-body");
+                    modalContainer.modal({show:true});
+                }
+            }
+        });  
+    });
+', \yii\web\View::POS_END);
+
 ?>
 <div class="product-view">
 
-    <h1><?= Html::encode($this->title) ?></h1>
 
     <?= DetailView::widget([
         'model' => $model,
@@ -52,13 +74,15 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
             [
                 'attribute' => 'video_id',
-                'value' => $model->video ? $model->video->file_name : '',
+                'format' => 'html',
+                'value' => $model->video && file_exists(Yii::getAlias('@front-web') . $model->video->url) ? '<div class="video"><a href="#" ><i class="fa fa-file-video-o"></i> Смотреть видео</a></div>'
+                    : '',
                 'updateMarkup' => function($form, $widget) {
                     $model = $widget->model;
                     if ($model->video_id) {
                         return Html::a('Удалить видео', ['/product/delete-video?id='.$model->id], ['class'=>'product-form btn btn-primary']);
                     }
-                    $video_form = new \backend\models\VideoForm();
+                    $video_form = new VideoForm();
                     return $form->field($video_form, 'videoFile')->widget(FileInput::classname(), [
                         'options' => [
                             'accept' => 'video/*',
@@ -85,32 +109,59 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'created_at',
                 'displayOnly' => true,
-                'format' => 'datetime'
+                'format' => 'datetime',
+                'rowOptions' => ['class'=>'kv-edit-hidden'],
             ],
             [
                 'attribute' => 'updated_at',
                 'displayOnly' => true,
-                'format' => 'datetime'
+                'format' => 'datetime',
+                'rowOptions' => ['class'=>'kv-edit-hidden'],
             ],
-            [
-                'attribute' => 'published',
-                'format'=>'raw',
-                'value'=>$model->published ? '<span class="label label-success">Да</span>' : '<span class="label label-danger">Нет</span>',
-                'type' => DetailView::INPUT_SWITCH,
-                'widgetOptions' => [
-                    'pluginOptions' => [
-                        'onText' => 'Да',
-                        'offText' => 'Нет',
-                    ]
-                ]
-            ],
+//            [
+//                'attribute' => 'published',
+//                'format'=>'raw',
+//                'value'=>$model->published ? '<span class="label label-success">Да</span>' : '<span class="label label-danger">Нет</span>',
+//                'type' => DetailView::INPUT_SWITCH,
+//                'widgetOptions' => [
+//                    'pluginOptions' => [
+//                        'onText' => 'Да',
+//                        'offText' => 'Нет',
+//                    ]
+//                ]
+//            ],
         ],
         'deleteOptions' => [
             'url' => 'delete',
             'params' => ['id' => $model->id]],
     ]) ?>
 </div>
+<div class="panel panel-info">
+    <div class="panel-heading"style='text-align: center'><span style="color: #000000; font-weight: bold">Дочерние товары</span></div>
+    <div class="panel-body">
+    <?php foreach ($items as $item) : ?>
+        <h4>
+            <?= Html::a("<i class=\"fa fa-caret-square-o-right\"> $item->name</i>", ['/item/view', 'id' => $item->id])?>
+        </h4>
+    <?php endforeach;?>
+        <?= Html::a('Созадать дочерний товар', ['/item/create', 'product_id' => $model->id], ['class' => 'pull-left btn btn-success btn-xs']) ?>
 
-<?= Html::a('Созадать дочерний товар', ['/item/create', 'product_id' => $model->id], ['class' => 'btn btn-primary']) ?>
-<?= $this->render('//item/_items', ['items' => $items])?>
+    </div>
+</div>
+<div id="item"></div>
 
+<!-- Modal -->
+<div class="modal fade" id="my-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm" style="width: 450px; height=350px">
+        <div class="modal-content">
+            <div class="modal-body" >
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <div class="gb-user-form">
+                    <video width="400" height="300" controls="controls">
+                        <source src="">
+                    </video>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->'

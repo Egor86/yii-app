@@ -26,7 +26,6 @@ class PageController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['index', 'view', 'create', 'update', 'delete', 'image-upload', 'images-get'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],

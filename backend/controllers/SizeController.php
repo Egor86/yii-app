@@ -4,7 +4,7 @@ namespace backend\controllers;
 
 use Yii;
 use common\models\Size;
-use yii\data\ActiveDataProvider;
+use backend\models\search\SizeSearch;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -25,7 +25,6 @@ class SizeController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['index', 'view', 'create', 'update', 'delete'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -46,11 +45,11 @@ class SizeController extends Controller
      */
     public function actionIndex()
     {
-        $dataProvider = new ActiveDataProvider([
-            'query' => Size::find(),
-        ]);
+        $searchModel = new SizeSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
+            'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
     }

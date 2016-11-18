@@ -10,6 +10,7 @@ use common\models\Item;
 use common\models\ItemSize;
 use common\models\ProductColor;
 use common\models\ProductColorSize;
+use common\models\VideoStorage;
 use Exception;
 use Yii;
 use common\models\Product;
@@ -42,7 +43,6 @@ class ProductController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['index', 'view', 'create', 'update', 'delete', 'add-images', 'delete-video', 'get-product'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -107,7 +107,7 @@ class ProductController extends Controller
 //            'query' => $query,
 //            'sort' => false
 //        ]);
-        $items = Item::findAll(['product_id' => $model->id]);
+        $items = Item::findAll(['product_id' => $model->id, 'isDeleted' => false]);
 
         return $this->render('view', [
             'model' => $model,
@@ -128,13 +128,14 @@ class ProductController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $model->video_id = $video_form->uploadVideo(get_class($model), $model->id);
-
-            if (!$model->video_id || !$model->save()){
-                $this->findModel($model->id)->delete();
-                return $this->render('create', [
-                    'model' => $model,
-                    'video_form' => $video_form,
-                ]);
+            if ($model->video_id !== null) {
+                if (!$model->video_id || !$model->save()){
+                    $this->findModel($model->id)->delete();
+                    return $this->render('create', [
+                        'model' => $model,
+                        'video_form' => $video_form,
+                    ]);
+                }
             }
             return $this->redirect(['item/create', 'product_id' => $model->id]);
         }
@@ -226,16 +227,16 @@ class ProductController extends Controller
                 echo Json::encode([
                     'success' => true,
                     'messages' => [
-                        'kv-detail-info' => 'Товар # ' . $id . ' был удален. <a href="' .
+                        'kv-detail-info' => 'Продукт # ' . $id . ' был удален. <a href="' .
                             Url::to(['/product']) . '" class="btn btn-sm btn-info">' .
-                            '<i class="glyphicon glyphicon-hand-right"></i>  Вернуться к товарам</a>.'
+                            '<i class="glyphicon glyphicon-hand-right"></i>  Вернуться к продуктам</a>.'
                     ]
                 ]);
             } else {
                 echo Json::encode([
                     'success' => false,
                     'messages' => [
-                        'kv-detail-error' => 'Товар # ' . $id . ' не был удален, проверьте, возможно это родительский товар.'
+                        'kv-detail-error' => 'Продукт # ' . $id . ' не был удален, проверьте, возможно это родительский продукт.'
                     ]
                 ]);
             }
@@ -266,6 +267,18 @@ class ProductController extends Controller
         echo Json::encode(['output' => '']);
     }
 
+    public function actionGetVideo($id)
+    {
+        if (Yii::$app->request->isAjax) {
+            $model = $this->findModel($id);
+            $video = VideoStorage::findOne($model->video_id);
+            if ($video && file_exists(Yii::getAlias('@front-web' . $video->url))) {
+                return $video->url;
+            }
+            return false;
+        }
+        throw new NotFoundHttpException('The requested page does not exist.');
+    }
     /**
      * Finds the Product model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.

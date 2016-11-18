@@ -36,7 +36,8 @@
         "kartik-v/yii2-editable": "@dev",
         "yii2mod/yii2-editable": "*",
         "kartik-v/yii2-detail-view": "*",
-        "kartik-v/yii2-widget-depdrop": "@dev"
+        "kartik-v/yii2-widget-depdrop": "@dev",
+        "yii2tech/ar-softdelete": "*"
     },
     "require-dev": {
         "yiisoft/yii2-codeception": "*",

@@ -3,6 +3,9 @@
 namespace common\models;
 
 use Yii;
+use yii\base\Event;
+use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "item_size".
@@ -60,8 +63,8 @@ class ItemSize extends \yii\db\ActiveRecord
             'timestamp' => [
                 'class' => 'yii\behaviors\TimestampBehavior',
                 'attributes' => [
-                    \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
-                    \yii\db\ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
                 ],
             ],
         ];
@@ -81,6 +84,57 @@ class ItemSize extends \yii\db\ActiveRecord
     public function getItem()
     {
         return $this->hasOne(Item::className(), ['id' => 'item_id']);
+    }
+
+    /**
+     * @param $event Event
+     * @return bool
+     */
+    public function changeAmount($event)
+    {
+        $order = $event->sender;
+        if ($order->status == Order::ORDER_DONE) {
+            $items = $order->getValue();
+            foreach ($items as $item) {
+                $item_size = self::find()->where(['item_id' => $item->id, 'size_id' => $item->size])->one();
+                if ($item_size) {
+                    $item_size->amount = max(0, $item_size->amount - $item->quantity);
+                    $item_size->save(false);
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @param $item Item
+     * @return array|bool
+     */
+    public static function getUnavailableSize($item)
+    {
+        $size_table = $item->getSizeTable();
+
+        $item_sizes = ItemSize::find()
+            ->select('size_id')
+            ->where(['item_id' => $item->id])
+            ->andWhere(['>', 'amount', 0])
+            ->asArray()
+            ->column();
+
+        $result = array_flip(
+            array_diff(
+                array_flip(
+                    ArrayHelper::map($size_table, 'id', 'value')
+                ),
+                $item_sizes
+            )
+        );
+
+        if (empty($result)) {
+            return false;
+        }
+
+        return $result;
     }
 
     /**

@@ -1,7 +1,7 @@
 <?php
 
 /* @var $this yii\web\View */
-/** @var $coupon_form frontend\models\CouponForm*/
+/** @var $coupon_form common\models\CouponForm*/
 /** @var $order common\models\Order*/
 
 use kartik\grid\GridView;
@@ -119,7 +119,7 @@ if (!$coupon_form->coupon) {
                 </tr>
                 <tr>
                     <td>Промокод:</td>
-                    <th><span id="discount"><?= Yii::$app->formatter->asCurrency(($coupon_form->coupon ? $coupon_form->coupon->discount : 0))?></span></th>
+                    <th><span id="discount"><?= Yii::$app->formatter->asCurrency(($coupon_form->coupon ? $coupon_form->coupon->campaign->discount : 0))?></span></th>
                 </tr>
                 <tr>
                     <td>Доставка:</td>

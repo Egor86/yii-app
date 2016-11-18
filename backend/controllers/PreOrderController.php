@@ -2,6 +2,7 @@
 
 namespace backend\controllers;
 
+use common\models\Order;
 use Yii;
 use common\models\PreOrder;
 use backend\models\search\PreOrderSearch;
@@ -25,7 +26,6 @@ class PreOrderController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['index', 'view', 'create', 'update', 'delete',],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -72,17 +72,21 @@ class PreOrderController extends Controller
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
-    public function actionCreate()
+    public function actionCreateOrder($id)
     {
-        $model = new PreOrder();
+        $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
+        $order = new Order(false, ['scenario' => 'short']);
+        $order->name = $model->name;
+        $order->email = $model->email;
+        $order->phone = $model->phone;
+        $order->status = Order::ORDER_NEW;
+
+        if (!$order->save(false) || !$model->delete()) {
+            return $this->redirect('index');
         }
+
+        return $this->redirect(['order/view', 'id' => $order->id]);
     }
 
     /**
@@ -91,18 +95,18 @@ class PreOrderController extends Controller
      * @param integer $id
      * @return mixed
      */
-    public function actionUpdate($id)
-    {
-        $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('update', [
-                'model' => $model,
-            ]);
-        }
-    }
+//    public function actionUpdate($id)
+//    {
+//        $model = $this->findModel($id);
+//
+//        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+//            return $this->redirect(['view', 'id' => $model->id]);
+//        } else {
+//            return $this->render('update', [
+//                'model' => $model,
+//            ]);
+//        }
+//    }
 
     /**
      * Deletes an existing PreOrder model.

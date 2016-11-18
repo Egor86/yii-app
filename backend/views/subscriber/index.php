@@ -2,6 +2,7 @@
 
 use common\models\Coupon;
 use common\models\Subscriber;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
@@ -16,7 +17,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
-<?php Pjax::begin(); ?>    <?= GridView::widget([
+<?php Pjax::begin(); ?>
+    <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'rowOptions' => function ($model, $key, $index, $grid) {
@@ -41,22 +43,28 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'coupon',
                 'value' => function ($data) {
-                    return $data->coupons ? $data->coupons[0]->coupon_code : null;
+                    return $data->coupon ? $data->coupon->coupon_code : null;
                 },
+                'filter'=> ['С купоном', 'Без купона'],
             ],
             [
                 'attribute' => 'couponUsingStatus',
                 'value' => function ($data) {
-                    return $data->coupons ? $data->coupons[0]->using_status ? 'Да' : 'Нет' : null;
+                    return $data->coupon ? $data->coupon->using_status ? 'Да' : 'Нет' : null;
                 },
+                'filter'=> ['Нет', 'Да'],
             ],
             [
                 'attribute' => 'mail_chimp_status',
                 'value' => function($data){
-                    $list = Subscriber::getMailChimpStatus();
-                    return $list[$data->mail_chimp_status];
+                    return Subscriber::getMailChimpStatus()[$data->mail_chimp_status];
                 },
-                'filter'=> Subscriber::getMailChimpStatus(),
+                'filter'=> ArrayHelper::filter(
+                    Subscriber::getMailChimpStatus(),
+                    Subscriber::find()
+                        ->select('mail_chimp_status')
+                        ->column()
+                ),
             ],
             [
                 'class' => 'yii\grid\ActionColumn',

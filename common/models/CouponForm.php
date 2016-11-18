@@ -47,24 +47,23 @@ class CouponForm extends Model
     {
         $this->coupon = Coupon::findOne(['coupon_code' => $this->{$attribute}]);
 
-        if ($this->coupon && $this->coupon->using_status == Coupon::UNUSED) {
-            $subscriber = $this->coupon->subscriber;
-
-            if ($subscriber) {
-                if ($subscriber->email == $this->email && $subscriber->phone == $this->phone) {
+        if ($this->coupon && $subscriber = $this->coupon->subscriber) {
+            if ($subscriber->email == $this->email && $subscriber->phone == $this->phone) {
+                if ($this->coupon->using_status == Coupon::UNUSED && time() > $this->coupon->expiry_date) {
                     $this->coupon->using_status = Coupon::USED;
                     if (!$this->coupon->update(false)) {
                         $this->addError('phone', 'Отправьте купон еще раз');
                         return false;
                     }
                     return true;
-                } else {
-                    $this->addError('coupon_code', 'Указанный купон принадлежит клиенту с другим номером телефона и/или email');
-                    return false;
                 }
+                $this->addError('coupon_code', 'Срок действия купон истек');
+                return false;
             }
+            $this->addError('coupon_code', 'Указанный купон принадлежит клиенту с другим номером телефона и/или email');
+            return false;
         } else {
-            $this->addError('coupon_code', $this->coupon ? 'Указанный купон уже использован' : 'Неверно указан код купона');
+            $this->addError('coupon_code', 'Неверно указан код купона');
             return false;
         }
     }

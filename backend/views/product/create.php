@@ -7,13 +7,12 @@ use yii\helpers\Html;
 /* @var $model common\models\Product */
 /* @var $video_form backend\models\VideoForm */
 
-$this->title = 'Create Product';
-$this->params['breadcrumbs'][] = ['label' => 'Products', 'url' => ['index']];
+$this->title = 'Создание продукта';
+$this->params['breadcrumbs'][] = ['label' => 'Продукта', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="product-create">
 
-    <h1><?= Html::encode($this->title) ?></h1>
 
     <?= $this->render('_form', [
         'model' => $model,

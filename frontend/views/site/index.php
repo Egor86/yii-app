@@ -1,10 +1,37 @@
 <?php
 
 /* @var $this yii\web\View */
+use common\models\Item;
 use yii\helpers\Url;
 
 /** @var array $product common\models\Product*/
-$this->title = 'My Yii Application';
+$this->title = Yii::$app->name;
+
+$this->registerJs('
+$(document).ready(function(){
+   $("#imgLoad").hide();  //Скрываем прелоадер
+});
+var offset = '. Item::ITEM_VIEW_LIMIT .'; //чтобы знать с какой записи вытаскивать данные
+$(function() {
+   $("#more").click(function(){ //Выполняем если по кнопке кликнули
+   $.ajax({
+          url: "site/more.html",
+          dataType: "html",
+          type: "post",
+          data: {offset: offset},
+          cache: false,
+          success: function(response){
+              if(!response){  // смотрим ответ от сервера и выполняем соответствующее действие
+                 alert("Больше нет записей");
+              }else{
+                 $(".body-content").append(response);
+                 offset = offset + '. Item::ITEM_VIEW_LIMIT .';
+              }
+           }
+        });
+    });
+});
+', \yii\web\View::POS_END)
 ?>
 <div class="site-index">
 
@@ -19,22 +46,15 @@ $this->title = 'My Yii Application';
     <div class="body-content">
 
         <div class="row">
-            <?php for ($i =0; $i < count($item); $i++) :?>
-            <div class="col-lg-4">
-                <h2><?=$item[$i]->name;?></h2>
 
-                <p><?=$item[$i]->price;?></p>
-
-                <p><a class="btn btn-default" href="<?= Url::to('/cart/create.html?item_id='.$item[$i]->id);?>"><?=$item[$i]->id;?></a></p>
-                <p><a class="btn btn-default" href="<?= Url::to('/item/view.html?id='.$item[$i]->id);?>">View</a></p>
-            </div>
-            <?php endfor;?>
+            <?= $this->render('item', ['item' => $item]) ?>
 
             <div class="col-lg-4">
 
                 <p><a class="btn btn-default" href="<?= Url::to('/cart.html');?>">Перейти в корзину</a></p>
             </div>
         </div>
-
+        <div id="more"><?= \yii\helpers\Html::button('Загрузить еще', ['class' => 'btn btn-primary'])?></div>
     </div>
+    <?= \yii\helpers\Html::a('Category', ['category/view', 'slug' => 'woman-wear'])?>
 </div>

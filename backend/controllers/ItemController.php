@@ -12,6 +12,8 @@ use Exception;
 use Yii;
 use common\models\Item;
 use backend\models\search\ItemSearch;
+use yii\data\ActiveDataProvider;
+use yii\data\ArrayDataProvider;
 use yii\filters\AccessControl;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
@@ -37,7 +39,6 @@ class ItemController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['index', 'view', 'create', 'update', 'delete', 'update-image', 'get-item', 'get-size'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -46,7 +47,7 @@ class ItemController extends Controller
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
-                    'delete' => ['POST'],
+                    'delete' => ['post'],
                 ],
             ],
         ];
@@ -74,15 +75,24 @@ class ItemController extends Controller
      */
     public function actionView($id)
     {
+        $model = $this->findModel($id);
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => $model->itemSizes
+        ]);
+        $images = $model->getImages();
+
         return $this->render('view', [
             'model' => $this->findModel($id),
+            'dataProvider' => $dataProvider,
+            'images' => $images
         ]);
     }
 
     /**
      * Creates a new Item model and .ItemSize models
      * If creation is successful, the browser will be redirected to the image-adding page.
-     * @return mixed
+     * @param $product_id
+     * @return string|\yii\web\Response
      */
     public function actionCreate($product_id)
     {
@@ -98,7 +108,7 @@ class ItemController extends Controller
             $valid = $model->validate();
             $valid = Model::validateMultiple($item_sizes) && $valid;
             if ($valid) {
-                $transaction = \Yii::$app->db->beginTransaction();
+                $transaction = Yii::$app->db->beginTransaction();
                 try {
                     if ($flag = $model->save(false)) {
                         foreach ($item_sizes as $model_item_size) {
@@ -147,8 +157,9 @@ class ItemController extends Controller
     /**
      * Updates an existing Item model.
      * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
+     * @param $id
+     * @return string|\yii\web\Response
+     * @throws NotFoundHttpException
      */
     public function actionUpdate($id)
     {
@@ -156,12 +167,14 @@ class ItemController extends Controller
 
         if (Yii::$app->request->post()) {
             if ($model->load(Yii::$app->request->post()) && $model->save()) {
-                return $this->redirect(['/product/view', 'id' => $model->product_id]);
+                Yii::$app->session->addFlash('success', "Товар $model->name успешно сохранен");
             } else {
-                return $this->render('update', [                                           //TODO redirect if not saved?
-                    'model' => $model,
-                ]);
+                $error = implode(" ", $model->getFirstErrors());
+                Yii::$app->session->addFlash('error', "Товар $model->name не был сохранен. $error");
             }
+            return $this->redirect(['view',
+                'id' => $model->id
+            ]);
         }
         throw new NotFoundHttpException('The requested page does not exist.');
     }
@@ -211,7 +224,7 @@ class ItemController extends Controller
 
                     if ($flag) {
                         $transaction->commit();
-                        return $this->redirect(['/product/view', 'id' => $model->product_id]);
+                        return $this->redirect(['/item/view', 'id' => $model->id]);
                     }
 
                 } catch (Exception $e) {
@@ -226,30 +239,23 @@ class ItemController extends Controller
         ]);
     }
 
-    /**
-     * Deletes an existing Item model.
-     * If deletion is successful, echo success.
-     * @throws HttpException
-     */
     public function actionDelete()
     {
         $post = Yii::$app->request->post();
-        if (Yii::$app->request->isAjax) {
+        if (Yii::$app->request->post()) {
             $id = $post['id'];
-            if ($this->findModel($id)->delete()) {
+            if ($this->findModel($id)->softDelete()) {
                 echo Json::encode([
                     'success' => true,
                     'messages' => [
-                        'kv-detail-info' => 'Товар # ' . $id . ' был удален. <a href="' .
-                            Url::to(['/product']) . '" class="btn btn-sm btn-info">' .
-                            '<i class="glyphicon glyphicon-hand-right"></i>  Вернуться к товарам</a>.'
+                        'kv-detail-info' => 'Товар # ' . $id . ' был удален.'
                     ]
                 ]);
             } else {
                 echo Json::encode([
                     'success' => false,
                     'messages' => [
-                        'kv-detail-error' => 'Товар # ' . $id . ' не был удален, проверьте, возможно это родительский товар.'
+                        'kv-detail-error' => 'Товар # ' . $id . ' не был удален.'
                     ]
                 ]);
             }
@@ -258,6 +264,9 @@ class ItemController extends Controller
         throw new HttpException("You are not allowed to do this operation. Contact the administrator.");
     }
 
+    /**
+     * Using in order view, when adding new item to order
+     */
     public function actionGetItem()
     {
         $out = [];
@@ -283,9 +292,11 @@ class ItemController extends Controller
         echo Json::encode(['output' => '', 'selected'=>'']);
     }
 
+    /**
+     * Using in order view, when adding new item to order
+     */
     public function actionGetSize()
     {
-        $out = [];
         $post = Yii::$app->request->post();
         if (isset($post['depdrop_parents'])) {
             $item_id = end($post['depdrop_parents']);
@@ -298,6 +309,7 @@ class ItemController extends Controller
 
         echo Json::encode(['output' => '', 'selected'=>'']);
     }
+
     /**
      * Finds the Item model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
@@ -307,10 +319,10 @@ class ItemController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = Item::findOne($id)) !== null) {
+        if (($model = Item::findOne($id)) !== null && !$model->isDeleted) {
             return $model;
         } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            throw new NotFoundHttpException('Искомый товар не существует.');
         }
     }
 }

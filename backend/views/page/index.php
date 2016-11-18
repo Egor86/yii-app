@@ -8,16 +8,15 @@ use yii\widgets\Pjax;
 /* @var $searchModel backend\models\search\PageSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Pages';
+$this->title = 'Статические страницы';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="page-index">
 
-    <h1><?= Html::encode($this->title) ?></h1>
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>
-        <?= Html::a('Create Page', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Создать страницу', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 <?php Pjax::begin(); ?>    <?= GridView::widget([
         'dataProvider' => $dataProvider,

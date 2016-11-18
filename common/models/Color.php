@@ -15,11 +15,14 @@ use yii\helpers\ArrayHelper;
  * @property integer $created_at
  * @property integer $updated_at
  * @property integer $sort_by
+ * @property integer $type
  *
  * @property ProductColor[] $productColors
  */
 class Color extends \yii\db\ActiveRecord
 {
+    const COLOR_RGB = 0;
+    const COLOR_COVER = 1;
     /**
      * @inheritdoc
      */
@@ -34,12 +37,15 @@ class Color extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'rgb_code'], 'required'],
-            [['created_at', 'updated_at', 'sort_by'], 'integer'],
+            [['name', 'type'], 'required'],
+            ['rgb_code', 'required', 'when' => function($model) {
+                return $model->type == Color::COLOR_RGB;
+            }],
+            [['created_at', 'updated_at', 'sort_by', 'type'], 'integer'],
             [['name'], 'string', 'max' => 45],
             [['rgb_code'], 'string', 'max' => 7],
+            ['type', 'default', 'value' => self::COLOR_RGB],
             [['name'], 'unique'],
-            [['rgb_code'], 'unique'],
         ];
     }
 
@@ -64,11 +70,19 @@ class Color extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'name' => 'Название цвета',
-            'rgb_code' => 'Код цвета',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+            'rgb_code' => 'Цвет',
+            'created_at' => 'Создан',
+            'updated_at' => 'Обновлен',
             'sort_by' => 'Sort By',
+            'type' => 'Type',
         ];
+    }
+
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+        $scenarios['caver'] = ['name', 'type'];
+        return $scenarios;
     }
 
     /**

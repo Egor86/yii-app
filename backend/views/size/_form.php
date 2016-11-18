@@ -1,5 +1,7 @@
 <?php
 
+use common\models\SizeTableName;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
@@ -14,10 +16,10 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'value')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'size_table_name_id')->dropDownList(\yii\helpers\ArrayHelper::map(\common\models\SizeTableName::find()->asArray()->all(),'id', 'name')) ?>
+    <?= $form->field($model, 'size_table_name_id')->dropDownList(ArrayHelper::map(SizeTableName::find()->asArray()->all(),'id', 'name')) ?>
 
     <div class="form-group">
-        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+        <?= Html::submitButton('Сохранить', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

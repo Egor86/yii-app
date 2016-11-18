@@ -14,9 +14,7 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'subscriber_id')->textInput() ?>
 
-    <?= $form->field($model, 'product_id')->textInput() ?>
-
-    <?= $form->field($model, 'color_id')->textInput() ?>
+    <?= $form->field($model, 'item_id')->textInput() ?>
 
     <?= $form->field($model, 'size_id')->textInput() ?>
 

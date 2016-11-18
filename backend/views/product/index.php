@@ -12,7 +12,7 @@ use yii\widgets\Pjax;
 /* @var $searchModel backend\models\search\ProductSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Products';
+$this->title = 'Продукты';
 $this->params['breadcrumbs'][] = $this->title;
 
 $this->registerJs('
@@ -37,7 +37,6 @@ $( ".delete" ).click(function() {
 ?>
 <div class="product-index">
 
-    <h1><?= Html::encode($this->title) ?></h1>
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>
@@ -73,11 +72,10 @@ $( ".delete" ).click(function() {
 //            'brand.name',
             [
                 'attribute' => 'video_id',
-                'format' => 'html',
                 'value' => function($data){
                     return $data->video ? $data->video->file_name : null;
                 },
-//                'filter'=> false,
+                'filter'=> false,
                 'options' => [
                     'width' => '250px'
                 ]
@@ -92,16 +90,16 @@ $( ".delete" ).click(function() {
             ],
             // 'created_at',
             // 'updated_at',
-            [
-                'attribute' => 'published',
-                'filter'=> ['Нет', 'да'],
-                'options' => [
-                    'width' => '15px'
-                ],
-                'format' => 'boolean'
-            ],
+//            [
+//                'attribute' => 'published',
+//                'filter'=> ['Нет', 'да'],
+//                'options' => [
+//                    'width' => '15px'
+//                ],
+//                'format' => 'boolean'
+//            ],
             ['class' => 'yii\grid\ActionColumn',
-                'template' => '{view}{delete}',
+                'template' => '{view} {delete}',
                 'buttons' => [
                     'delete' => function($url, $model) {
                         return Html::a('<span class="glyphicon glyphicon-trash"></span>', '#', [

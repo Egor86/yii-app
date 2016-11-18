@@ -3,6 +3,7 @@
 use common\models\Color;
 use common\models\Size;
 use common\widgets\SeoForm;
+use kartik\switchinput\SwitchInput;
 use wbraganca\dynamicform\DynamicFormWidget;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
@@ -52,6 +53,7 @@ use yii\widgets\MaskedInput;
             <?= $form->field($model, 'price')->textInput()->widget(MaskedInput::className(),[
                 'name' => 'price',
                 'clientOptions' => [
+                    'removeMaskOnSubmit' => true,
                     'alias' =>  'currency',
                     'autoGroup' => false,
                     'prefix' => false
@@ -67,6 +69,18 @@ use yii\widgets\MaskedInput;
                     'prefix' => false
                 ],
             ]); ?>
+        </div>
+        <div class="col-sm-6">
+            <?= $form->field($model, 'status')->widget(SwitchInput::className(),['pluginOptions' => [
+                'onText' => 'Да',
+                'offText' => 'Нет',
+            ]]) ?>
+        </div>
+        <div class="col-sm-6">
+            <?= $form->field($model, 'recommended')->widget(SwitchInput::className(),['pluginOptions' => [
+                'onText' => 'Да',
+                'offText' => 'Нет',
+            ]]) ?>
         </div>
     </div>
 

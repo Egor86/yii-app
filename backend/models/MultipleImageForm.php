@@ -60,8 +60,7 @@ class MultipleImageForm extends Model
             ($this->imageMain && $this->saveImages($this->imageMain, $class, $item_id, $path, ImageStorage::TYPE_MAIN)) ||
             ($this->imageSecondMain && $this->saveImages($this->imageSecondMain, $class, $item_id, $path, ImageStorage::TYPE_SECOND_MAIN)) ||
             ($this->imageOther && $this->saveImages($this->imageOther, $class, $item_id, $path, ImageStorage::TYPE_OTHER))
-        )
-        {
+        ) {
             $this->imageMain = null;
             $this->imageSecondMain = null;
             $this->imageOther = null;

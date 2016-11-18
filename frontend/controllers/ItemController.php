@@ -28,9 +28,9 @@ class ItemController extends Controller
 //        echo '</pre>';
 //        exit(__FILE__ .': '. __LINE__);
 //    }
-    public function actionView($id)
+    public function actionView($slug)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModelBySlug($slug);
         $query = new Query();
         $size_table = $query->select('*')
             ->from(Category::findOne($model->product->category_id)->sizeTableName->name)
@@ -60,6 +60,15 @@ class ItemController extends Controller
     protected function findModel($id)
     {
         if (($model = Item::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+    }
+
+    protected function findModelBySlug($slug)
+    {
+        if (($model = Item::findOne(['slug' => $slug])) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

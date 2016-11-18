@@ -24,7 +24,6 @@ use Yii;
  */
 class Product extends \yii\db\ActiveRecord
 {
-
     const PUBLISHED = 1;
     const UNPUBLISHED = 0;
 
@@ -88,7 +87,7 @@ class Product extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'name' => 'Наименование товара',
+            'name' => 'Наименование продукта',
             'description' => 'Описание',
             'brand_id' => 'Бренд',
             'video_id' => 'Видео',

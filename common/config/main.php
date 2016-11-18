@@ -1,6 +1,7 @@
 <?php
 return [
     'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
+    'name'=>'Egoist-me',
     'modules' => [
         'gridview' =>  [
             'class' => '\kartik\grid\Module'
@@ -14,6 +15,18 @@ return [
     'components' => [
         'cache' => [
             'class' => 'yii\caching\FileCache',
+        ],
+        'mailer' => [
+            'class' => 'yii\swiftmailer\Mailer',
+            'useFileTransport' => false,
+            'transport' => [
+                'class' => 'Swift_SmtpTransport',
+                'host' => 'smtp.yandex.ua',
+                'username' => 'egor@jaws.com.ua',
+                'password' => 'Aq$jKu123',
+                'port' => '465',
+                'encryption' => 'SSL',
+            ],
         ],
         'devicedetect' => [
             'class' => 'alexandernst\devicedetect\DeviceDetect'

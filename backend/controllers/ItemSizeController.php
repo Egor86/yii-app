@@ -30,7 +30,6 @@ class ItemSizeController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['index', 'view', 'create', 'update', 'delete'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -91,10 +90,9 @@ class ItemSizeController extends Controller
     }
 
     /**
-     * Updates an existing ItemSize model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
+     * @param $item_id
+     * @return string|Response
+     * @throws NotFoundHttpException
      */
     public function actionUpdate($item_id)
     {
@@ -127,7 +125,7 @@ class ItemSizeController extends Controller
 
                         if ($flag) {
                             $transaction->commit();
-                            return $this->redirect(['/product/view', 'id' => $item->product_id]);
+                            return $this->redirect(['/item/view', 'id' => $item->id]);
                         }
                     } catch (Exception $e) {
                         $transaction->rollBack();
@@ -145,10 +143,7 @@ class ItemSizeController extends Controller
     }
 
     /**
-     * Deletes an existing ItemSize model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
-     * @return mixed
+     * @return bool
      */
     public function actionDelete()
     {

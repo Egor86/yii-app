@@ -2,9 +2,12 @@
 
 namespace common\models;
 
-use backend\models\Campaign;
 use common\models\active_query\CouponQuery;
+use frontend\models\MailSender;
 use Yii;
+use yii\base\Event;
+use yii\base\Exception;
+use yii\web\NotFoundHttpException;
 
 /**
  * This is the model class for table "coupon".
@@ -14,10 +17,10 @@ use Yii;
  * @property integer $subscriber_id
  * @property integer $campaign_id
  * @property string $using_status
- * @property integer $discount
  * @property integer $created_at
  * @property integer $updated_at
  * @property integer $sort_by
+ * @property integer $expiry_date
  *
  * @property Campaign $campaign
  * @property Subscriber $subscriber
@@ -27,11 +30,10 @@ class Coupon extends \yii\db\ActiveRecord
     const USED = 1;
     const UNUSED = 0;
     const COUPON_CODE_LENGTH = 6;
-    const EVENT_GET_COUPON = 'generate coupon code';
+    const EVENT_GET_COUPON = 'generateCouponCode';
 
     public $email;
     public $phone;
-
 
     /**
      * @inheritdoc
@@ -41,28 +43,21 @@ class Coupon extends \yii\db\ActiveRecord
         return 'coupon';
     }
 
-    public function afterSave($insert, $changedAttributes)
-    {
-        parent::afterSave($insert, $changedAttributes);
-        if ($insert) {
-            // send email with coupon code
-        }
-    }
-
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['coupon_code', 'subscriber_id','email', 'phone',], 'required'],
-            [['subscriber_id', 'campaign_id', 'created_at', 'updated_at', 'sort_by', 'discount', 'using_status'], 'integer'],
+            [['coupon_code', 'subscriber_id'
+//                ,'email', 'phone',
+            ], 'required'],
+            [['subscriber_id', 'campaign_id', 'created_at', 'updated_at', 'sort_by', 'using_status', 'expiry_date'], 'integer'],
             [['coupon_code', 'email'], 'string', 'max' => 45],
             ['phone', 'string', 'max' => 15],
             [['coupon_code'], 'unique'],
             [['campaign_id'], 'exist', 'skipOnError' => true, 'targetClass' => Campaign::className(), 'targetAttribute' => ['campaign_id' => 'id']],
             [['subscriber_id'], 'exist', 'skipOnError' => true, 'targetClass' => Subscriber::className(), 'targetAttribute' => ['subscriber_id' => 'id']],
-            ['campaign_id', 'default', 'value' => 1],
             ['using_status', 'default', 'value' => self::UNUSED]
         ];
     }
@@ -95,7 +90,7 @@ class Coupon extends \yii\db\ActiveRecord
             'updated_at' => 'Updated At',
             'sort_by' => 'Sort By',
             'phone' => 'Телефон(моб)',
-            'discount' => 'Скидка',
+            'expiry_date' => 'Expiry Date',
         ];
     }
 //
@@ -106,44 +101,62 @@ class Coupon extends \yii\db\ActiveRecord
 //        return $scenarios;
 //    }
 
+    /**
+     * If no one Campaign is ACTIVE throw Exception
+     * @param $event Event
+     * @return bool
+     * @throws Exception
+     */
     public function createCoupon($event)
     {
         $this->subscriber_id = $event->sender->id;
+        if (!$campaign = Campaign::findOne(['status' => Campaign::CAMPAIGN_ACTIVE])) {
+            throw new Exception('Извините, по техническим причинам операцию выполнить невозможно, пожалуйста, попробуйте позже!');
+        }
+
+        $this->campaign_id = $campaign->id;
+        $this->expiry_date = 0;
+        if ($campaign->coupon_action_time) {
+            $this->expiry_date = time() + $campaign->coupon_action_time;
+        }
+
         $this->coupon_code = $this->generateCouponCode();
-        $this->save();
+
+        if (!$this->save()) {
+            return false;
+        }
+
+        MailSender::sendEmail(
+            $event->sender->email,
+            'Купон на скидку - ' . $campaign->discount . ' грн от интернет-магазина ego-ist.me',
+            $this->coupon_code, 'coupon-html');
+
+        return true;
     }
 
-    public function generateCouponCode()
+    protected function generateCouponCode()
     {
-        $existed_code = self::find()->select('coupon_code')->asArray()->column();
-        $arr = ['a','b','c','d','e','f',
-            'g','h','i','j','k','l',
-            'm','n','o','p','r','s',
-            't','u','v','x','y','z',
-            'A','B','C','D','E','F',
-            'G','H','I','J','K','L',
-            'M','N','O','P','R','S',
-            'T','U','V','X','Y','Z',
-            '1','2','3','4','5','6',
-            '7','8','9','0'
-//            ,'.',',',
-//            '(',')','[',']','!','?',
-//            '&','^','%','@','*','$',
-//            '<','>','/','|','+','-',
-//            '{','}','`','~'
-        ];
-        $code = "";
-        do {
-            for($i = 0; $i < self::COUPON_CODE_LENGTH; $i++)
-            {
-                $index = mt_rand(0, count($arr) - 1);
-                $code .= $arr[$index];
-            }
-        } while (in_array($code, $existed_code));
-
+        $id = self::find()->select('id')->orderBy(['id' => SORT_DESC])->asArray()->limit(1)->column();
+        $id = !empty($id) ? $id[0] += 1 : 1;
+        $code = date('m') * date("Y") . '-' . sprintf("%'.03d", $id);
         return $code;
     }
 
+    /**
+     * @param $event Event
+     * @return bool
+     */
+    public function changeStatus($event)
+    {
+        if ($event->sender->status == Order::ORDER_REVOKED && $event->sender->coupon_id) {
+            $coupon = self::findOne($event->sender->coupon_id);
+            if ($coupon) {
+                $coupon->using_status = self::UNUSED;
+                $coupon->save(false);
+            }
+        }
+        return true;
+    }
         /**
      * @return \yii\db\ActiveQuery
      */

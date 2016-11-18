@@ -41,7 +41,7 @@ class ItemSearch extends Item
      */
     public function search($params)
     {
-        $query = Item::find();
+        $query = Item::find()->where(['isDeleted' => false]);
 
         // add conditions that should always apply here
 

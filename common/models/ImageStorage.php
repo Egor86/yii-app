@@ -45,8 +45,8 @@ class ImageStorage extends \yii\db\ActiveRecord
     public static function getTypeList()
     {
         return [
-            self::TYPE_MAIN => 'Основное изображение',
-            self::TYPE_SECOND_MAIN => 'Второе основое изображение',
+            self::TYPE_MAIN => 'Основное',
+            self::TYPE_SECOND_MAIN => 'Второе основое',
             self::TYPE_OTHER => 'Остальные изображения',
         ];
     }
@@ -58,10 +58,14 @@ class ImageStorage extends \yii\db\ActiveRecord
     {
         return [
             ['image', 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg, bmp, gif'],
-            [['name', 'class', 'class_item_id', 'file_path'], 'required'],
+            ['image',  'file','skipOnEmpty' => false, 'when' => function($model) {
+                return !$model->id;
+            }],
+            [['name', 'class', 'class_item_id', 'file_path', 'type',], 'required'],
             [['class_item_id', 'created_at', 'updated_at', 'type', 'deleteImg'], 'integer'],
             [['name', 'class'], 'string', 'max' => 64],
             [['file_path'], 'string', 'max' => 256],
+            ['type', 'default', 'value' => ImageStorage::TYPE_OTHER]
         ];
     }
 
@@ -114,6 +118,13 @@ class ImageStorage extends \yii\db\ActiveRecord
         if ($this->file_path && (is_file($filePath = Yii::getAlias('@front-web') . $this->file_path))) {
             @unlink($filePath);
         }
+        if (is_dir($dirPath = Yii::getAlias('@front-web') . preg_replace("/(\..*)$/", "", $this->file_path))) {
+            $files = array_diff(scandir($dirPath), ['.','..']);
+            foreach ($files as $file) {
+                @unlink($dirPath . DIRECTORY_SEPARATOR . $file);
+            }
+            @rmdir($dirPath);
+        }
         parent::afterDelete();
     }
 
@@ -122,10 +133,10 @@ class ImageStorage extends \yii\db\ActiveRecord
      * @param $type mixed
      * @return array
      */
-    public static function getInitialPreview($model, $type)
+    public static function getInitialPreview($model)
     {
         $data = [];
-        foreach (self::findAll(['class' => get_class($model), 'class_item_id' => $model->id, 'type' => $type]) as $file) {
+        foreach (self::findAll(['class' => get_class($model), 'class_item_id' => $model->id]) as $file) {
             $data[] = Html::img($file->file_path, ['class' => 'file-preview-image']);
         }
         return $data;
@@ -136,10 +147,10 @@ class ImageStorage extends \yii\db\ActiveRecord
      * @param $type mixed
      * @return array
      */
-    public static function getInitialPreviewConfig($model, $type)
+    public static function getInitialPreviewConfig($model)
     {
         $data = [];
-        foreach (self::findAll(['class' => get_class($model), 'class_item_id' => $model->id, 'type' => $type]) as $file) {
+        foreach (self::findAll(['class' => get_class($model), 'class_item_id' => $model->id]) as $file) {
             $data[] = [
                 'key' => $file->id,
                 'url' => Url::to(['/image/delete', 'id' => $file->id]),
@@ -191,6 +202,7 @@ class ImageStorage extends \yii\db\ActiveRecord
      * Not used, if will saved two TYPE_MAIN or TYPE_SECOND_MAIN will performed first TYPE_MAIN and firs TYPE_SECOND_MAIN
      * @param int $id
      * @return bool
+     * @deprecated
      */
     private function checkType($id = 0)
     {

@@ -3,6 +3,7 @@
 /** @var $model common\models\Item*/
 /** @var array $dataProvider ArrayDataProvider*/
 /** @var array $same_items common\models\Item*/
+
 use common\models\Category;
 use common\models\Item;
 use common\models\Size;
@@ -14,37 +15,66 @@ use yii\widgets\ActiveForm;
 
 $this->title = $model->name;
 
-//$this->registerJs("
-//function getSizes(value) {
-//        var data = { product_id: ".$model->id.", color_id: value, _csrf: '".Yii::$app->request->getCsrfToken()."'};
-//        $.ajax({
-//            type: 'post',
-//            url: '/item-size/get-size.html',
-//            dataType: 'html',
-//            data: data,
-//            success: function(data) {
-//                $('#product-sizes').html(data);
-//            }
-//        });
-//}
-//
-//", \yii\web\View::POS_HEAD);
-
 $this->registerJs("
 $(document).ready(function () {
-        var data = { item_id: ".$model->id.", _csrf: '".Yii::$app->request->getCsrfToken()."'};
+    var data = { item_id: ".$model->id.", _csrf: '".Yii::$app->request->getCsrfToken()."'};
     $.ajax({
         type: 'post',
         url: '/item-size/check-amount.html',
         dataType: 'html',
         data: data,
         success: function(data) {
-            $('#item-size').html(data);
+            if (data) {
+                $('#item-size').html(data);
+            }
         }        
-    })
+    });
+    
+    $.ajax({
+        type: 'post',
+        url: '/item-size/unavailable-size.html',
+        dataType: 'html',
+        data: data,
+        success: function(data) {
+            if (data) {
+                $('#pre-order').html(data);
+            }
+        }        
+    });
+    
 });
 
 ", \yii\web\View::POS_READY);
+
+
+$this->registerJs('
+$("body").on("click", ".pre-order", (function(event){ // нажатие на кнопку - выпадает модальное окно
+        event.preventDefault();
+      
+        var clickedbtn = $(this);         
+        var modalContainer = $("#my-modal");
+        var modalBody = modalContainer.find(".modal-body");
+        modalContainer.modal({show:true});
+  
+    }));
+    
+$("body").on("click", ".send", (function(event){
+        event.preventDefault();
+        var form = $(".pre-order-form");
+        $.ajax({
+            url: "/pre-order/create.html",
+            type: "POST",
+            data: form.serialize(),
+            success: function (data) {
+                if(data.success) {
+                    console.lod("data");
+                } else {
+                    $("#result").text(data.error);                    
+                }
+            }
+        });  
+    }));
+', \yii\web\View::POS_END);
 ?>
 <h1><?=$model->name;?></h1>
 
@@ -67,7 +97,7 @@ $(document).ready(function () {
   <span class="btn btn-default btn-lg btn-qty">
    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
   </span>
-        <?= $form->field($model, 'quantity')->input('number');?>
+        <?= $form->field($model, 'quantity')->input('number', ['required' => true]);?>
         <span class="btn btn-default btn-lg btn-qty">
    <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
 
@@ -77,7 +107,7 @@ $(document).ready(function () {
             [
                 'template' => "{label}{input}<div id=\"item-size\"></div><div class=\"help-block\"></div>",
             ]
-        )->input('hidden', ['value' => '', 'class' => false, 'id' => false])
+        )->input('hidden', ['value' => '', 'class' => false, 'id' => false, 'required' => true  ])
 //            ->radioList(ArrayHelper::map(
 //            Size::find()->where(['size_table_name_id' => Category::findOne(['id' => $model->product->category_id])->size_table_name_id])->asArray()->all(), 'id', 'value'),
 //            [
@@ -104,6 +134,9 @@ $(document).ready(function () {
 </div><!-- end row -->
 <?php ActiveForm::end(); ?>
 
+<div id="pre-order">
+
+</div>
 
 <div class="row">
     <div class="col-md-12 bottom-rule top-10"></div>

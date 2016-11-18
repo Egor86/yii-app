@@ -26,7 +26,6 @@ class SubscriberController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['index', 'view', 'create', 'update', 'delete'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -48,7 +47,6 @@ class SubscriberController extends Controller
                 'class' => \kotchuprik\sortable\actions\Sorting::className(),
                 'query' => Subscriber::find(),
                 'orderAttribute' => 'sort_by'
-
             ]
         ];
     }
@@ -59,26 +57,12 @@ class SubscriberController extends Controller
     public function actionIndex()
     {
         $searchModel = new SubscriberSearch();
-//        $list_id = 'd4e475d3f6';        TODO: create cron extention to update  mail_chimp_status periodically or cashing data with life-period 12 hours
-//        $emails = Subscriber::find()->select('mail_chimp_leid')->asArray()->all();
-//        $email_list = [];
-//
-//        for($i = 0; $i < count($emails); $i++){
-//            $email_list[]['leid'] = $emails[$i]['mail_chimp_leid'];
-//        }
-//
-//        $mailchimp = new \Mailchimp(\Yii::$app->params['mailchimpAPIkey']);
-//        $list_id = $mailchimp->lists->memberInfo($list_id, $email_list);
-//
-//        for ($j = 0; $j < count($list_id['data']); $j++){
-//            $subscriber = Subscriber::findOne(['mail_chimp_leid' => $list_id['data'][$j]['leid']]);
-//            if ($subscriber){
-//                if($subscriber->mail_chimp_status != $list_id['data'][$j]['status']){
-//                    $subscriber->mail_chimp_status = $list_id['data'][$j]['status'];
-//                    $subscriber->save();
-//                }
-//            }
-//        }
+
+        $cache = Yii::$app->cache;
+
+        if (!$cache->get('mailChimp') && Subscriber::updateMailChimp()) {
+                $cache->set('mailChimp', 'checked', 43200);
+        }
 
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
@@ -95,8 +79,6 @@ class SubscriberController extends Controller
      */
     public function actionView($id)
     {
-//        $model = $this->findModel($id);
-
         return $this->render('view', [
             'model' => $this->findModel($id),
         ]);

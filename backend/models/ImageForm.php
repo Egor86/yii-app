@@ -21,15 +21,13 @@ class ImageForm extends Model
     /**
      * @var UploadedFile
      */
-    public $imageMain = [];
-    public $imageOther = [];
+    public $imageFile;
 
 
     public function rules()
     {
         return [
-            [['imageMain', ], 'file', 'skipOnEmpty' => false, 'extensions' => 'png, jpg'],
-            [['imageOther', ], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg'],
+            [['imageFile', ], 'file', 'skipOnEmpty' => false, 'extensions' => 'png, jpg'],
         ];
     }
 
@@ -39,15 +37,13 @@ class ImageForm extends Model
     public function attributeLabels()
     {
         return [
-            'imageMain' => Yii::t('main', 'Основные фото'),
-            'imageOther' => Yii::t('main', 'Другие фото'),
+            'imageFile' => Yii::t('main', 'Картинка'),
         ];
     }
 
-    public function uploadImage($class, $item_id, $path = '/uploads')
+    public function uploadImage($class, $item_id, $path)
     {
-        $this->imageMain = UploadedFile::getInstance($this, 'imageMain');
-        $this->imageOther = UploadedFile::getInstance($this, 'imageOther');
+        $this->imageFile = UploadedFile::getInstance($this, 'imageFile');
 
         if ($this->validate()) {
 
@@ -69,7 +65,4 @@ class ImageForm extends Model
         }
 
     }
-
-
-
 }

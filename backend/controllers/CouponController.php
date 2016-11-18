@@ -21,7 +21,7 @@ class CouponController extends \yii\web\Controller
                 if ($order) {
                     $response['success'] = true;
                     $order->coupon_id = $coupon_form->coupon->id;
-                    $order->total_cost = max(0, $order->total_cost - $coupon_form->coupon->discount);
+                    $order->total_cost = max(0, $order->total_cost - $coupon_form->coupon->campaign->discount);
                     $order->save(false);
                     return $response;
                 }

@@ -38,24 +38,26 @@ class VideoForm extends Model
     public function uploadVideo($class, $item_id, $path = 'video_storage')
     {
         $this->videoFile = UploadedFile::getInstance($this, 'videoFile');
-        if ($this->validate() && $this->videoFile) {
 
-            if (($url = Image::upload($this->videoFile, Yii::getAlias('@front-web'), $path))) {
-                $video = new VideoStorage([
-                    'class' => $class,
-                    'item_id' => $item_id,
-                    'url' => $url,
-                    'file_name' => Upload::getFileName($this->videoFile)
-                ]);
-                if ($video->save()) {
-                    $this->videoFile = null;
-                    return $video->id;
+        if ($this->videoFile !== null) {
+            if ($this->validate()) {
+
+                if (($url = Image::upload($this->videoFile, Yii::getAlias('@front-web'), $path))) {
+                    $video = new VideoStorage([
+                        'class' => $class,
+                        'item_id' => $item_id,
+                        'url' => $url,
+                        'file_name' => Upload::getFileName($this->videoFile)
+                    ]);
+                    if ($video->save()) {
+                        $this->videoFile = null;
+                        return $video->id;
+                    }
                 }
             }
+            $this->addError('videoFile', 'Видео не сохранилось');
+            return false;
         }
-        $this->addError('videoFile', 'Видео не сохранилось');
-        return false;
-
-
+        return null;
     }
 }
