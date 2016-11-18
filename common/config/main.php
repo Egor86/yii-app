@@ -21,11 +21,11 @@ return [
             'useFileTransport' => false,
             'transport' => [
                 'class' => 'Swift_SmtpTransport',
-                'host' => 'smtp.yandex.ua',
-                'username' => 'egor@jaws.com.ua',
-                'password' => 'Aq$jKu123',
-                'port' => '465',
-                'encryption' => 'SSL',
+                'host' => '',
+                'username' => '',
+                'password' => '',
+                'port' => '',
+                'encryption' => '',
             ],
         ],
         'devicedetect' => [

@@ -35,13 +35,10 @@ phpunit.phar
 # test dir
 /test
 
-# db_dump
-db_dump.sql
-
 # upload files
 /common/upload/
 
 # upload file
 /frontend/web/data
-/frontend/web/data/video_storage
+
 extentions.txt
