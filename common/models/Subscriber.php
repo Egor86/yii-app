@@ -192,7 +192,7 @@ class Subscriber extends \yii\db\ActiveRecord
             'id' => 'ID',
             'name' => 'Имя',
             'email' => 'Email',
-            'phone' => 'Телефон (моб)',
+            'phone' => 'Номер мобильного',
             'euid' => 'Mail Chimp Euid',
             'leid' => 'Mail Chimp Leid',
             'created_at' => 'Создан',
@@ -244,17 +244,19 @@ class Subscriber extends \yii\db\ActiveRecord
     {
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            $email_list = Subscriber::find()->select('leid')->asArray()->all();
+            $email_list = array_chunk(Subscriber::find()->select('leid')->asArray()->all(), 5);
 
             $mailChimp = new Mailchimp(Yii::$app->params['mailchimpAPIkey']);
             $list_id = $mailChimp->lists->getList(['list_name' => self::LIST_NAME]);
 
-            $memberInfo = $mailChimp->lists->memberInfo($list_id['data'][0]['id'], $email_list)['data'];
-            for ($j = 0; $j < count($memberInfo); $j++){
-                $subscriber = Subscriber::findOne(['leid' => $memberInfo[$j]['leid']]);
-                if ($subscriber && $subscriber->mail_chimp_status != $memberInfo[$j]['status']){
-                    $subscriber->mail_chimp_status = $memberInfo[$j]['status'];
-                    $subscriber->save();
+            for ($i = 0; $i < count($email_list); $i++) {
+                $memberInfo = $mailChimp->lists->memberInfo($list_id['data'][0]['id'], $email_list[$i])['data'];
+                for ($j = 0; $j < count($memberInfo); $j++){
+                    $subscriber = Subscriber::findOne(['leid' => $memberInfo[$j]['leid']]);
+                    if ($subscriber && $subscriber->mail_chimp_status != $memberInfo[$j]['status']){
+                        $subscriber->mail_chimp_status = $memberInfo[$j]['status'];
+                        $subscriber->save();
+                    }
                 }
             }
         } catch (Exception $e) {

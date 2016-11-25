@@ -18,13 +18,10 @@ class CommentController extends \yii\web\Controller
 
     public function actionAdd()
     {
-        $model = new Comment(['scenario' => 'add']);
+        $model = new Comment();
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            if ($model->save()) {
-                // form inputs are valid, do something here
-                return true;
-            }
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+                return $this->redirect(Yii::$app->request->getReferrer());
         }
 
         return $this->render('add', [

@@ -15,7 +15,7 @@ use Yii;
  * @property string $user_name
  * @property integer $created_at
  * @property integer $updated_at
- *
+ * @property string $email
  * @property Item $item
  */
 class Comment extends \yii\db\ActiveRecord
@@ -37,11 +37,12 @@ class Comment extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['item_id', 'text', 'user_name'], 'required'],
+            [['item_id', 'text', 'user_name', 'email'], 'required'],
             [['item_id', 'agree', 'favorite', 'created_at', 'updated_at', 'sort_by'], 'integer'],
             [['text'], 'string', 'max' => 1000],
             [['user_name'], 'string', 'max' => 30],
             [['item_id'], 'exist', 'skipOnError' => true, 'targetClass' => Item::className(), 'targetAttribute' => ['item_id' => 'id']],
+            [['email'], 'string', 'max' => 45],
         ];
     }
 
@@ -59,6 +60,7 @@ class Comment extends \yii\db\ActiveRecord
             'user_name' => 'Имя пользователя',
             'created_at' => 'Дата создания',
             'updated_at' => 'Дата обновления',
+            'email' => 'Email',
         ];
     }
 
@@ -75,12 +77,12 @@ class Comment extends \yii\db\ActiveRecord
         ];
     }
 
-    public function scenarios()
-    {
-        $scenarios = parent::scenarios();
-        $scenarios['add'] = ['user_name', 'text', 'item_id'];
-        return $scenarios;
-    }
+//    public function scenarios()
+//    {
+//        $scenarios = parent::scenarios();
+//        $scenarios['add'] = ['user_name', 'text', 'item_id'];
+//        return $scenarios;
+//    }
 
     /**
      * @return \yii\db\ActiveQuery

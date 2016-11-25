@@ -6,6 +6,7 @@ use common\models\Category;
 use common\models\Color;
 use common\models\ImageStorage;
 use common\models\Item;
+use Yii;
 use yii\data\ArrayDataProvider;
 use yii\db\Query;
 use yii\web\Controller;
@@ -37,10 +38,12 @@ class ItemController extends Controller
             ->all();
 
         $same_items = Item::find()->where(['product_id' => $model->product_id])->all();
-        $images = ImageStorage::findAll(['class' => get_class($model), 'class_item_id' => $model->id]);
+        $images = ImageStorage::find()->where(['class' => get_class($model), 'class_item_id' => $model->id])->orderBy('type')->all();
         $dataProvider = new ArrayDataProvider([
             'allModels' => $size_table,
         ]);
+
+        Yii::$app->view->params['seo'] = $model->seo;
 
         return $this->render('view', [
             'model' => $model,

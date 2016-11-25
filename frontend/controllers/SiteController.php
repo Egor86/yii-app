@@ -80,33 +80,43 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        $item = Item::find()
-            ->where(['status' => Item::PUBLISHED])
+        $limit = Item::ITEM_VIEW_LIMIT_DESKTOP;
+        if (Yii::$app->devicedetect->isMobile()) {
+            $limit = Item::ITEM_VIEW_LIMIT_MOBILE;
+        }
+
+        $items = Item::find()
+            ->where(['status' => Item::PUBLISHED, 'isDeleted' => false])
             ->orderBy(['created_at' => SORT_DESC])
-            ->limit(Item::ITEM_VIEW_LIMIT)
+            ->limit($limit)
             ->all();
 
-        $category = Category::find()->all();
-
-        $page = Page::find()->where(['status' => Page::PUBLISHED])->all();
+        $popular = Item::find()
+            ->where(['status' => Item::PUBLISHED, 'isDeleted' => false, 'recommended' => true])
+            ->limit(8)
+            ->all();
 
         return $this->render('index', [
-            'item' => $item,
-            'category' => $category,
-            'page' => $page
+            'items' => $items,
+            'popular' => $popular
         ]);
     }
 
     public function actionMore()
     {
         if (Yii::$app->request->isAjax) {
+
+            $limit = Item::ITEM_VIEW_LIMIT_DESKTOP;
+            if (Yii::$app->devicedetect->isMobile()) {
+                $limit = Item::ITEM_VIEW_LIMIT_MOBILE;
+            }
             Yii::$app->response->format = Response::FORMAT_HTML;
             $post = Yii::$app->request->post();
-            $item = Item::find()->orderBy(['created_at' => SORT_DESC])->limit(Item::ITEM_VIEW_LIMIT)->offset($post['offset'])->all();
-            if (empty($item)) {
+            $items = Item::find()->orderBy(['created_at' => SORT_DESC])->limit($limit)->offset($post['offset'])->all();
+            if (empty($items)) {
                 return false;
             }
-            $template = $this->renderPartial('item', ['item' => $item]);
+            $template = $this->renderPartial('item', ['items' => $items]);
             return $template;
         }
         throw new NotFoundHttpException('The requested page does not exist.');

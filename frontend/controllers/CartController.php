@@ -27,8 +27,9 @@ class CartController extends Controller
     public function actionCreate()
     {
         $post = Yii::$app->request->post('Item');
+
         $item = Item::findOne($post['id']);
-        if ($item) {
+        if ($item && !$item->isDeleted) {
             $item_cart_position = $item->getCartPosition([
                 'id' => $item->id,
                 'size' => $post['sizes']
@@ -36,7 +37,7 @@ class CartController extends Controller
 
             $item_cart_position->item;  // add Item model to ItemCartPosition _item property
             Yii::$app->cart->create($item_cart_position, $post['quantity']);
-            return $this->redirect('/');
+            return $this->redirect(Yii::$app->request->getReferrer());
         }
         throw new NotFoundHttpException('The requested page does not exist.');
     }
@@ -48,7 +49,8 @@ class CartController extends Controller
         if ($cart->hasItem($id)) {
             $cart->deleteById($id);
         }
-        return $this->redirect('/cart'.Yii::$app->urlManager->suffix);
+        return $this->redirect(Yii::$app->request->getReferrer());
+//        return $this->redirect('/cart'.Yii::$app->urlManager->suffix);
     }
 
     public function actionIndex()
@@ -86,24 +88,24 @@ class CartController extends Controller
         throw new NotFoundHttpException('The requested page does not exist.');
     }
 
-    public function actionPreView()
-    {
-        if (Yii::$app->request->isAjax) {
-            $cart = Yii::$app->cart;
-            $response['success'] = false;
-            if (!$cart->getIsEmpty()) {
-                Yii::$app->response->format = Response::FORMAT_HTML;
-                $response['success'] = true;
-                return $this->renderPartial([
-                    '_pre_view',
-                    'items' => $cart->items
-                ]);
-            }
-            $response['error'] = "Корзина пуста";
-            return $response;
-        }
-        throw new NotFoundHttpException('The requested page does not exist.');
-    }
+//    public function actionPreView()
+//    {
+//        if (Yii::$app->request->isAjax) {
+//            $cart = Yii::$app->cart;
+//            $response['success'] = false;
+//            if (!$cart->getIsEmpty()) {
+//                Yii::$app->response->format = Response::FORMAT_HTML;
+//                $response['success'] = true;
+//                return $this->renderPartial([
+//                    '_pre_view',
+//                    'items' => $cart->items
+//                ]);
+//            }
+//            $response['error'] = "Корзина пуста";
+//            return $response;
+//        }
+//        throw new NotFoundHttpException('The requested page does not exist.');
+//    }
 
     public function actionView()
     {

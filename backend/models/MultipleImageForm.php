@@ -44,9 +44,9 @@ class MultipleImageForm extends Model
     public function attributeLabels()
     {
         return [
-            'imageMain' => Yii::t('app','Основное фото'),
-            'imageSecondMain' => Yii::t('app','Второе основное фото'),
-            'imageOther' => Yii::t('app','Остальные фото'),
+            'imageMain' => 'Основное фото',
+            'imageSecondMain' => 'Второе основное фото',
+            'imageOther' => 'Остальные фото',
         ];
     }
 

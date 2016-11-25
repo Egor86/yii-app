@@ -45,7 +45,7 @@ class SubscriberSearch extends Subscriber
      */
     public function search($params)
     {
-        $query = Subscriber::find()->orderBy(['sort_by' => SORT_ASC]);
+        $query = Subscriber::find();
 
         // add conditions that should always apply here
 

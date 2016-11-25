@@ -23,6 +23,7 @@ use yii2tech\ar\softdelete\SoftDeleteBehavior;
  * @property integer $updated_at
  * @property integer $status
  * @property integer $recommended
+ * @property integer $isDeleted
  */
 class Item extends \yii\db\ActiveRecord
 {
@@ -32,7 +33,8 @@ class Item extends \yii\db\ActiveRecord
     const UNPUBLISHED = 0;
     const UNRECOMMENDED = 0;
     const RECOMMENDED = 1;
-    const ITEM_VIEW_LIMIT = 2;
+    const ITEM_VIEW_LIMIT_DESKTOP = 8;
+    const ITEM_VIEW_LIMIT_MOBILE = 2;
 
 
     /**
@@ -74,6 +76,7 @@ class Item extends \yii\db\ActiveRecord
             ['slug', 'match', 'pattern' => '/^[a-zA-Z-]+$/', 'message' => 'URL может состоять из латиницы и тире'],
             [['stock_keeping_unit'], 'unique'],
             [['slug'], 'unique'],
+            ['color_id', 'checkUnique']
         ];
     }
 
@@ -94,7 +97,7 @@ class Item extends \yii\db\ActiveRecord
             'created_at' => 'Дата создания',
             'updated_at' => 'Дата обновления',
             'status' => 'Опубликован?',
-            'recommended' => 'Рекомендуемый товар'
+            'recommended' => 'Популярные товар'
         ];
     }
 
@@ -114,20 +117,22 @@ class Item extends \yii\db\ActiveRecord
                 'softDeleteAttributeValues' => [
                     'isDeleted' => true,
                 ],
-                'allowDeleteCallback' => function ($model) {
-                    return empty($model->preOrders);
-                }
             ],
         ];
     }
 
     /**
-     * Usage for update Items images
+     * Usage for update Items images & for item view - frontend
      * @return array|ImageStorage[]
      */
     public function getImages()
     {
         return ImageStorage::find()->where(['class' => self::className(), 'class_item_id' => $this->id])->all();
+    }
+
+    public function getImage($type)
+    {
+        return ImageStorage::findOne(['class' => self::className(), 'class_item_id' => $this->id, 'type' => $type]);
     }
 
     /**
@@ -179,7 +184,7 @@ class Item extends \yii\db\ActiveRecord
      */
     public function getComments()
     {
-        return $this->hasMany(Comment::className(), ['item_id' => 'id']);
+        return $this->hasMany(Comment::className(), ['item_id' => 'id'])->where(['agree' => true]);
     }
 
     /**
@@ -211,15 +216,22 @@ class Item extends \yii\db\ActiveRecord
         return ItemSize::find()->where(['item_id' => $this->id])->sum('amount');
     }
 
-    public static function deleteDeleted($event)
+    public function checkUnique($attribute, $params)
     {
-        $model = Item::findOne($event->sender->item_id);
+        $is_unique = array_flip(self::find()->select('id')->where(['product_id' => $this->product_id, $attribute => $this->color_id])->column());
 
-        if ($model && $model->isDeleted) {
-            $model->softDelete();
+        if (key_exists($this->id, $is_unique)) {
+            unset($is_unique[$this->id]);
+        }
+
+        if (!empty($is_unique)) {
+            $color = Color::findOne($this->color_id);
+            $this->addError($attribute, "Товар данного продукта цвета - '{$color->name}'  уже существует");
+            return false;
         }
         return true;
     }
+
     /**
      * @inheritdoc
      * @return ItemQuery the active query used by this AR class.

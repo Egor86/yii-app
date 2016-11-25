@@ -34,6 +34,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter'=> ArrayHelper::map(Product::find()->all(), 'id', 'name'),
             ],
             'text:ntext',
+            'email:email',
             [
                 'attribute' => 'user_name',
                 'filter'=> ArrayHelper::map(Comment::find()->all(), 'user_name', 'user_name'),

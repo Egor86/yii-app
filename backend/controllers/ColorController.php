@@ -96,9 +96,8 @@ class ColorController extends Controller
                     'id' => $model->id
                 ]);
             }
-            return $this->render('update', [
-                'model' => $model,
-            ]);
+            Yii::$app->session->setFlash('error', implode(' ', $imageForm->getFirstErrors()));
+            return $this->redirect(['update', 'id' => $model->id]);
         }
 
         return $this->render('create_caver', [
@@ -117,11 +116,17 @@ class ColorController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) { // TODO check type and load img
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+
             if ($model->type == Color::COLOR_COVER) {
                 $imageForm = new ImageForm();
-                if ($imageForm->uploadImage(get_class($model), $model->id, 'color_caver')) {
-                    return $this->redirect('index');
+
+                if (!$imageForm->uploadImage(get_class($model), $model->id, 'color_caver')) {
+
+                    return $this->render('update', [
+                        'model' => $model,
+                        'imageForm' => $imageForm
+                    ]);
                 }
             }
             return $this->redirect(['view', 'id' => $model->id]);

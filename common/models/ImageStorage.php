@@ -45,9 +45,9 @@ class ImageStorage extends \yii\db\ActiveRecord
     public static function getTypeList()
     {
         return [
-            self::TYPE_MAIN => 'Основное',
-            self::TYPE_SECOND_MAIN => 'Второе основое',
-            self::TYPE_OTHER => 'Остальные изображения',
+            self::TYPE_MAIN         => 'Основное',
+            self::TYPE_SECOND_MAIN  => 'Второе основое',
+            self::TYPE_OTHER        => 'Остальные изображения',
         ];
     }
 
@@ -59,13 +59,13 @@ class ImageStorage extends \yii\db\ActiveRecord
         return [
             ['image', 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg, bmp, gif'],
             ['image',  'file','skipOnEmpty' => false, 'when' => function($model) {
-                return !$model->id;
+                return !$model->id && $model->file_path == false;
             }],
+            ['type', 'default', 'value' => ImageStorage::TYPE_OTHER],
             [['name', 'class', 'class_item_id', 'file_path', 'type',], 'required'],
             [['class_item_id', 'created_at', 'updated_at', 'type', 'deleteImg'], 'integer'],
             [['name', 'class'], 'string', 'max' => 64],
             [['file_path'], 'string', 'max' => 256],
-            ['type', 'default', 'value' => ImageStorage::TYPE_OTHER]
         ];
     }
 
@@ -94,7 +94,7 @@ class ImageStorage extends \yii\db\ActiveRecord
             'class_item_id' => 'Class Item ID',
             'file_path' => 'File Path',
             'size' => 'Size',
-            'type' => '0 - first main photo, 1 - second main photo, 2 - other photo',
+            'type' => 'type',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
         ];
@@ -137,7 +137,7 @@ class ImageStorage extends \yii\db\ActiveRecord
     {
         $data = [];
         foreach (self::findAll(['class' => get_class($model), 'class_item_id' => $model->id]) as $file) {
-            $data[] = Html::img($file->file_path, ['class' => 'file-preview-image']);
+            $data[] = Html::img(Image::thumb($file->file_path, Yii::getAlias('@front-web'), 100, 100), ['class' => 'file-preview-image']);
         }
         return $data;
     }

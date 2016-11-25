@@ -100,7 +100,7 @@ class Order extends \yii\db\ActiveRecord
             Yii::$app->session->remove('discount');
         }
 
-        if ($insert) {
+        if ($insert && $this->status !== Order::ORDER_FAST) {
             $this->trigger(Subscriber::EVENT_NEW_SUBSCRIBER);
         }
     }

@@ -2,6 +2,7 @@
 return [
     'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
     'name'=>'Egoist-me',
+    'language' => 'ru-RU',
     'modules' => [
         'gridview' =>  [
             'class' => '\kartik\grid\Module'

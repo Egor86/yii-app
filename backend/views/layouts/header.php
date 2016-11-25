@@ -234,8 +234,7 @@ use yii\helpers\Html;
                                     <ul class="dropdown-menu">
                                         <!-- User image -->
                                         <li class="user-header">
-                                            <img src="backend/web/data/logo.png" class=""
-                                                 alt="User Image"/>
+                                            <?= Html::img('/backend/web/data/logo.png')?>
 
                                             <p>
                                                 Admin Egoist-me

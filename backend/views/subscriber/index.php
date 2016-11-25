@@ -1,11 +1,10 @@
 <?php
 
-use common\models\Coupon;
 use common\models\Subscriber;
+use kartik\grid\GridView;
 use yii\helpers\ArrayHelper;
-use yii\helpers\Html;
-use yii\grid\GridView;
 use yii\widgets\Pjax;
+
 /* @var $this yii\web\View */
 /* @var $searchModel backend\models\search\SubscriberSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
@@ -21,21 +20,37 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
-        'rowOptions' => function ($model, $key, $index, $grid) {
-            return ['data-sortable-id' => $model->id];
-        },
+        'resizableColumns' => false,
+        'showPageSummary' => false,
+        'pjax' => true,
+        'striped' => true,
+        'hover' => false,
+        'panel'=>['type'=>'primary', 'heading' => 'Подписчики'],
+        'exportConfig' => [
+            GridView::EXCEL => ['label' => 'Excel',
+                'icon' => 'file-excel-o',
+                'iconOptions' => ['class' => 'text-success'],
+                'showHeader' => true,
+                'showPageSummary' => true,
+                'showFooter' => true,
+                'showCaption' => true,
+                'filename' => 'subscribers',
+                'alertMsg' => Yii::t('kvgrid', 'The EXCEL export file will be generated for download.'),
+                'options' => ['title' => Yii::t('kvgrid', 'Microsoft Excel 95+')],
+                'mime' => 'application/vnd.ms-excel',
+                'config' => [
+                    'worksheet' => Yii::t('kvgrid', 'ExportWorksheet'),
+                    'cssFile' => ''
+                ]],
+        ],
         'columns' => [
-//            ['class' => 'yii\grid\SerialColumn'],
-            [
-                'class' => \kotchuprik\sortable\grid\Column::className(),
-            ],
             [
                 'attribute' => 'id',
-                'format' => 'html',
                 'filter'=> false,
                 'options' => [
                     'width' => '15px'
-                ]
+                ],
+                'mergeHeader' => true
             ],
             'name',
             'email',
@@ -67,15 +82,9 @@ $this->params['breadcrumbs'][] = $this->title;
                 ),
             ],
             [
-                'class' => 'yii\grid\ActionColumn',
+                'class' => '\kartik\grid\ActionColumn',
                 'template'=>'{view} {update}',
             ],
-        ],
-        'options' => [
-            'data' => [
-                'sortable-widget' => 1,
-                'sortable-url' => \yii\helpers\Url::toRoute(['sorting']),
-            ]
         ],
     ]); ?>
 <?php Pjax::end(); ?></div>

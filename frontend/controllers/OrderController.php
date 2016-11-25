@@ -29,18 +29,17 @@ class OrderController extends \yii\web\Controller
      * @return array
      * @throws NotFoundHttpException
      */
-    public function actionFastCreate()
+    public function actionFast()
     {
-        if (Yii::$app->request->isAjax) {
-            Yii::$app->response->format = Response::FORMAT_JSON;
+        if (Yii::$app->request->isPost) {
             $model = new Order(false, ['scenario' => 'short']);
-            $response['success'] = false;
+            $model->status = Order::ORDER_FAST;
             if ($model->load(Yii::$app->request->post()) && $model->save()) {
-                $response['success'] = true;
-                $response['message'] = 'Ваш заказ принят! Ожидайте, в ближайшее время с Вами свяжутся.';
-                return $response;
+                Yii::$app->session->setFlash('coupon', 'Ваш заказ принят! Ожидайте, в ближайшее время с Вами свяжутся.');
+                return $this->redirect(Yii::$app->request->referrer);
             }
-            return $response['errors'] = $model->errors;
+            Yii::$app->session->setFlash('coupon', current($model->getFirstErrors()));
+            return $this->redirect(Yii::$app->request->referrer);
         }
         throw new NotFoundHttpException('The requested page does not exist.');
     }

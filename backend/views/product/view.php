@@ -61,7 +61,20 @@ $(".video").click(function(event){ // нажатие на кнопку - вып�
             'name',
             [
                 'attribute' => 'description',
-                'type'=>DetailView::INPUT_TEXTAREA,
+                'format' => 'html',
+                'updateMarkup' => function($form, $widget) {
+                    $model = $widget->model;
+                    return $form->field($model, 'description')->widget(\vova07\imperavi\Widget::className(),[
+                        'settings' => [
+                            'lang' => 'ru',
+                            'minHeight' => 200,
+                            'plugins' => [
+                                'clips',
+                                'fullscreen'
+                            ]
+                        ]
+                   ]);
+                }
             ],
             [
                 'attribute' => 'brand_id',
@@ -102,8 +115,8 @@ $(".video").click(function(event){ // нажатие на кнопку - вып�
                 'value' => $model->category->name,
                 'updateMarkup' => function($form, $widget) {
                     $model = $widget->model;
-                    return $form->field($model, 'category_id')->dropDownList(ArrayHelper::map(Category::find()
-                        ->all(), 'id', 'name'));
+                    return $form->field($model, 'category_id')->dropDownList(ArrayHelper::map(
+                        Category::find()->where(['not', ['parent' => 0]])->all(), 'id', 'name'));
                 }
             ],
             [

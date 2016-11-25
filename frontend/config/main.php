@@ -43,7 +43,6 @@ return [
             'showScriptName' => false,
             'suffix' => '.html',
             'rules' => [
-//                '/' => '/subscriber/soon',
                 [
                     'pattern' => 'soon',
                     'route' => '/subscriber/soon',

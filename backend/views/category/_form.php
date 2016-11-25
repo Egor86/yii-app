@@ -10,12 +10,7 @@ use yii\widgets\ActiveForm;
 /* @var $model common\models\Category */
 /* @var $form yii\widgets\ActiveForm */
 
-$parentList = $model->isNewRecord ?
-    Category::find()->all() :
-    Category::find()
-        ->where(['not', ['id' => $model->id]])
-        ->andWhere(['not', ['parent' => $model->id]])
-        ->all();
+
 ?>
 
 <div class="category-form">
@@ -28,10 +23,7 @@ $parentList = $model->isNewRecord ?
 
     <div class="col-sm-6">
     <?= $form->field($model, 'parent')
-        ->dropDownList(ArrayHelper::map($parentList, 'id', 'name'),
-            (!empty(Category::find()->where(['parent' => $model->id])->all()) ?
-            ['prompt' => 'Родитель', 'disabled' => 'disabled', 'title' => 'Категория является родительской'] :
-                ['prompt' => 'Родитель'])) ?>
+        ->dropDownList(ArrayHelper::map(Category::findAll(['parent' => 0]), 'id', 'name')) ?>
     </div>
 
     <div class="col-sm-6">

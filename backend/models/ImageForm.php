@@ -27,7 +27,10 @@ class ImageForm extends Model
     public function rules()
     {
         return [
-            [['imageFile', ], 'file', 'skipOnEmpty' => false, 'extensions' => 'png, jpg'],
+            [['imageFile', ], 'file', 'extensions' => 'png, jpg'],
+            ['imageFile',  'file','skipOnEmpty' => true, 'when' => function($model) {
+                return UploadedFile::getInstance($this, 'imageFile');
+            }],
         ];
     }
 
@@ -37,32 +40,36 @@ class ImageForm extends Model
     public function attributeLabels()
     {
         return [
-            'imageFile' => Yii::t('main', 'Картинка'),
+            'imageFile' => 'Изображение',
         ];
     }
 
     public function uploadImage($class, $item_id, $path)
     {
-        $this->imageFile = UploadedFile::getInstance($this, 'imageFile');
+        if ($this->imageFile = UploadedFile::getInstance($this, 'imageFile')) {
 
-        if ($this->validate()) {
+            $cover_loaded = ImageStorage::findOne(['class' => $class, 'class_item_id' => $item_id]);
+            if (!empty($cover_loaded)) {
+                $this->addError('imageFile', 'Для загрузки нового изображения, необходимо удалить старое');
+                return false;
+            }
 
-            if (($url = Image::upload($this->imageFile, Yii::getAlias('@front-web'), $path))) {
-                $image = new ImageStorage([
-                    'class' => $class,
-                    'class_item_id' => $item_id,
-                    'file_path' => $url,
-                    'name' => Upload::getFileName($this->imageFile)
-                ]);
-                if ($image->save()) {
-                    $this->imageFile = null;
-                    return $image->id;
+            if ($this->validate()) {
+                if (($url = Image::upload($this->imageFile, Yii::getAlias('@front-web'), $path))) {
+                    $image = new ImageStorage([
+                        'class' => $class,
+                        'class_item_id' => $item_id,
+                        'file_path' => $url,
+                        'name' => Upload::getFileName($this->imageFile)
+                    ]);
+                    if ($image->save()) {
+                        $this->imageFile = null;
+                        return $image->id;
+                    }
                 }
             }
             return false;
-        } else {
-            return false;
         }
-
+        return true;
     }
 }

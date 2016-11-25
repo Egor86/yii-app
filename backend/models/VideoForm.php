@@ -21,7 +21,9 @@ class VideoForm extends Model
     public function rules()
     {
         return [
-            [['videoFile'], 'file', 'skipOnEmpty' => true, 'extensions' => 'mp4, mpeg, mpg, avi, mp2',],
+            [['videoFile'], 'file', 'skipOnEmpty' => true, 'extensions' => 'mp4'
+//            , mpeg, mpg, avi, mp2',
+            ],
         ];
     }
 

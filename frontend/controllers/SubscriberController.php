@@ -21,37 +21,63 @@ class SubscriberController extends \yii\web\Controller
         ];
     }
 
-    public function actionCreate()     // Prod version
+    public function actionCreate()
     {
-        if (Yii::$app->request->isAjax) {
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            $response['success'] = false;
+        if (Yii::$app->request->isPost) {
             $post = Yii::$app->request->post();
             $model = Subscriber::findOne(['email' => $post['Subscriber']['email'], 'phone' => $post['Subscriber']['phone']]);
             if (!$model) {
                 $model = new Subscriber();
                 if (!$model->load(Yii::$app->request->post()) || !$model->save()) {
-                    $response['errors'] = $model->firstErrors;
-                    return $response;
+                    Yii::$app->session->setFlash('coupon', current($model->getFirstErrors()));
+                    return $this->redirect(Yii::$app->request->referrer);
                 }
             }
             if (!Coupon::findOne(['subscriber_id' => $model->id])) {
                 try{
                     $model->trigger(Coupon::EVENT_GET_COUPON);
                 } catch (Exception $e) {
-                    $response['errors'] = $e->getMessage();
-                    return $response;
+                    Yii::$app->session->setFlash('coupon', $e->getMessage());
+                    return $this->redirect(Yii::$app->request->referrer);
                 }
-                $response['success'] = true;
-                $response['message'] = 'Купон был отправлен вам на email';
-                return $response;
+                Yii::$app->session->setFlash('coupon');
+                return $this->redirect(Yii::$app->request->referrer);
             }
-            $response['errors'] = "Клиент с телефоном {$model->phone} и email {$model->email} уже получил купон";
-            return $response;
+            Yii::$app->session->setFlash('coupon',"Клиент с телефоном {$model->phone} и email {$model->email} уже получил купон");
+            return $this->redirect(Yii::$app->request->referrer);
         }
         throw new NotFoundHttpException('The requested page does not exist.');
     }
-
+//    public function actionCreate()     // Prod version
+//    {
+//        if (Yii::$app->request->isAjax) {
+//            Yii::$app->response->format = Response::FORMAT_JSON;
+//            $response['success'] = false;
+//            $post = Yii::$app->request->post();
+//            $model = Subscriber::findOne(['email' => $post['Subscriber']['email'], 'phone' => $post['Subscriber']['phone']]);
+//            if (!$model) {
+//                $model = new Subscriber();
+//                if (!$model->load(Yii::$app->request->post()) || !$model->save()) {
+//                    $response['errors'] = current($model->getFirstErrors());
+//                    return $response;
+//                }
+//            }
+//            if (!Coupon::findOne(['subscriber_id' => $model->id])) {
+//                try{
+//                    $model->trigger(Coupon::EVENT_GET_COUPON);
+//                } catch (Exception $e) {
+//                    $response['errors'] = $e->getMessage();
+//                    return $response;
+//                }
+//                $response['success'] = true;
+//                $response['message'] = 'Купон был отправлен вам на email';
+//                return $response;
+//            }
+//            $response['errors'] = "Клиент с телефоном {$model->phone} и email {$model->email} уже получил купон";
+//            return $response;
+//        }
+//        throw new NotFoundHttpException('The requested page does not exist.');
+//    }
 //    public function actionSoon()
 //    {
 //        $subscriber = new Subscriber();

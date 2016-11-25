@@ -58,13 +58,11 @@ $this->params['breadcrumbs'][] = $this->title;
                             . " " . $model->color->name,
                         'updateMarkup' => function($form, $widget) {
                             $model = $widget->model;
-                            $color_list = Item::find()->select('color_id')
-                                ->where(['product_id' => $model->product_id])
-                                ->andWhere(['not', ['id' => $model->id]])->asArray()->column();
+//                            $color_list = Item::find()->select('color_id')
+//                                ->where(['product_id' => $model->product_id])
+//                                ->andWhere(['not', ['id' => $model->id]])->asArray()->column();
                             return $form->field($model, 'color_id')
-                                ->dropDownList(ArrayHelper::map(Color::find()
-                                    ->where(['not in', 'id', $color_list])
-                                    ->asArray()->all(), 'id', 'name'));
+                                ->dropDownList(ArrayHelper::map(Color::find()->all(), 'id', 'name'));
                         },
                         'valueColOptions' => ['style'=>'width:30%'],
                     ],
@@ -246,14 +244,14 @@ function getImg($model, $type)
         if (count($images) > 1) {
             foreach ($images as $img) {
                 if (is_file(Yii::getAlias('@front-web') . $img->file_path)) {
-                    $show[] = Html::img($img->file_path);
+                    $show[] = Html::img($img->file_path, ['width' => 'auto', 'height' => 100]);
                 }
             }
             return implode(' ', $show);
         }
-        return is_file(Yii::getAlias('@front-web') . $images[0]->file_path) ? Html::img($images[0]->file_path) : 'Загруженное изображение не найдено';
+        return is_file(Yii::getAlias('@front-web') . $images[0]->file_path) ? Html::img($images[0]->file_path, ['width' => 'auto', 'height' => 100]) : 'Загруженное изображение не найдено';
     }
-    return 'Изображения нет';
+    return 'отсутствует(ют)';
 }
 ?>
 <div class="panel panel-info">

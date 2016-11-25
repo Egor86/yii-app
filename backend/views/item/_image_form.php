@@ -62,7 +62,7 @@ use yii\jui\JuiAsset;
                 <?php
                 $initialPreview = [];
                 if ($image_storage->file_path) {
-                    $initialPreview[] = Html::img($image_storage->file_path, ['class' => 'file-preview-image']);
+                    $initialPreview[] = Html::img($image_storage->file_path, ['width' => 'auto', 'height' => 100, 'class' => 'file-preview-image']);
                 }
                 ?>
                 <?= $form->field($image_storage, "[{$index}]image")->label(false)->widget(FileInput::classname(), [

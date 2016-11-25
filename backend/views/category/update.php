@@ -1,5 +1,6 @@
 <?php
 
+use common\models\Category;
 use yii\helpers\Html;
 
 /* @var $this yii\web\View */
@@ -9,6 +10,7 @@ $this->title = 'Обновление категории: ' . $model->name;
 $this->params['breadcrumbs'][] = ['label' => 'Категории', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['view', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = 'Обновление';
+
 ?>
 <div class="category-update">
 

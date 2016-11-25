@@ -12,6 +12,7 @@ namespace common\components;
 use common\models\Coupon;
 use hscstudio\cart\Cart;
 use hscstudio\cart\CostCalculationEvent;
+use Yii;
 
 class MyCart extends Cart
 {
@@ -38,7 +39,7 @@ class MyCart extends Cart
 //        ]);
 //        $this->trigger(self::EVENT_COST_CALCULATION, $costEvent);
         if ($withDiscount) {
-            $coupon_id = \Yii::$app->session['discount'];
+            $coupon_id = Yii::$app->session['discount'];
             $this->discount = $coupon_id ? Coupon::findOne($coupon_id)->discount : 0;
             $cost = max(0, $cost - $this->discount);
         }

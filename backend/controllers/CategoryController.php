@@ -143,8 +143,7 @@ class CategoryController extends Controller
                 echo Json::encode([
                     'success' => false,
                     'messages' => [
-                        'kv-detail-error' => 'Категория # ' . $id . ' не была удалена, проверьте, возможно это родительская категория, '.
-                            'или у этой категории есть продукты.'
+                        'kv-detail-error' => 'Категория # ' . $id . ' не была удалена, проверьте, возможно у этой категории есть продукты.'
                     ]
                 ]);
             }

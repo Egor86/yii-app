@@ -12,7 +12,7 @@ return [
     'controllerNamespace' => 'backend\controllers',
     'bootstrap' => ['log'],
     'homeUrl' => '/admin',
-    'language' => 'ru-RU',
+//    'language' => 'ru-RU',
     'components' => [
         'request' => [
             'csrfParam' => '_csrf-backend',

@@ -167,8 +167,8 @@ use yii\widgets\ActiveForm;
 
         <script>window.jQuery || document.write('<script src="/js/vendor/jquery-1.11.0.min.js"><\/script>')</script>
 
-        <script src="/js/vendor/libs.js"></script>
-        <script src="/js/main.js"></script>
+        <script src="/js/vendor/libs_soon.js"></script>
+        <script src="/js/main_soon.js"></script>
         <script src="/js/vendor/bootstrap.js"></script>
         <script>
 

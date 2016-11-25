@@ -31,7 +31,6 @@ class PreOrder extends \yii\db\ActiveRecord
     {
         parent::init();
         $this->on(Subscriber::EVENT_NEW_SUBSCRIBER, [new Subscriber(), 'createSubscriber'], Subscriber::GROUP_PRE_ORDER);
-        $this->on(PreOrder::EVENT_AFTER_DELETE, [Item::className(), 'deleteDeleted']);
     }
     /**
      * @inheritdoc

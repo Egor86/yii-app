@@ -29,9 +29,12 @@ use yii\widgets\ActiveForm;
                     ],
                     'pluginOptions' => [
                         'maxFileCount' => 1,
-                        'showRemove' => true,
                         'showUpload' => false,
                         'showCaption' => false,
+                        'fileActionSettings' => [
+                            'showDrag' => false,
+                            'showZoom' => false
+                        ],
                         'overwriteInitial' => false,
                         'initialPreview' => ImageStorage::getInitialPreview($model),
                         'initialPreviewConfig' => ImageStorage::getInitialPreviewConfig($model),

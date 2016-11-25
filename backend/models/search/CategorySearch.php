@@ -41,7 +41,7 @@ class CategorySearch extends Category
      */
     public function search($params)
     {
-        $query = Category::find()->orderBy(['sort_by' => SORT_ASC]);
+        $query = Category::find()->where(['not', ['parent' => 0]])->orderBy(['sort_by' => SORT_ASC]);
 
         // add conditions that should always apply here
 
