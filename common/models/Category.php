@@ -24,7 +24,7 @@ use yii\helpers\ArrayHelper;
  * @property SizeTableName $sizeTableName
  * @property Product[] $products
  */
-class Category extends \yii\db\ActiveRecord
+class Category extends \yii\db\ActiveRecord implements \mrssoft\sitemap\SitemapInterface
 {
     /**
      * @inheritdoc
@@ -95,6 +95,11 @@ class Category extends \yii\db\ActiveRecord
         ];
     }
 
+    public function getParentName()
+    {
+        $parent = self::findOne($this->parent);
+        return $parent ? $parent->name : '';
+    }
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -131,11 +136,20 @@ class Category extends \yii\db\ActiveRecord
                     ->distinct()])
             ->asArray()->all();
 
-        $parents[] = [
-            'id' => 0,
-            'name' => 'Родитель'
-        ];
-
         return ArrayHelper::map($parents, 'id', 'name');
+    }
+
+
+    public static function sitemap()
+    {
+        return self::find();
+    }
+
+    /**
+     * @return string
+     */
+    public function getSitemapUrl()
+    {
+        return  \yii\helpers\Url::toRoute(['category/view', 'slug' => $this->slug], true);
     }
 }

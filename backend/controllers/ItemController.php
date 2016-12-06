@@ -97,7 +97,7 @@ class ItemController extends Controller
     public function actionCreate($product_id)
     {
         $product = Product::findOne($product_id);
-        $model = new Item();
+        $model = new Item(['product_id' => $product->id]);
         $item_sizes = [new ItemSize()];
         $image_storages = [new ImageStorage()];
 
@@ -244,7 +244,7 @@ class ItemController extends Controller
         $post = Yii::$app->request->post();
         if (Yii::$app->request->post()) {
             $id = $post['id'];
-            if ($this->findModel($id)->softDelete()) {
+            if ($this->findModel($id)->delete()) {
                 echo Json::encode([
                     'success' => true,
                     'messages' => [
@@ -273,8 +273,8 @@ class ItemController extends Controller
         $post = Yii::$app->request->post();
         if (isset($post['depdrop_parents'])) {
             $product_id = end($post['depdrop_parents']);
-            $list = Item::find()->where(['product_id' => $product_id])->all();
-            if ($product_id != null && count($list) > 0) {
+            $list = Item::find()->where(['product_id' => $product_id, 'isDeleted' => false])->all();
+            if ($product_id !== null && count($list) > 0) {
                 foreach ($list as $i => $item) {
                     if ($item->getPresentSizes()) {
                         $out[] = [

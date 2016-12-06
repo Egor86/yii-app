@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\models\Coupon;
 use common\models\CouponForm;
 use common\models\Item;
 use common\models\Order;
@@ -16,7 +17,14 @@ class CartController extends Controller
     public function actionCheckout()
     {
         Yii::$app->cart->checkOut(false);
-        $this->redirect(['index']);
+        if (Yii::$app->session['discount']) {
+            $coupon = Coupon::findOne(Yii::$app->session['discount']);
+            if ($coupon && Yii::$app->session->remove('discount')) {
+                $coupon->using_status = Coupon::UNUSED;
+                $coupon->save(false);
+            }
+        }
+        $this->redirect(Yii::$app->getHomeUrl());
     }
 
     /**
@@ -28,64 +36,59 @@ class CartController extends Controller
     {
         $post = Yii::$app->request->post('Item');
 
-        $item = Item::findOne($post['id']);
-        if ($item && !$item->isDeleted) {
-            $item_cart_position = $item->getCartPosition([
-                'id' => $item->id,
-                'size' => $post['sizes']
-            ]);
+        if ($post['id'] && $post['quantity'] && $post['sizes']) {
+            $item = Item::findOne($post['id']);
+            if ($item && !$item->isDeleted) {
+                $item_cart_position = $item->getCartPosition([
+                    'id' => $item->id,
+                    'size' => $post['sizes']
+                ]);
 
-            $item_cart_position->item;  // add Item model to ItemCartPosition _item property
-            Yii::$app->cart->create($item_cart_position, $post['quantity']);
-            return $this->redirect(Yii::$app->request->getReferrer());
+                $item_cart_position->item;  // add Item model to ItemCartPosition _item property
+                Yii::$app->cart->create($item_cart_position, $post['quantity']);
+                return $this->redirect(Yii::$app->request->getReferrer());
+            }
         }
         throw new NotFoundHttpException('The requested page does not exist.');
     }
 
-    public function actionDelete($id)
+    public function actionDelete($id, $slug = false)
     {
         $cart = Yii::$app->cart;
 
         if ($cart->hasItem($id)) {
             $cart->deleteById($id);
         }
-        return $this->redirect(Yii::$app->request->getReferrer());
-//        return $this->redirect('/cart'.Yii::$app->urlManager->suffix);
+        if (!$slug) {
+            return $this->redirect(Yii::$app->request->getReferrer());
+        }
+        return $this->redirect(['/item/view', 'slug' => $slug]);
     }
 
-    public function actionIndex()
-    {
-        $cart = Yii::$app->cart;
-        $products = $cart->getItems();
-        $total = $cart->getCost();
-        return $this->render('index', [
-            'products' => $products,
-            'total' => $total,
-        ]);
-    }
+//    public function actionIndex()
+//    {
+//        $cart = Yii::$app->cart;
+//        $products = $cart->getItems();
+//        $total = $cart->getCost();
+//        return $this->render('index', [
+//            'products' => $products,
+//            'total' => $total,
+//        ]);
+//    }
 
-    /**
-     * @return array
-     * @throws NotFoundHttpException
-     */
     public function actionUpdate()
     {
-        if (Yii::$app->request->isAjax) {
+        if (Yii::$app->request->isPost) {
             $post = Yii::$app->request->post();
-            Yii::$app->response->format = Response::FORMAT_JSON;
             $cart = Yii::$app->cart;
-            $item = $cart->items[$post['pk']];
+            $item = $cart->getItemById($post['pk']);
             if ($item && $item->canSetProperty($post['name'])) {
-                $item->{$post['name']} = $post['value'];
+                $item->{'set'.$post['name']}($post['value']);
                 $cart->save();
-                $response = [
-                    'total_sum' => Yii::$app->formatter->asCurrency($cart->getCost()),
-                    'total_pay' => Yii::$app->formatter->asCurrency($cart->getCost(true))
-                ];
-                return $response;
             }
+            return $this->redirect(['view']);
         }
-        throw new NotFoundHttpException('The requested page does not exist.');
+        return $this->redirect(Yii::$app->getHomeUrl());
     }
 
 //    public function actionPreView()
@@ -112,19 +115,13 @@ class CartController extends Controller
         $cart = Yii::$app->cart;
         if (!$cart->getIsEmpty()) {
             $coupon_form = new CouponForm([], Yii::$app->session['discount']);
-            $order = new Order();
-
-            $dataProvider = new ArrayDataProvider([
-                'allModels' => $cart->items,
-                'sort' => false
-            ]);
 
             return $this->render('view', [
-                'dataProvider' => $dataProvider,
+                'items' => $cart->items,
                 'coupon_form' => $coupon_form,
-                'order' => $order,
             ]);
         }
-        return $this->render('empty_cart');
+        Yii::$app->session->setFlash('message', 'ВАША КОРЗИНА ПУСТА');
+        return $this->redirect(Yii::$app->homeUrl);
     }
 }

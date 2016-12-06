@@ -25,7 +25,7 @@ use yii2tech\ar\softdelete\SoftDeleteBehavior;
  * @property integer $recommended
  * @property integer $isDeleted
  */
-class Item extends \yii\db\ActiveRecord
+class Item extends \yii\db\ActiveRecord implements \mrssoft\sitemap\SitemapInterface
 {
     use CartPositionTrait;
 
@@ -97,7 +97,7 @@ class Item extends \yii\db\ActiveRecord
             'created_at' => 'Дата создания',
             'updated_at' => 'Дата обновления',
             'status' => 'Опубликован?',
-            'recommended' => 'Популярные товар'
+            'recommended' => 'Популярный товар'
         ];
     }
 
@@ -112,12 +112,12 @@ class Item extends \yii\db\ActiveRecord
                 ],
             ],
             'seoBehavior' => SeoBehavior::className(),
-            'softDeleteBehavior' => [
-                'class' => SoftDeleteBehavior::className(),
-                'softDeleteAttributeValues' => [
-                    'isDeleted' => true,
-                ],
-            ],
+//            'softDeleteBehavior' => [
+//                'class' => SoftDeleteBehavior::className(),
+//                'softDeleteAttributeValues' => [
+//                    'isDeleted' => true,
+//                ],
+//            ],
         ];
     }
 
@@ -249,5 +249,18 @@ class Item extends \yii\db\ActiveRecord
     {
         $params['class'] = 'common\models\ItemCartPosition';
         return Yii::createObject($params);
+    }
+
+    public static function sitemap()
+    {
+        return self::find()->where(['isDeleted' => false, 'status' => true]);
+    }
+
+    /**
+     * @return string
+     */
+    public function getSitemapUrl()
+    {
+        return  \yii\helpers\Url::toRoute(['item/view', 'slug' => $this->slug], true);
     }
 }

@@ -92,6 +92,7 @@ class ProductController extends Controller
     public function actionView($id)
     {
         $model = $this->findModel($id);
+
 //        $product_color_ids = [];
 //        $product_colors = Item::find()->select('id')
 //            ->where('product_id='.$model->id)->asArray()->all();
@@ -223,7 +224,8 @@ class ProductController extends Controller
         $post = Yii::$app->request->post();
         if (Yii::$app->request->isAjax) {
             $id = $post['id'];
-            if ($this->findModel($id)->delete()) {
+            $model = $this->findModel($id);
+            if ($model && $model->delete()) {
                 echo Json::encode([
                     'success' => true,
                     'messages' => [

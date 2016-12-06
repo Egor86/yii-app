@@ -12,19 +12,6 @@ use yii\web\Response;
 
 class OrderController extends \yii\web\Controller
 {
-    public function actions()
-    {
-        return [
-            'error' => [
-                'class' => 'yii\web\ErrorAction',
-            ],
-            'captcha' => [
-                'class' => 'yii\captcha\CaptchaAction',
-                'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
-            ],
-        ];
-    }
-
     /**
      * @return array
      * @throws NotFoundHttpException
@@ -35,36 +22,35 @@ class OrderController extends \yii\web\Controller
             $model = new Order(false, ['scenario' => 'short']);
             $model->status = Order::ORDER_FAST;
             if ($model->load(Yii::$app->request->post()) && $model->save()) {
-                Yii::$app->session->setFlash('coupon', 'Ваш заказ принят! Ожидайте, в ближайшее время с Вами свяжутся.');
+                Yii::$app->session->setFlash('message', 'Ваша заявка принята!');
                 return $this->redirect(Yii::$app->request->referrer);
             }
-            Yii::$app->session->setFlash('coupon', current($model->getFirstErrors()));
+            Yii::$app->session->setFlash('message', current($model->getFirstErrors()));
             return $this->redirect(Yii::$app->request->referrer);
         }
         throw new NotFoundHttpException('The requested page does not exist.');
     }
 
     /**
-     * @return string
+     * @return string|Response
+     * @throws NotFoundHttpException
      */
     public function actionConfirm()
     {
-        $model = new Order(Yii::$app->session['discount']);
-        if ($model->load(Yii::$app->request->post())) {
+        if (Yii::$app->request->isPost) {
+            $model = new Order(Yii::$app->session['discount']);
 
-            if ($model->save()) {
+            if ($model->load(Yii::$app->request->post()) && $model->save()) {
                 $items = $model->setOrderId();
-                $dataProvider = new ArrayDataProvider([
-                    'allModels' => $items
-                ]);
 
                 return $this->render('success', [
                     'model' => $model,
-                    'dataProvider' => $dataProvider
+                    'items' => $items
                 ]);
             }
-            return $this->redirect('cart/view');
+            Yii::$app->session->setFlash('message', current($model->getFirstErrors()));
+            return $this->redirect(Yii::$app->request->referrer);
         }
-        return $this->render('index', ['model' => $model]);
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 }

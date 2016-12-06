@@ -78,31 +78,33 @@ function changeCost(response){
         ],
         'buttons1' => '{update}',
         'attributes' => [
-            [
-                'attribute' => 'fullName',
-                'updateMarkup' => function($form, $widget) {
-                    $model = $widget->model;
-                    $inputs = '<div class="col-sm-6">' . $form->field($model, 'name', ['template' => "{label}{input}{error}",]) .
-                        '</div><div class="col-sm-6">' . $form->field($model, 'surname', ['template' => "{label}{input}{error}",]) . '</div>';
-                    return $inputs;
-                },
-                'valueColOptions'=>['style'=>'width:70%'],
-            ],
-            [
-                'attribute' => 'fullAddress',
-                'updateMarkup' => function($form, $widget) {
-                    $model = $widget->model;
-                    $inputs = '<div class="col-sm-6">' . $form->field($model, 'organization_name', ['template' => "{label}{input}{error}",]) .
-                        '</div><div class="col-sm-6">' . $form->field($model, 'address', ['template' => "{label}{input}{error}",]) . '</div>' .
-                        '<div class="col-sm-6">' . $form->field($model, 'city', ['template' => "{label}{input}{error}",]) .
-                        '</div><div class="col-sm-6">' . $form->field($model, 'region', ['template' => "{label}{input}{error}",]) . '</div>' .
-                        '<div class="col-sm-6">' . $form->field($model, 'country', ['template' => "{label}{input}{error}",]) .
-                        '</div><div class="col-sm-6">' . $form->field($model, 'post_index', ['template' => "{label}{input}{error}",]) . '</div>';
-                    return $inputs;
-
-                },
-                'valueColOptions'=>['style'=>'width:70%'],
-            ],
+//            [
+//                'attribute' => 'fullName',
+//                'updateMarkup' => function($form, $widget) {
+//                    $model = $widget->model;
+//                    $inputs = '<div class="col-sm-6">' . $form->field($model, 'name', ['template' => "{label}{input}{error}",]) .
+//                        '</div><div class="col-sm-6">' . $form->field($model, 'surname', ['template' => "{label}{input}{error}",]) . '</div>';
+//                    return $inputs;
+//                },
+//                'valueColOptions'=>['style'=>'width:70%'],
+//            ],
+            'name',
+            'address',
+//            [
+//                'attribute' => 'fullAddress',
+//                'updateMarkup' => function($form, $widget) {
+//                    $model = $widget->model;
+//                    $inputs = '<div class="col-sm-6">' . $form->field($model, 'organization_name', ['template' => "{label}{input}{error}",]) .
+//                        '</div><div class="col-sm-6">' . $form->field($model, 'address', ['template' => "{label}{input}{error}",]) . '</div>' .
+//                        '<div class="col-sm-6">' . $form->field($model, 'city', ['template' => "{label}{input}{error}",]) .
+//                        '</div><div class="col-sm-6">' . $form->field($model, 'region', ['template' => "{label}{input}{error}",]) . '</div>' .
+//                        '<div class="col-sm-6">' . $form->field($model, 'country', ['template' => "{label}{input}{error}",]) .
+//                        '</div><div class="col-sm-6">' . $form->field($model, 'post_index', ['template' => "{label}{input}{error}",]) . '</div>';
+//                    return $inputs;
+//
+//                },
+//                'valueColOptions'=>['style'=>'width:70%'],
+//            ],
             [
                 'attribute' => 'phone',
                 'displayOnly' => $model->coupon_id ? true : false,
@@ -127,17 +129,17 @@ function changeCost(response){
                     ]);
                 },
             ],
-            [
-                'attribute' => 'delivery_date',
-                'format' => 'date',
-                'updateMarkup' => function($form, $widget) {
-                    $model = $widget->model;
-                    return $form->field($model, 'delivery_date')->widget(\yii\jui\DatePicker::className(), [
-                        'dateFormat' => 'yyyy-MM-dd',
-                        'language' => 'ru'
-                    ]);
-                },
-            ],
+//            [
+//                'attribute' => 'delivery_date',
+//                'format' => 'date',
+//                'updateMarkup' => function($form, $widget) {
+//                    $model = $widget->model;
+//                    return $form->field($model, 'delivery_date')->widget(\yii\jui\DatePicker::className(), [
+//                        'dateFormat' => 'yyyy-MM-dd',
+//                        'language' => 'ru'
+//                    ]);
+//                },
+//            ],
             [
                 'attribute' => 'coupon_id',
                 'label' => 'Купон',
@@ -163,6 +165,18 @@ function changeCost(response){
                 'format' => 'currency',
                 'rowOptions' => ['class'=>'kv-edit-hidden'],
                 'valueColOptions' => ['id' => 'total-sum']
+            ],
+            [
+                'attribute' => 'delivery',
+                'format'=>'raw',
+                'value'=> $model->delivery ? '<span class="label label-danger">Нужна</span>' : '<span class="label label-success">Не нужна</span>',
+                'type' => DetailView::INPUT_SWITCH,
+                'widgetOptions' => [
+                    'pluginOptions' => [
+                        'onText' => 'Да',
+                        'offText' => 'Нет',
+                    ]
+                ]
             ],
             [
                 'attribute' => 'comment',

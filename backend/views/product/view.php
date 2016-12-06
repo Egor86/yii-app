@@ -3,6 +3,7 @@
 use backend\models\VideoForm;
 use common\models\Brand;
 use common\models\Category;
+use common\models\Item;
 use kartik\detail\DetailView;
 use kartik\file\FileInput;
 use yii\bootstrap\BootstrapPluginAsset;
@@ -131,18 +132,21 @@ $(".video").click(function(event){ // нажатие на кнопку - вып�
                 'format' => 'datetime',
                 'rowOptions' => ['class'=>'kv-edit-hidden'],
             ],
-//            [
-//                'attribute' => 'published',
-//                'format'=>'raw',
-//                'value'=>$model->published ? '<span class="label label-success">Да</span>' : '<span class="label label-danger">Нет</span>',
-//                'type' => DetailView::INPUT_SWITCH,
-//                'widgetOptions' => [
-//                    'pluginOptions' => [
-//                        'onText' => 'Да',
-//                        'offText' => 'Нет',
-//                    ]
-//                ]
-//            ],
+            [
+                'attribute' => 'canonical',
+                'value' => $model->getCanonical() ? $model->getCanonical()->name :
+                    Yii::$app->session->setFlash('warning', 'Для данного продукта не выбран товар для канонической ссылки!'),
+                'updateMarkup' => function($form, $widget) {
+                    $model = $widget->model;
+                    $items = Item::find()->where(['product_id' => $model->id, 'isDeleted' => false])->all();
+                    $options = ['prompt' => '--'];
+                    if (!$items) {
+                       $options =  ['prompt' => 'Сначала необходимо создать дочерний товар'];
+                    }
+                    return $form->field($model, 'canonical')->dropDownList(ArrayHelper::map(
+                        $items, 'id', 'name'), $options);
+                }
+            ],
         ],
         'deleteOptions' => [
             'url' => 'delete',
@@ -177,4 +181,4 @@ $(".video").click(function(event){ // нажатие на кнопку - вып�
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->'
+</div><!-- /.modal -->

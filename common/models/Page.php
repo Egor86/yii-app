@@ -19,7 +19,7 @@ use yii\base\Event;
  * @property integer $updated_at
  * @property integer $sort_by
  */
-class Page extends \yii\db\ActiveRecord
+class Page extends \yii\db\ActiveRecord implements \mrssoft\sitemap\SitemapInterface
 {
     const PUBLISHED = 1;
     const UNPUBLISHED = 0;
@@ -95,5 +95,18 @@ class Page extends \yii\db\ActiveRecord
             self::PUBLISHED => 'Да',
             self::UNPUBLISHED => 'Нет'
         ];
+    }
+
+    public static function sitemap()
+    {
+        return self::find()->where(['status' => true]);
+    }
+
+    /**
+     * @return string
+     */
+    public function getSitemapUrl()
+    {
+        return  \yii\helpers\Url::toRoute(['page/view', 'slug' => $this->slug], true);
     }
 }

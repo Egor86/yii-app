@@ -21,7 +21,6 @@ use yii\widgets\ActiveForm;
     <?= $form->field($model, 'text')->widget(Widget::className(),[
         'settings' => [
             'lang' => 'ru',
-            'limiter' => 10,
             'minHeight' => 200,
             'plugins' => [
                 'limiter',

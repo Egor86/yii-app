@@ -1,18 +1,15 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: egor
- * Date: 28.10.16
- * Time: 12:58
- */
 
 namespace common\components;
 
 
 use common\models\Coupon;
+use common\models\Order;
 use hscstudio\cart\Cart;
 use hscstudio\cart\CostCalculationEvent;
+use hscstudio\cart\Storage;
 use Yii;
+use yii\di\Instance;
 
 class MyCart extends Cart
 {
@@ -22,6 +19,15 @@ class MyCart extends Cart
      */
     public $discount;
 
+
+    public function init()
+    {
+        $this->storage = Instance::ensure($this->storage, Storage::className());
+        $this->load();
+        if (!$this->getIsEmpty()) {
+            Yii::$app->view->params['order'] = new Order(Yii::$app->session['discount']);
+        }
+    }
 
     /**
      * overwritten from parent getCost
@@ -40,7 +46,7 @@ class MyCart extends Cart
 //        $this->trigger(self::EVENT_COST_CALCULATION, $costEvent);
         if ($withDiscount) {
             $coupon_id = Yii::$app->session['discount'];
-            $this->discount = $coupon_id ? Coupon::findOne($coupon_id)->discount : 0;
+            $this->discount = $coupon_id ? Coupon::findOne($coupon_id)->campaign->discount : 0;
             $cost = max(0, $cost - $this->discount);
         }
         return $cost;

@@ -15,8 +15,9 @@ use Yii;
  * @property integer $category_id
  * @property integer $created_at
  * @property integer $updated_at
- * @property string $published
+ * @property integer $published
  * @property integer $sort_by
+ * @property integer $canonical
  *
  * @property Comment[] $comments
  * @property Brand $brand
@@ -59,7 +60,7 @@ class Product extends \yii\db\ActiveRecord
         return [
             [['name', 'description', 'brand_id', 'category_id'], 'required'],
             [['description'], 'string'],
-            [['brand_id', 'video_id', 'category_id', 'created_at', 'updated_at', 'sort_by', 'published'], 'integer'],
+            [['brand_id', 'video_id', 'category_id', 'created_at', 'updated_at', 'sort_by', 'published', 'canonical'], 'integer'],
             [['name'], 'string', 'max' => 255],
             ['published', 'in', 'range' => array_keys(self::publishedList())],
             [['brand_id'], 'exist', 'skipOnError' => true, 'targetClass' => Brand::className(), 'targetAttribute' => ['brand_id' => 'id']],
@@ -97,6 +98,7 @@ class Product extends \yii\db\ActiveRecord
             'published' => 'Опубликован?',
             'sort_by' => 'Sort By',
             'videoStorage' => 'Видео',
+            'canonical' => 'Товар для канонической ссылки',
         ];
     }
 
@@ -105,7 +107,7 @@ class Product extends \yii\db\ActiveRecord
      */
     public function getBrand()
     {
-        return $this->hasOne(Brand::className(), ['id' => 'brand_id'])->inverseOf('products');
+        return $this->hasOne(Brand::className(), ['id' => 'brand_id']);
     }
 
 
@@ -116,7 +118,7 @@ class Product extends \yii\db\ActiveRecord
 
     public function getItems()
     {
-        return $this->hasMany(Item::className(), ['product_id' => 'id']);
+        return $this->hasMany(Item::className(), ['product_id' => 'id'])->where(['isDeleted' => false]);
     }
     /**
      * @return \yii\db\ActiveQuery
@@ -133,5 +135,15 @@ class Product extends \yii\db\ActiveRecord
     public static function find()
     {
         return new \common\models\active_query\ProductQuery(get_called_class());
+    }
+
+    /**
+     * @param $item Item
+     * @return bool|string
+     */
+    public function getCanonical()
+    {
+            $canonical_item = Item::findOne($this->canonical);
+            return $canonical_item && !$canonical_item->isDeleted ? $canonical_item : false;
     }
 }

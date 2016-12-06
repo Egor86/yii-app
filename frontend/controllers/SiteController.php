@@ -8,6 +8,7 @@ use common\models\Item;
 use common\models\Page;
 use common\models\Product;
 use common\models\Subscriber;
+use frontend\models\ContactForm;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\web\BadRequestHttpException;
@@ -64,7 +65,8 @@ class SiteController extends Controller
     {
         return [
             'error' => [
-                'class' => 'yii\web\ErrorAction',
+                'class' => 'common\actions\ErrorAction',
+                'view' => 'error'
             ],
             'captcha' => [
                 'class' => 'yii\captcha\CaptchaAction',
@@ -112,53 +114,55 @@ class SiteController extends Controller
             }
             Yii::$app->response->format = Response::FORMAT_HTML;
             $post = Yii::$app->request->post();
-            $items = Item::find()->orderBy(['created_at' => SORT_DESC])->limit($limit)->offset($post['offset'])->all();
+            $items = Item::find()
+                ->where(['status' => Item::PUBLISHED, 'isDeleted' => false])
+                ->orderBy(['created_at' => SORT_DESC])
+                ->limit($limit)
+                ->offset($post['offset'])->all();
             if (empty($items)) {
                 return false;
             }
-            $template = $this->renderPartial('item', ['items' => $items]);
+            $template = $this->renderPartial('item', [
+                'items' => $items
+            ]);
             return $template;
         }
         throw new NotFoundHttpException('The requested page does not exist.');
     }
+//
+//    /**
+//     * Logs in a user.
+//     *
+//     * @return mixed
+//     */
+//    public function actionLogin()
+//    {
+//        if (!Yii::$app->user->isGuest) {
+//            return $this->goHome();
+//        }
+//
+//        $model = new LoginForm();
+//        if ($model->load(Yii::$app->request->post()) && $model->login()) {
+//            return $this->goBack();
+//        } else {
+//            return $this->render('login', [
+//                'model' => $model,
+//            ]);
+//        }
+//    }
+//
+//    /**
+//     * Logs out the current user.
+//     *
+//     * @return mixed
+//     */
+//    public function actionLogout()
+//    {
+//        Yii::$app->user->logout();
+//
+//        return $this->goHome();
+//    }
 
-    /**
-     * Logs in a user.
-     *
-     * @return mixed
-     */
-    public function actionLogin()
-    {
-        if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
-
-        $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
-        } else {
-            return $this->render('login', [
-                'model' => $model,
-            ]);
-        }
-    }
-
-    /**
-     * Logs out the current user.
-     *
-     * @return mixed
-     */
-    public function actionLogout()
-    {
-        Yii::$app->user->logout();
-
-        return $this->goHome();
-    }
-
-    /**
-     * Displays contact page, sync data with MailChimp, save data on DB
-     * @return mixed
-     */
 //    public function actionContact()
 //    {
 //        $model = new Subscriber();
@@ -195,29 +199,28 @@ class SiteController extends Controller
 //        ]);
 //    }
 
-//    public function actionStart(){
-//        $email['email'] = 'belemets.egor@gmail.com';
-//        $mailchimp = new \Mailchimp(\Yii::$app->params['mailchimpAPIkey']);
-//        $list_id = $mailchimp->lists->getList();
-//        header('content-type: text/html; charset=utf-8;');
-//        echo '<pre>';
-//        @print_r($list_id);
-//        echo '</pre>';
-//        exit(__FILE__ .': '. __LINE__);
-////        $cid = $mailchimp->campaigns->getList(['name'=>'Test']);
-//        print_r( $list_id); die();
-//        $mailchimp->campaigns->send($cid['data'][0]['id']);
-//    }
 
-    /**
-     * Displays about page.
-     *
-     * @return mixed
-     */
-    public function actionAbout()
+    public function actionContact()
     {
-        return $this->render('about');
+        if (Yii::$app->request->post()) {
+            $post = Yii::$app->request->post();
+            if (!empty($post['g-recaptcha-response'])) {
+                $model = new ContactForm();
+                if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+                    if ($model->sendEmail(Yii::$app->params['adminEmail'])) {
+                        Yii::$app->session->setFlash('success');
+                    } else {
+                        Yii::$app->session->setFlash('message', 'Сообщение не было отправлено!');
+                    }
+                    return $this->redirect(Yii::$app->request->referrer);
+                }
+            }
+            Yii::$app->session->setFlash('message', "Пройдите проверку \'I am not a robot\'");
+            return $this->redirect(Yii::$app->request->referrer);
+        }
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
+
 
     /**
      * Signs user up.
@@ -240,52 +243,52 @@ class SiteController extends Controller
         ]);
     }
 
-    /**
-     * Requests password reset.
-     *
-     * @return mixed
-     */
-    public function actionRequestPasswordReset()
-    {
-        $model = new PasswordResetRequestForm();
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            if ($model->sendEmail()) {
-                Yii::$app->session->setFlash('success', 'Check your email for further instructions.');
-
-                return $this->goHome();
-            } else {
-                Yii::$app->session->setFlash('error', 'Sorry, we are unable to reset password for email provided.');
-            }
-        }
-
-        return $this->render('requestPasswordResetToken', [
-            'model' => $model,
-        ]);
-    }
-
-    /**
-     * Resets password.
-     *
-     * @param string $token
-     * @return mixed
-     * @throws BadRequestHttpException
-     */
-    public function actionResetPassword($token)
-    {
-        try {
-            $model = new ResetPasswordForm($token);
-        } catch (InvalidParamException $e) {
-            throw new BadRequestHttpException($e->getMessage());
-        }
-
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->resetPassword()) {
-            Yii::$app->session->setFlash('success', 'New password was saved.');
-
-            return $this->goHome();
-        }
-
-        return $this->render('resetPassword', [
-            'model' => $model,
-        ]);
-    }
+//    /**
+//     * Requests password reset.
+//     *
+//     * @return mixed
+//     */
+//    public function actionRequestPasswordReset()
+//    {
+//        $model = new PasswordResetRequestForm();
+//        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+//            if ($model->sendEmail()) {
+//                Yii::$app->session->setFlash('success', 'Check your email for further instructions.');
+//
+//                return $this->goHome();
+//            } else {
+//                Yii::$app->session->setFlash('error', 'Sorry, we are unable to reset password for email provided.');
+//            }
+//        }
+//
+//        return $this->render('requestPasswordResetToken', [
+//            'model' => $model,
+//        ]);
+//    }
+//
+//    /**
+//     * Resets password.
+//     *
+//     * @param string $token
+//     * @return mixed
+//     * @throws BadRequestHttpException
+//     */
+//    public function actionResetPassword($token)
+//    {
+//        try {
+//            $model = new ResetPasswordForm($token);
+//        } catch (InvalidParamException $e) {
+//            throw new BadRequestHttpException($e->getMessage());
+//        }
+//
+//        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->resetPassword()) {
+//            Yii::$app->session->setFlash('success', 'New password was saved.');
+//
+//            return $this->goHome();
+//        }
+//
+//        return $this->render('resetPassword', [
+//            'model' => $model,
+//        ]);
+//    }
 }

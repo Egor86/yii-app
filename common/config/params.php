@@ -1,7 +1,7 @@
 <?php
 return [
-    'adminEmail' => 'admin@example.com',
-    'supportEmail' => 'support@example.com',
+    'adminEmail' => 'egoistme@ukr.net',
+    'supportEmail' => 'egoistme@ukr.net',
     'user.passwordResetTokenExpire' => 3600,
-    'mailchimpAPIkey' => '74568b51a397b1ebdc5c7050f5e761d7-us14'
+    'mailchimpAPIkey' => 'b1784d4eab88650c47c1db2ad5ed0ab6-us14'
 ];

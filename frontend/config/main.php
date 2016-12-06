@@ -11,7 +11,11 @@ return [
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
     'controllerNamespace' => 'frontend\controllers',
+//    'catchAll' => ['/subscriber/soon'],
     'homeUrl' => '/',
+    'controllerMap' => [
+        'sitemap' => 'frontend\controllers\SitemapController'
+    ],
     'components' => [
         'request' => [
             'csrfParam' => '_csrf-frontend',
@@ -43,11 +47,6 @@ return [
             'showScriptName' => false,
             'suffix' => '.html',
             'rules' => [
-                [
-                    'pattern' => 'soon',
-                    'route' => '/subscriber/soon',
-                    'suffix' => ''
-                ],
                 'cart' => '/cart/view',
                 [
                     'pattern' => 'page/<slug:[A-Za-z-]+>',
@@ -55,19 +54,22 @@ return [
                     'encodeParams' => false,
                 ],
                 [
-                    'pattern' => '<slug:[A-Za-z-]+>/',
-                    'route' => 'category/filter',
-                    'mode' => 'PARSING_ONLY',
-//                    'encodeParams' => false,
-                    'suffix' => ''
-                ],
-                [
                     'pattern' => '<slug:[A-Za-z-]+>',
                     'route' => 'category/view',
                     'encodeParams' => false,
                     'suffix' => '/'
                 ],
+                [
+                    'pattern' => 'sitemap',
+                    'route' => 'sitemap/index',
+                    'suffix' => '.xml'
+                ],
                 '<slug>' => 'item/view',
+                [
+                    'pattern' => '/',
+                    'route' => '/site/index',
+                    'suffix' => ''
+                ]
             ],
         ],
     ],

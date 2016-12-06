@@ -16,7 +16,6 @@ use yii\helpers\Html;
 <body>
     <?php $this->beginBody() ?>
     <?= $content ?>
-    This text from layouts
     <?php $this->endBody() ?>
 </body>
 </html>

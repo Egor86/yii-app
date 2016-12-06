@@ -18,8 +18,8 @@ class OrderSearch extends Order
     public function rules()
     {
         return [
-            [['id', 'coupon_id', 'status', 'created_at', 'updated_at', 'sort_by'], 'integer'],
-            [['name', 'surname', 'country', 'region', 'city', 'address', 'organization_name', 'post_index', 'phone', 'email', 'delivery_date'], 'safe'],
+            [['id', 'coupon_id', 'status', 'created_at', 'updated_at', 'delivery'], 'integer'],
+            [['name', 'address', 'phone', 'email', ], 'safe'],
         ];
     }
 
@@ -69,25 +69,24 @@ class OrderSearch extends Order
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-//            'delivery_date' => $this->delivery_date,
+            'delivery' => $this->delivery,
             'coupon_id' => $this->coupon_id,
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'sort_by' => $this->sort_by,
         ]);
 
         $query->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'surname', $this->surname])
-            ->andFilterWhere(['like', 'country', $this->country])
-            ->andFilterWhere(['like', 'region', $this->region])
-            ->andFilterWhere(['like', 'city', $this->city])
+//            ->andFilterWhere(['like', 'surname', $this->surname])
+//            ->andFilterWhere(['like', 'country', $this->country])
+//            ->andFilterWhere(['like', 'region', $this->region])
+//            ->andFilterWhere(['like', 'city', $this->city])
             ->andFilterWhere(['like', 'address', $this->address])
-            ->andFilterWhere(['like', 'organization_name', $this->organization_name])
-            ->andFilterWhere(['like', 'post_index', $this->post_index])
+//            ->andFilterWhere(['like', 'organization_name', $this->organization_name])
+//            ->andFilterWhere(['like', 'post_index', $this->post_index])
             ->andFilterWhere(['like', 'phone', $this->phone])
             ->andFilterWhere(['like', 'email', $this->email])
-            ->andFilterWhere(['delivery_date' => $this->delivery_date]);
+            ->andFilterWhere(['delivery' => $this->delivery]);
 
         return $dataProvider;
     }

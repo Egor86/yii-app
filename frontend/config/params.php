@@ -1,6 +1,6 @@
 <?php
 return [
-    'adminEmail' => 'admin@example.com',
-    'senderEmail' => 'egor@jaws.com.ua',
-    'senderName' => 'Test-egoist'
+    'adminEmail' => 'egoistme@ukr.net',
+    'senderEmail' => 'egoistme@ukr.net',
+    'senderName' => 'Ego-ist'
 ];

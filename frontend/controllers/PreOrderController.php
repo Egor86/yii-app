@@ -12,17 +12,13 @@ class PreOrderController extends \yii\web\Controller
 {
     public function actionCreate()
     {
-        if (Yii::$app->request->isAjax) {
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            $response['success'] = false;
+        if (Yii::$app->request->isPost) {
             $model = new PreOrder();
-            if ($model->load(Yii::$app->request->post())) {
-                if (!$model->save()) {
-                    return $response['errors'] = $model->firstErrors;
-                }
-                return $response['success'] = true;
+            Yii::$app->session->setFlash('message', 'Как только товар появится, мы с вами свяжемся');
+            if (!$model->load(Yii::$app->request->post()) || !$model->save()) {
+                Yii::$app->session->setFlash('message', current($model->getFirstErrors()));
             }
-            return $response;
+            return $this->redirect(Yii::$app->request->referrer);
         }
         throw new NotFoundHttpException('The requested page does not exist.');
     }

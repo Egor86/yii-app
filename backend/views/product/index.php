@@ -2,6 +2,7 @@
 
 use common\models\Category;
 use common\models\Product;
+use kartik\select2\Select2;
 use kotchuprik\sortable\grid\Column;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
@@ -86,7 +87,21 @@ $( ".delete" ).click(function() {
                     return $data->category ? $data->category->name : null;
                 },
                 'format' => 'html',
-                'filter'=> ArrayHelper::map(Category::find()->all(), 'id', 'name'),
+                'filter'=> Select2::widget([
+                    'model' => $searchModel,
+                    'attribute' => 'category_id',
+                    'name' => 'category_id',
+                    'data' => [
+                        Category::findOne(1)->name => ArrayHelper::map(Category::find()->where(['parent' => 1])->asArray()->all(), 'id', 'name'),
+                        Category::findOne(2)->name => ArrayHelper::map(Category::find()->where(['parent' => 2])->asArray()->all(), 'id', 'name'),
+                    ],
+                    'options' => [
+                        'placeholder' => 'Выбор категории ...',
+                    ],
+                    'pluginOptions' => [
+                        'allowClear' => true
+                    ],
+                ]),
             ],
             // 'created_at',
             // 'updated_at',

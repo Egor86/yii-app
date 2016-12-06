@@ -4,7 +4,7 @@
 /** @var array $item_sizes common\models\ItemSize */
 $template = null;
 for ($i = 0; $i < count($sizes); $i++) {
-    $size_box = "<div class='custom-radio'><input type='radio' name='Item[sizes]' class='size-select' id='radio{$i}' value='' disabled><label for='radio{$i}'> {$sizes[$i]['value']}</label></div>";
+    $size_box = "<div class='custom-radio not-available'><input type='radio' name='Item[sizes]' class='size-select' id='radio{$i}' value='' disabled><label for='radio{$i}'> {$sizes[$i]['value']}</label></div>";
     for ($j = 0; $j < count($item_sizes); $j++) {
         if ($sizes[$i]['id'] == $item_sizes[$j]['size_id']){
             if ($item_sizes[$j]['amount'] > 0) {

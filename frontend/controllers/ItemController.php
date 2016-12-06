@@ -6,9 +6,11 @@ use common\models\Category;
 use common\models\Color;
 use common\models\ImageStorage;
 use common\models\Item;
+use common\models\Product;
 use Yii;
 use yii\data\ArrayDataProvider;
 use yii\db\Query;
+use yii\helpers\Url;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 
@@ -37,13 +39,15 @@ class ItemController extends Controller
             ->from(Category::findOne($model->product->category_id)->sizeTableName->name)
             ->all();
 
-        $same_items = Item::find()->where(['product_id' => $model->product_id])->all();
+        $same_items = Item::find()->where(['product_id' => $model->product_id, 'isDeleted' => false])->all();
         $images = ImageStorage::find()->where(['class' => get_class($model), 'class_item_id' => $model->id])->orderBy('type')->all();
         $dataProvider = new ArrayDataProvider([
             'allModels' => $size_table,
         ]);
 
         Yii::$app->view->params['seo'] = $model->seo;
+        $canonical = $model->product->getCanonical();
+        Yii::$app->view->params['canonical'] = $canonical ? ['item/view', 'slug' => $canonical->slug] : false;
 
         return $this->render('view', [
             'model' => $model,
@@ -62,7 +66,7 @@ class ItemController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = Item::findOne($id)) !== null) {
+        if (($model = Item::findOne($id)) !== null && !$model->isDeleted) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
@@ -71,7 +75,7 @@ class ItemController extends Controller
 
     protected function findModelBySlug($slug)
     {
-        if (($model = Item::findOne(['slug' => $slug])) !== null) {
+        if (($model = Item::findOne(['slug' => $slug])) !== null && !$model->isDeleted) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

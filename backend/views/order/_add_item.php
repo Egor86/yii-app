@@ -21,61 +21,64 @@ $item = new Item();
 <div class="collapse" id="add-item">
 <?php $form = ActiveForm::begin(['action' => '/admin/order/add-item?id='.$model->id]);?>
 
-<?= $form->field($product, 'category_id', ['enableClientValidation' => false])->widget(Select2::classname(), [
-    'data' => ArrayHelper::map(Category::find()->asArray()->all(), 'id', 'name'),
-    'options' => [
-        'placeholder' => 'Выбери категорию ...',
-        'style' => ['textAlign' => 'center'],
-        'id' => 'category-id',
-    ],
-    'pluginOptions' => [
-        'allowClear' => true
-    ],
-]);?>
-
-<?= $form->field($product, 'id')->widget(DepDrop::classname(), [
-    'options' => ['placeholder' => 'Выбери продукт ...',
-        'style' => ['textAlign' => 'center'],
-        'id' => 'product-id',],
-    'type' => DepDrop::TYPE_SELECT2,
-    'select2Options' => [
+    <?= $form->field($product, 'category_id', ['enableClientValidation' => false])->widget(Select2::classname(), [
+        'data' => [
+            Category::findOne(1)->name => ArrayHelper::map(Category::find()->where(['parent' => 1])->asArray()->all(), 'id', 'name'),
+            Category::findOne(2)->name => ArrayHelper::map(Category::find()->where(['parent' => 2])->asArray()->all(), 'id', 'name'),
+        ],
+        'options' => [
+            'placeholder' => 'Выбери категорию ...',
+            'style' => ['textAlign' => 'center'],
+            'id' => 'category-id',
+        ],
         'pluginOptions' => [
             'allowClear' => true
+        ],
+    ]);?>
+
+    <?= $form->field($product, 'id')->widget(DepDrop::classname(), [
+        'options' => ['placeholder' => 'Выбери продукт ...',
+            'style' => ['textAlign' => 'center'],
+            'id' => 'product-id',],
+        'type' => DepDrop::TYPE_SELECT2,
+        'select2Options' => [
+            'pluginOptions' => [
+                'allowClear' => true
+            ]
+        ],
+        'pluginOptions' => [
+            'depends' => ['category-id'],
+            'loading' => false,
+            'url' => Url::to(['/product/get-product']),
         ]
-    ],
-    'pluginOptions' => [
-        'depends' => ['category-id'],
-        'loading' => false,
-        'url' => Url::to(['/product/get-product']),
-    ]
-])->label('Продукт');?>
+    ])->label('Продукт');?>
 
-<?= $form->field($item, 'id')->widget(DepDrop::classname(), [
-    'id' => 'item-id',
-    'options' => ['placeholder' => 'Выбери товар ...'],
-    'type' => DepDrop::TYPE_SELECT2,
-    'select2Options' => ['pluginOptions' => ['allowClear' => true]],
-    'pluginOptions' => [
-        'depends' => ['product-id'],
-        'loading' => false,
-        'url' => Url::to(['/item/get-item']),
-    ]
-])->label('Товар');?>
+    <?= $form->field($item, 'id')->widget(DepDrop::classname(), [
+        'id' => 'item-id',
+        'options' => ['placeholder' => 'Выбери товар ...'],
+        'type' => DepDrop::TYPE_SELECT2,
+        'select2Options' => ['pluginOptions' => ['allowClear' => true]],
+        'pluginOptions' => [
+            'depends' => ['product-id'],
+            'loading' => false,
+            'url' => Url::to(['/item/get-item']),
+        ]
+    ])->label('Товар');?>
 
-<?= $form->field($item, 'sizes')->widget(DepDrop::classname(), [
-    'id' => 'item-size-id',
-    'options' => ['placeholder' => 'Выбери размер ...'],
-    'type' => DepDrop::TYPE_SELECT2,
-    'select2Options' => ['pluginOptions' => ['allowClear' => true]],
-    'pluginOptions' => [
-        'nameParam' => 'value',
-        'depends' => ['item-id'],
-        'loading' => false,
-        'url' => Url::to(['/item/get-size']),
-    ]
-])->label('Размер');?>
+    <?= $form->field($item, 'sizes')->widget(DepDrop::classname(), [
+        'id' => 'item-size-id',
+        'options' => ['placeholder' => 'Выбери размер ...'],
+        'type' => DepDrop::TYPE_SELECT2,
+        'select2Options' => ['pluginOptions' => ['allowClear' => true]],
+        'pluginOptions' => [
+            'nameParam' => 'value',
+            'depends' => ['item-id'],
+            'loading' => false,
+            'url' => Url::to(['/item/get-size']),
+        ]
+    ])->label('Размер');?>
 
-<?= $form->field($item, 'quantity')->input('number')->label('Количество')?>
+    <?= $form->field($item, 'quantity')->input('number')->label('Количество')?>
 
 <div class="form-group">
     <?= Html::submitButton('Добавить товар', ['class' => 'btn btn-primary']) ?>

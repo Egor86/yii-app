@@ -17,7 +17,7 @@ $items = Item::find()
 <?php
     if ($model->color->type == Color::COLOR_COVER) :
         $image = ImageStorage::findOne(['class' => Color::className(), 'class_item_id' => $model->color->id]);
-        echo $image ? '<img src="' . Image::thumb($image->file_path, Yii::getAlias('@front-web')) . '" alt="">' : '';?>
+        echo $image ? '<img src="' . Image::thumb($image->file_path, Yii::getAlias('@front-web'), 38, 38) . '" alt="">' : '';?>
     <?php else:?>
         <span style="background-color: <?= $model->color->rgb_code?>;"></span>
     <?php endif;?>
@@ -29,7 +29,7 @@ $items = Item::find()
             <?php
             if ($item->color->type == Color::COLOR_COVER) :
                 $image = ImageStorage::findOne(['class' => Color::className(), 'class_item_id' => $item->color->id]);
-                echo $image ? '<img src="' . Image::thumb($image->file_path, Yii::getAlias('@front-web')) . '" alt="">' : '';?>
+                echo $image ? '<img src="' . Image::thumb($image->file_path, Yii::getAlias('@front-web'), 38, 38) . '" alt="">' : '';?>
             <?php else:?>
                 <span style="background-color: <?= $item->color->rgb_code?>;"></span>
             <?php endif;?>

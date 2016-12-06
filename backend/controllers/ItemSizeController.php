@@ -96,7 +96,7 @@ class ItemSizeController extends Controller
      */
     public function actionUpdate($item_id)
     {
-        $item = Item::findOne(['id' => $item_id]);
+        $item = Item::findOne(['id' => $item_id, 'isDeleted' => false]);
         if ($item) {
             $models = ItemSize::findAll(['item_id' => $item_id]);
             if (Yii::$app->request->post()) {

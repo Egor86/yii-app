@@ -11,7 +11,7 @@ use yii\helpers\Url;
 /** @var $item common\models\Item*/
 /** @var array $popular */
 
-$this->title = 'Главная';
+$this->title = 'Интернет-магазин стильной одежды - контакты, товары, услуги, цены | Ego-ist';
 
 $limit = Item::ITEM_VIEW_LIMIT_DESKTOP;
 if (Yii::$app->devicedetect->isMobile()) {
@@ -33,7 +33,7 @@ $(function() {
           cache: false,
           success: function(response){
               if(!response){  // смотрим ответ от сервера и выполняем соответствующее действие
-                 alert("Больше нет новых товаров");
+                 notify("Больше нет новых товаров");
               }else{
                  $("#items").append(response).filter("img").load();
                  offset = offset + '. $limit .';
@@ -59,9 +59,9 @@ $(function() {
                     <div class="signup-form">
                         <form action="subscriber/create.html" method="post">
                             <input type="hidden" name="_csrf-frontend" value="<?= Yii::$app->request->csrfToken?>">
-                            <input type="text" name="Subscriber[name]" placeholder="Введите ваше имя">
+                            <input type="text" name="Subscriber[name]" placeholder="Введите ваше имя" required>
                             <input type="email" class="email" name="Subscriber[email]" placeholder="E-mail" required>
-                            <input type="text" name="Subscriber[phone]" placeholder="Номер мобильного">
+                            <input type="text" name="Subscriber[phone]" placeholder="Номер мобильного" required>
                             <input type="submit" class="send" value="ПОДПИСАТЬСЯ">
                         </form>
                         <strong>Мы не занимаемся рассылкой спама</strong>
@@ -134,9 +134,9 @@ $(function() {
                         <form action="subscriber/create.html" method="post">
                             <div class="grid clearfix">
                                 <input type="hidden" name="_csrf-frontend" value="<?= Yii::$app->request->csrfToken?>">
-                                <div class="col25"><input type="text" name="Subscriber[name]" placeholder="Введите ваше имя"></div>
+                                <div class="col25"><input type="text" name="Subscriber[name]" placeholder="Введите ваше имя" required></div>
                                 <div class="col25"> <input type="email" class="email" name="Subscriber[email]" placeholder="E-mail" required></div>
-                                <div class="col25"><input type="text" name="Subscriber[phone]" placeholder="Номер мобильного"></div>
+                                <div class="col25"><input type="text" name="Subscriber[phone]" placeholder="Номер мобильного" required></div>
                                 <div class="col25"><input type="submit" class="send" value="ПОДПИСАТЬСЯ"></div>
                             </div>
 
@@ -272,12 +272,20 @@ $(function() {
             </div>
             <div id="products-slider" class="products-slider">
 
-                <?php foreach ($popular as $item) : ?>
-                <div class="grid-product-item">
-                    <a href="<?= Url::to(['item/view', 'slug' => $item->slug])?>" class="grid-product-item-image"><img src="<?=
-                        Image::thumb($item->getImage(
-                            ImageStorage::TYPE_MAIN)->file_path,
-                            Yii::getAlias('@front-web'), 260, 380)
+                <?php $flags = ['new', 'sale', 'top'];  foreach ($popular as $item) : ?>
+                <div class="grid-product-item <?php if ($item->created_at > strtotime(date('Y-m-d', strtotime('-7 days')))){
+                    echo 'new';
+                } elseif($item->discount_price > 0) {
+                    echo 'sale';
+                } else {
+                    echo 'top';
+
+                }?>">
+                    <a href="<?= Url::to(['item/view', 'slug' => $item->slug])?>" class="grid-product-item-image"><img src="<?php
+                        $image = $item->getImage(ImageStorage::TYPE_MAIN);
+                        echo $image ?
+                            Image::thumb($image->file_path,
+                                Yii::getAlias('@front-web'), 260, 380) : ''
                         ?>" alt=""></a>
 
                     <a href="<?= Url::to(['item/view', 'slug' => $item->slug])?>" class="grid-product-item-bottom">

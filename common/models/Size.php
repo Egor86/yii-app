@@ -26,9 +26,11 @@ class Size extends \yii\db\ActiveRecord
         return 'size';
     }
 
-    public static function getCount()
+    public static function getCount($product_id)
     {
-        return self::find()->count();
+        return self::find()
+            ->where(['size_table_name_id' => Product::findOne($product_id)->category->size_table_name_id])
+            ->count();
     }
 
     /**

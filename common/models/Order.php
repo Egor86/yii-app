@@ -9,21 +9,21 @@ use Yii;
  *
  * @property integer $id
  * @property string $name
- * @property string $surname
- * @property string $country
- * @property string $region
- * @property string $city
+// * @property string $surname
+// * @property string $country
+// * @property string $region
+// * @property string $city
  * @property string $address
- * @property string $organization_name
- * @property string $post_index
+// * @property string $organization_name
+// * @property string $post_index
  * @property string $phone
  * @property string $email
- * @property string $delivery_date
+// * @property string $delivery_date
  * @property integer $coupon_id
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
- * @property integer $sort_by
+ * @property integer $delivery
  * @property string $value
  * @property string $comment
  * @property integer $total_cost
@@ -94,10 +94,13 @@ class Order extends \yii\db\ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
-        $cart = Yii::$app->cart;
-        if (!$cart->getIsEmpty()) {
-            $cart->deleteAll();
-            Yii::$app->session->remove('discount');
+
+        if ($insert) {
+            $cart = Yii::$app->cart;
+            if (!$cart->getIsEmpty()) {
+                $cart->deleteAll();
+                Yii::$app->session->remove('discount');
+            }
         }
 
         if ($insert && $this->status !== Order::ORDER_FAST) {
@@ -111,18 +114,20 @@ class Order extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'city', 'address', 'phone', 'email', 'delivery_date', 'city'], 'required'],
+            [['name', 'phone', 'email'], 'required'],
             [['delivery_date'], 'safe'],
-            [['coupon_id', 'status', 'total_cost', 'created_at', 'updated_at', 'sort_by'], 'integer'],
+            [['coupon_id', 'status', 'total_cost', 'created_at', 'updated_at', 'delivery'], 'integer'],
+            ['phone', 'match', 'pattern' => '/^\d{10}$/', 'message' => 'Укажите телефон в формате 0981234567'],
             [['phone'], 'string', 'max' => 15], // if used inputMask max=15
             [['name'], 'trim'],
             [['surname', 'country', 'region', 'city', 'organization_name', 'post_index', 'email', 'name'], 'string', 'max' => 45],
             [['address', 'comment'], 'string', 'max' => 255],
             ['email', 'email'],
             [['value'], 'string'],
+            ['delivery', 'default', 'value' => 0],
             ['country', 'default', 'value' => 'Украина'],
             ['status', 'default', 'value' => self::ORDER_NEW],
-            ['delivery_date', 'compare', 'compareValue' => date("Y-m-d"), 'operator' => '>=', 'message' => "Дата доставки не может быть ранее ".date("Y-m-d")."."],
+//            ['delivery_date', 'compare', 'compareValue' => date("Y-m-d"), 'operator' => '>=', 'message' => "Дата доставки не может быть ранее ".date("Y-m-d")."."],
         ];
     }
 
@@ -147,7 +152,7 @@ class Order extends \yii\db\ActiveRecord
             'status' => 'Статус заказа',
             'created_at' => 'Создан',
             'updated_at' => 'Обновлен',
-            'sort_by' => 'Sort By',
+            'delivery' => 'Доставка',
             'value' => 'Serialized cart data',
             'fullName' => 'ФИО покупателя',
             'fullAddress' => 'Адрес доставки',

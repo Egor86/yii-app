@@ -155,6 +155,7 @@ class Coupon extends \yii\db\ActiveRecord
                 $coupon->save(false);
             }
         }
+        if ($event->data)
         return true;
     }
         /**

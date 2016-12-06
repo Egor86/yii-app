@@ -27,11 +27,11 @@ class PreOrder extends \yii\db\ActiveRecord
     const STATUS_PROGRESS = 0;
     const STATUS_DONE = 1;
 
-    public function init()
-    {
-        parent::init();
-        $this->on(Subscriber::EVENT_NEW_SUBSCRIBER, [new Subscriber(), 'createSubscriber'], Subscriber::GROUP_PRE_ORDER);
-    }
+//    public function init()
+//    {
+//        parent::init();
+//        $this->on(Subscriber::EVENT_NEW_SUBSCRIBER, [new Subscriber(), 'createSubscriber'], Subscriber::GROUP_PRE_ORDER);
+//    }
     /**
      * @inheritdoc
      */
@@ -40,19 +40,19 @@ class PreOrder extends \yii\db\ActiveRecord
         return 'pre_order';
     }
 
-    public function afterSave($insert, $changedAttributes)
-    {
-        parent::afterSave($insert, $changedAttributes);
-        if ($insert) {
-            $this->trigger(Subscriber::EVENT_NEW_SUBSCRIBER);
-
-            MailSender::sendEmail(
-                $this->email,
-                'Предзаказ товара - ' . $this->item_id .', размер'. $this->size_id,
-                'Как только появится товар - ' . $this->item_id .', размер'. $this->size_id . 'мы Вам сообщим', 'pre_order-html');
-        }
-        return true;
-    }
+//    public function afterSave($insert, $changedAttributes)
+//    {
+//        parent::afterSave($insert, $changedAttributes);
+//        if ($insert) {
+//            $this->trigger(Subscriber::EVENT_NEW_SUBSCRIBER);
+//
+//            MailSender::sendEmail(
+//                $this->email,
+//                'Предзаказ товара - ' . $this->item->name,
+//                'Как только появится товар - ' . $this->item->name . 'мы Вам сообщим', 'pre_order-html');
+//        }
+//        return true;
+//    }
 
     /**
      * @inheritdoc
@@ -60,7 +60,7 @@ class PreOrder extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['item_id', 'size_id', 'name', 'email', 'phone'], 'required'],
+            [['item_id', 'name', 'phone'], 'required'],
             [['item_id', 'size_id', 'created_at', 'updated_at', 'status'], 'integer'],
             [['name', 'email'], 'string', 'max' => 45],
             [['phone'], 'string', 'max' => 10],
@@ -94,9 +94,9 @@ class PreOrder extends \yii\db\ActiveRecord
             'size_id' => 'Размер',
             'created_at' => 'Создан',
             'updated_at' => 'Updated At',
-            'name' => 'Name',
+            'name' => 'Имя',
             'email' => 'Email',
-            'phone' => 'Phone',
+            'phone' => 'Телефон (моб)',
         ];
     }
 

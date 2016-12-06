@@ -36,32 +36,34 @@ $this->params['breadcrumbs'][] = $this->title;
                         'width' => '15px'
                     ]
                 ],
-                'fullName',
+                'name',
 //                'surname',
     //            'country',
     //            'region',
 //                 'city',
-                 'fullAddress',
+                 'address',
                 // 'organization_name',
     //             'post_index',
                 [
                     'attribute' => 'phone',
                     'filter' => false,
                 ],
-                // 'email:email',
-                [
-                    'attribute' => 'delivery_date',
-                    'format' => 'date',
-                    'filter' => \yii\jui\DatePicker::widget([
-                        'attribute' => 'delivery_date',
-                        'model'=>$searchModel, 'dateFormat' => 'yyyy-MM-dd', 'language' => 'ru']),
-                ],
+                 'email:email',
 //                [
-//                    'attribute' => 'coupon_id',
-//                    'value' => function($data){
-//                        return $data->coupon_id ? $data->coupon->coupon_code : null;
-//                    },
+//                    'attribute' => 'delivery_date',
+//                    'format' => 'date',
+//                    'filter' => \yii\jui\DatePicker::widget([
+//                        'attribute' => 'delivery_date',
+//                        'model'=>$searchModel, 'dateFormat' => 'yyyy-MM-dd', 'language' => 'ru']),
 //                ],
+                [
+                    'attribute' => 'delivery',
+                    'value' => function ($model) {
+                        return $model->delivery ? '<span class="label label-danger">Нужна</span>' : '<span class="label label-success">Не нужна</span>';
+                    },
+                    'format' => 'html',
+                    'filter'=> ['Не нужна', 'Нужна'],
+                ],
                 [
                     'attribute' => 'status',
                     'value' => function($data){

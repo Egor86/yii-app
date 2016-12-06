@@ -1,6 +1,7 @@
 <?php
 
 use common\models\Category;
+use common\models\SizeTableName;
 use common\widgets\SeoForm;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
@@ -32,7 +33,7 @@ use yii\widgets\ActiveForm;
 
     <div class="col-sm-6">
         <?= $form->field($model, 'size_table_name_id')
-            ->dropDownList(ArrayHelper::map(\common\models\SizeTableName::find()
+            ->dropDownList(ArrayHelper::map(SizeTableName::find()
                 ->all(), 'id', 'name'), $model->size_table_name_id ?
                 ['options' => [$model->size_table_name_id => ['selected' => 'selected']]] :
                 ['options' => [2 => ['selected' => 'selected']]]) ?>

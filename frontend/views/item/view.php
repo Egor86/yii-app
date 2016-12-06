@@ -5,6 +5,7 @@ use common\models\Category;
 use common\models\Color;
 use common\models\ImageStorage;
 use yii\helpers\Url;
+use yii\web\View;
 
 /** @var $model common\models\Item*/
 /** @var $item common\models\Item*/
@@ -19,38 +20,39 @@ use yii\helpers\Url;
 //$this->registerCssFile('css/img/main');
 
 $this->title = $model->name;
-$seo = $model->seo;
-$this->registerJs("
-$(document).ready(function () {
-    var data = { item_id: ".$model->id.", _csrf: '".Yii::$app->request->getCsrfToken()."'};
-    $.ajax({
-        type: 'post',
-        url: '/item-size/check-amount.html',
-        dataType: 'html',
-        data: data,
-        success: function(data) {
-            if (data) {
-                $('#item-sizes').html(data);
-                $('#item-sizes').find('input:not([disabled])').first().attr('checked', true);
-            }
-        }        
-    });
-    
-//    $.ajax({
-//        type: 'post',
-//        url: '/item-size/unavailable-size.html',
-//        dataType: 'html',
-//        data: data,
-//        success: function(data) {
-//            if (data) {
-//                $('#pre-order').html(data);
-//            }
-//        }        
-//    });
-    
-});
 
-", \yii\web\View::POS_END);
+$this->registerJs('
+    $("#item-sizes").find("input:not([disabled])").first().attr("checked", true);
+    var items = '. count($model->comments).' - 3;
+    var item_id = '. $model->id.';
+    var offset = 3; //чтобы знать с какой записи вытаскивать данные
+    $(function() {
+       $("#more").click(function(){ 
+        event.preventDefault();
+       $.ajax({
+              url: "'. Url::to(['comment/more']) .'",
+              dataType: "html",
+              type: "post",
+              data: {offset: offset, item_id: item_id},
+              cache: false,
+              success: function(response){
+                  if(!response){  // смотрим ответ от сервера и выполняем соответствующее действие
+                    
+                     notify("Больше комментариев нет");
+                  }else{
+                     $("#comments").append(response);
+                     offset = offset + 3;
+                     items = items - 3
+                     if (items <= 0) {
+                     
+                        $("#more").hide();
+                     }
+                  }
+               }
+            });
+        });
+    });
+', \yii\web\View::POS_END);
 ?>
 
         <section class="page-header"> 
@@ -88,8 +90,8 @@ $(document).ready(function () {
                                 <?php if ($model->product->video && file_exists(Yii::getAlias('@front-web') . $model->product->video->url)) :?>
                                     <div class="rsContent">
                                         <video src="<?= $model->product->video->url?>" width="355" height="515" controls type="video/mp4"></video>
-                                        <img width="96" height="72" class="rsTmb" src="<?= Image::thumb($images[0]->file_path,
-                                            Yii::getAlias('@front-web'), 65, 95) ?>"  />
+                                        <div class="rsTmb video"><img width="96" height="72" class="rsTmb video" src="<?= Image::thumb($images[0]->file_path,
+                                            Yii::getAlias('@front-web'), 65, 95) ?>"  /></div>
                                     </div>
                                  <?php endif; ?>
                             </div>
@@ -104,33 +106,60 @@ $(document).ready(function () {
                         <form action="cart/create.html" method="post" class="grid clearfix">
                             <input type="hidden" name="_csrf-frontend" value="<?= Yii::$app->request->csrfToken?>">
                             <input type="hidden" name="Item[id]" value="<?= $model->id?>">
-                            <div class="col50">
-                                <div class="price-per-unit product-right-matchHeight">
-                                    <?php if ($model->discount_price > 0) : ?>
-                                    <span class="old-price-per-unit"><?= number_format($model->price, 0, '.', '')?> ГРН.</span>
-                                    <span class="new-price-per-unit"><?= number_format($model->discount_price, 0, '.', '')?> ГРН.</span>
-                                    <?php else: ?>
-                                        <span class="price-per-unit"><?= number_format($model->price, 0, '.', '')?> ГРН.</span>
-                                    <?php endif;?>
-                                </div>
-                            </div>      <!-- col50 --> 
-                            <div class="col50">
-                                <div class="product-amount product-right-matchHeight">
-                                    <input type="text" name="Item[quantity]" class="pcs" value="1"><span>шт.</span>
-                                    <input type="submit" class="add-to-cart" value="В КОРЗИНУ">
-                                </div>
-                            </div>      <!-- col50 -->
-                            <div class="col50">
-                                <div class="product-size product-right-matchHeight">
-                                    <h5>РАЗМЕР: <a href="javascript:;">Таблица размеров</a></h5>
-                                    <div id="item-sizes"></div>
-                                </div>
-                            </div>      <!-- col50 -->
+                                <?php if ($model->getAmount()) : ?>
+                                    <div class="col50">
+                                        <div class="price-per-unit product-right-matchHeight">
+                                            <?php if ($model->discount_price > 0) : ?>
+                                            <span class="old-price-per-unit"><?= number_format($model->price, 0, '.', '')?> ГРН.</span>
+                                            <span class="new-price-per-unit"><?= number_format($model->discount_price, 0, '.', '')?> ГРН.</span>
+                                            <?php else: ?>
+                                                <span class="price"><?= number_format($model->price, 0, '.', '')?> ГРН.</span>
+                                            <?php endif;?>
+                                        </div>
+                                    </div>      <!-- col50 -->
+                                    <div class="col50">
+                                        <div class="product-amount product-right-matchHeight">
+                                            <div class="qty-input">
+                                                <a href="javascript:;" class="qty-less"></a>
+                                                <input type="text" name="Item[quantity]" class="pcs" value="1">
+                                                <a href="javascript:;" class="qty-more"></a>
+                                                <strong>шт.</strong>
+                                            </div>
+                                            <input type="submit" class="add-to-cart" value="В КОРЗИНУ">
+                                        </div>
+                                    </div>      <!-- col50 -->
+                                <?php else: ?>
+                                    <div class="col50">
+                                        <div class="price-per-unit product-right-matchHeight not-available">
+                                            <span class="price-per-unit"><?= number_format($model->price, 0, '.', '')?> ГРН.</span>
+                                            <strong>Нет в наличии</strong>
+                                            <!-- <span class="old-price-per-unit"></span> -->
+                                            <span class="new-price-per-unit"></span>
+                                        </div>
+                                    </div>      <!-- col50 -->
+                                    <div class="col50">
+                                        <div class="product-amount product-right-matchHeight">
+                                            <div class="qty-input not-available">
+                                                <a href="javascript:;" class="qty-less"></a>
+                                                <input type="text" class="pcs" value="1" disabled>
+                                                <a href="javascript:;" class="qty-more"></a>
+                                                <strong>шт.</strong>
+                                            </div>
+                                            <a href="javascript:;" class="toinform"><span>Сообщить о наличии</span></a>
+                                        </div>
+                                    </div>      <!-- col50 -->
+                                <?php endif;?>
                             <div class="col50">
                                 <div class="product-color product-right-matchHeight">
                                     <h5>ЦВЕТ:</h5>
-                                   <?= $this->render('_item_colors', ['model' => $model])?>
+                                    <?= $this->render('_item_colors', ['model' => $model])?>
                                 </div>          <!-- product-color -->
+                            </div>      <!-- col50 -->
+                            <div class="col50">
+                                <div id="item-sizes" class="product-size product-right-matchHeight">
+                                    <h5>РАЗМЕР: <a href="javascript:;">Таблица размеров</a></h5>
+                                    <?= $this->render('_sizes', ['item' => $model])?>
+                                </div>
                             </div>      <!-- col50 -->
                         </form>            
                     <!-- PRICE BRACKET-ценовой диапазон, цена в квитанциях часто указывается per unit-за единицу товара, т.е. за штуку. -->
@@ -159,14 +188,18 @@ $(document).ready(function () {
                                             <input type="submit" class="send" value="ОТПРАВИТЬ">
                                         </form>
                                     </div>
-                                    <?php foreach ($model->comments as $comment) : ?>
+                                    <div id="comments">
+                                    <?php $comments = $model->comments; if (count($comments) > 0){ for ($i=0; $i<3 && $i<count($comments); $i++) : ?>
                                     <div class="review-item">
-                                        <strong><?= $comment->user_name ?></strong>
-                                        <span> - <?= date("d.m.Y", $comment->created_at) ?></span>
-                                        <p><?= $comment->text ?></p>
+                                        <strong><?= $comments[$i]->user_name ?></strong>
+                                        <span> - <?= date("d.m.Y", $comments[$i]->created_at) ?></span>
+                                        <p><?= $comments[$i]->text ?></p>
                                     </div>
-                                    <?php endforeach; ?>
-                                    <a href="javascript:;" class="load-more-review">Загрузить еще</a>
+                                    <?php endfor; } ?>
+                                    </div>
+                                    <?php if (count($comments) > 3) : ?>
+                                    <a id="more" href="javascript:;" class="load-more-review">Загрузить еще</a>
+                                    <?php endif;?>
                                 </div>      <!-- product-description -->
                             </div>          <!-- col50 -->
                         </div>              <!-- grid -->
@@ -174,7 +207,6 @@ $(document).ready(function () {
                 </div>                      <!-- product-page-wrap -->
             </div>                          <!-- wrap -->
         </section>
-
         <section class="top-items similar-items">
             <div class="wrap">
                 <div class="section-header">
@@ -183,21 +215,49 @@ $(document).ready(function () {
                 </div>
                 <div id="products-slider" class="products-slider">
                     <?php foreach ($same_items as $item) : ?>
-                    <div class="grid-product-item">
-                        <a href="<?= Url::to(['item/view', 'slug' => $item->slug])?>" class="grid-product-item-image"><img src="<?php
-                            $image = $item->getImage(ImageStorage::TYPE_MAIN);
-                            echo $image ?
-                            Image::thumb($image->file_path,
-                                Yii::getAlias('@front-web'), 260, 380) : ''
-                            ?>" alt=""></a>
+                        <div class="grid-product-item <?php if ($item->recommended){
+                            echo 'top';
+                        } elseif($item->discount_price > 0) {
+                            echo 'sale';
+                        } elseif($item->created_at > strtotime(date('Y-m-d', strtotime('-7 days')))) {
+                            echo 'new';
 
-                        <a href="<?= Url::to(['item/view', 'slug' => $item->slug])?>" class="grid-product-item-bottom">
-                            <span class="grid-product-item-name"><?= $item->name?></span>
-                            <span class="grid-product-item-price"><?= number_format($item->price, 0, '.', '')?> ГРН.</span>
-                            <span class="grid-product-item-btn">ПОДРОБНЕЕ</span>
-                        </a>
-                    </div>
+                        }?>">
+                            <a href="<?= Url::to(['item/view', 'slug' => $item->slug])?>" class="grid-product-item-image"><img src="<?php
+                                $image = $item->getImage(ImageStorage::TYPE_MAIN);
+                                echo $image ?
+                                    Image::thumb($image->file_path,
+                                        Yii::getAlias('@front-web'), 260, 380) : ''
+                                ?>" alt=""></a>
+
+                            <a href="<?= Url::to(['item/view', 'slug' => $item->slug])?>" class="grid-product-item-bottom">
+                                <span class="grid-product-item-name"><?= $item->name?></span>
+                                <span class="grid-product-item-price"><?= number_format($item->price, 0, '.', '')?> ГРН.</span>
+                                <span class="grid-product-item-btn">ПОДРОБНЕЕ</span>
+                            </a>
+                        </div>
                     <?php endforeach; ?>
                 </div><!-- .products-slider -->
             </div>
         </section>
+
+<section class="popup-forms">
+
+
+    <div class="toinform-wrap">
+        <div class="toinform-popup">
+            <span class="toinform-popup-title">СООБЩИТЬ О ПОЯВЛЕНИИ</span>
+            <div class="toinform-popup-form">
+                <form action="<?= Url::to(['pre-order/create'])?>" method="post">
+                    <input type="hidden" name="_csrf-frontend" value="<?= Yii::$app->request->csrfToken?>">
+                    <input type="hidden" name="PreOrder[item_id]" value="<?= $model->id?>">
+                    <input type="text" name="PreOrder[name]" class="required-fields" placeholder="Введите ваше имя">
+                    <input type="text" name="PreOrder[phone]" class="required-fields" placeholder="Номер мобильного">
+                    <input type="submit" class="send" value="ОТПРАВИТЬ">
+                    <strong>- поля обязательные для заполнения</strong>
+                </form>
+            </div>
+        </div><!-- toinform-popup -->
+    </div>          <!-- toinform-wrap -->
+
+</section>

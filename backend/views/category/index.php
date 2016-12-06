@@ -35,7 +35,6 @@ $( ".delete" ).click(function() {
 ', \yii\web\View::POS_END)
 ?>
 <div class="category-index">
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>
         <?= Html::a('Создать категорию', ['create'], ['class' => 'btn btn-success']) ?>
@@ -65,7 +64,7 @@ $( ".delete" ).click(function() {
             [
                 'attribute' => 'parent',
                 'value' => function($data){
-                    return $data->parent ? Category::findOne($data->parent)->name : 'Родитель';
+                    return $data->parentName;
                 },
                 'format' => 'html',
                 'filter'=> Category::getParentsList(),

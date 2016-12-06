@@ -55,7 +55,7 @@ use yii\widgets\MaskedInput;
                         'updateMarkup' => function($form, $widget) {
                             $model = $widget->model;
                             $color_list = Item::find()->select('color_id')
-                                ->where(['product_id' => $model->product_id])
+                                ->where(['product_id' => $model->product_id, 'isDeleted' => false])
                                 ->andWhere(['not', ['id' => $model->id]])->asArray()->column();
                             return $form->field($model, 'color_id')
                                 ->dropDownList(ArrayHelper::map(Color::find()

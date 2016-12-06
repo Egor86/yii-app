@@ -21,7 +21,7 @@ use yii\widgets\MaskedInput;
     'widgetContainer' => 'dynamicform_wrapper', // required: only alphanumeric characters plus "_" [A-Za-z0-9_]
     'widgetBody' => '.container-items', // required: css class selector
     'widgetItem' => '.item', // required: css class
-    'limit' => Size::getCount(), // the maximum times, an element can be cloned (default 999)
+    'limit' => Size::getCount($item->product_id), // the maximum times, an element can be cloned (default 999)
     'min' => 1, // 0 or 1 (default 1)
     'insertButton' => '.add-item', // css class
     'deleteButton' => '.remove-item', // css class
@@ -62,7 +62,7 @@ use yii\widgets\MaskedInput;
                         'value' => $item->id, 'id' => 'item_id', 'data-item-id' => $item->id]);?>
                     <div class="row">
                         <div class="col-sm-6">
-                            <?= $form->field($model, "[{$index}]size_id")->dropDownList(ArrayHelper::map(Size::find()->asArray()->all(), 'id', 'value')) ?>
+                            <?= $form->field($model, "[{$index}]size_id")->dropDownList(ArrayHelper::map($item->getSizeTable(), 'id', 'value')) ?>
                         </div>
                         <div class="col-sm-6">
                             <?= $form->field($model, "[{$index}]amount")->textInput(['maxlength' => true])->widget(MaskedInput::className(),[

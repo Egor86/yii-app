@@ -56,7 +56,11 @@ class ItemCartPosition extends Object implements CartPositionInterface
      */
     public function setQuantity($quantity)
     {
-        $this->quantity = $quantity;
+        if ($quantity <= 0) {
+            $this->quantity = 1;
+        } else {
+            $this->quantity = $quantity;
+        }
     }
 
     /**

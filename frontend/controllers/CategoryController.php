@@ -16,12 +16,10 @@ class CategoryController extends \yii\web\Controller
     {
         $model = $this->findModelBySlug($slug);
 
-//        echo '<pre>';
-//        @print_r(Yii::$app->request->queryParams);
-//        echo '</pre>';
-//        exit(__FILE__ .': '. __LINE__);
+        Yii::$app->view->params['seo'] = $model->seo;
+
         $itemSearch = new ItemSearch();
-        $dataProvider = $itemSearch->search(Yii::$app->request->queryParams, $model->id);
+        $dataProvider = $itemSearch->search(Yii::$app->request->queryParams, $model);
 
         return $this->render('view', [
             'itemSearch' => $itemSearch,

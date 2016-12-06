@@ -158,7 +158,7 @@ jQuery(document).ready(function($) {
             arrowsNavHideOnTouch: false,
             controlsInside: false,
             loop: true,
-            arrowsNav: false,
+            // arrowsNav: false,
             keyboardNavEnabled: true,
             imageScaleMode: 'fit',
             imageScalePadding: 0,
@@ -167,9 +167,14 @@ jQuery(document).ready(function($) {
             navigateByClick: false
         }).data('royalSlider');
 
+
+
+      if ( $('.product-slider').find('video').length ) {
         productDesktopSlider.ev.on('rsBeforeMove', function(event, type, userAction ) {
             $('.product-slider').find('video')[0].pause();
         });
+      }
+      
         
 } else if (mobile && $('.product-slider').length) {
     var productDesktopSlider = $('#gallery-2').royalSlider({
@@ -189,54 +194,221 @@ jQuery(document).ready(function($) {
         navigateByClick: false
     }).data('royalSlider');
 
-    productDesktopSlider.ev.on('rsBeforeMove', function(event, type, userAction ) {
-        $('.product-slider').find('video')[0].pause();
-    });
+    if ( $('.product-slider').find('video').length ) {
+        productDesktopSlider.ev.on('rsBeforeMove', function(event, type, userAction ) {
+            $('.product-slider').find('video')[0].pause();
+        });
+      }
 }
 
     
-
     $('.product-right-matchHeight').matchHeight();
 
-    $('.pcs').numeric();
-    $('.pcs').on('keyup', function() {
-        if ( $(this).val() == '0' ) {
-            $(this).val('1');
-        }
-    });
-    $('.pcs').on('blur', function() {
-        if ( $(this).val() == '' ) {
-            $(this).val('1');
-        }
-    });
+    // $('.pcs').numeric();
+    // $('.pcs').on('keyup', function() {
+    //     if ( $(this).val() == '0' ) {
+    //         $(this).val('1');
+    //     }
+    // });
+    // $('.pcs').on('blur', function() {
+    //     if ( $(this).val() == '' ) {
+    //         $(this).val('1');
+    //     }
+    // });
 
     $('.qty-input input').numeric();
     $('.qty-input input').on('keyup', function() {
-        if ( $(this).val() == '0' ) {
+        if ( $(this).val() <= '0' ) {
             $(this).val('1');
+            $(this).parent().find('.qty-less').addClass('disabled');
         }
     });
     $('.qty-input input').on('blur', function() {
         if ( $(this).val() == '' ) {
             $(this).val('1');
+            $(this).parent().find('.qty-less').addClass('disabled');
         }
     });
 
-    $('.qty-input').on('click', 'a', function() {
-        var qtyInput = $(this).siblings('input');
-        if ( $(this).hasClass('qty-less') ) {
-            if ( qtyInput.val() > 1 ) {
-                qtyInput.val( parseInt(qtyInput.val()) - 1);
+    $('.qty-input').each(function() {
+        var inputValue = $(this).find('input').val();
+        if ( inputValue == 1 ) {
+            $(this).find('.qty-less').addClass('disabled');
+        }
+    });
+
+    $('.qty-input').on('click', '.qty-less', function() {
+        var qtyInput = $(this).siblings('input'),
+            qtyLess = $(this).parent().find('.qty-less');
+            console.log(qtyLess);
+        if ( qtyInput.val() > 1 ) {
+            if ( qtyInput.val() == 2 ) {
+                qtyLess.addClass('disabled');
             }
+            qtyInput.val( parseInt(qtyInput.val()) - 1);
         }
-        if ( $(this).hasClass('qty-more') ) {
-            qtyInput.val( parseInt(qtyInput.val()) + 1);
+
+    });
+
+    $('.qty-input').on('click', '.qty-more', function() {
+        var qtyInput = $(this).siblings('input'),
+            qtyLess = $(this).parent().find('.qty-less');
+        qtyInput.val( parseInt(qtyInput.val()) + 1);
+        qtyLess.removeClass('disabled');
+    });
+
+    // $('.qty-input').on('click', 'a', function() {
+    //     var qtyInput = $(this).siblings('input');
+    //     if ( $(this).hasClass('qty-less') ) {
+    //         if ( qtyInput.val() > 1 ) {
+    //             qtyInput.val( parseInt(qtyInput.val()) - 1);
+    //         }
+    //     }
+    //     if ( $(this).hasClass('qty-more') ) {
+    //         qtyInput.val( parseInt(qtyInput.val()) + 1);
+    //     }
+    // });
+
+    
+    
+
+    $('.enter-code').on('click', function() {
+        $('.promo-form').toggleClass('active');
+        $('.enter-code span').toggleClass('active');        
+    });
+
+    $('.cart-checkout').colorbox({
+      inline: true,
+      href: '.cart-checkout-wrap',
+      transition: 'none',
+      maxWidth: '95%',
+      maxHeight: '95%',
+      onComplete: function() {
+        $.colorbox.resize();
+        }
+
+    });
+
+    $('.dropdown-cart-checkout').colorbox({
+      inline: true,
+      href: '.cart-checkout-wrap',
+      transition: 'none',
+      maxWidth: '95%',
+      maxHeight: '95%',
+      onComplete: function() {
+        $.colorbox.resize();
+        }
+
+    });
+
+    $('.toinform').colorbox({
+      inline: true,
+      href: '.toinform-wrap',
+      transition: 'none',
+      maxWidth: '95%',
+      maxHeight: '95%',
+      onComplete: function() {
+        $.colorbox.resize();
+        }
+
+    });
+
+    $('.filter-scrollable').mCustomScrollbar({
+        theme: 'inset-2-dark'
+    });
+
+    $('.selectmenu select').selectmenu();
+
+    formatSidebarPrice();
+    $('.price-range-slider').slider({
+        create: function(event, ui) {
+            var self = $(this),
+                dataValues = self.data('values').split(',');
+            self.slider('option', {
+              range: true,
+              min: 0,
+              max: self.data('max'),
+              values: dataValues
+            });
+        },
+        slide: function( event, ui ) {
+            $('#sidebar-price-from').val(ui.values[ 0 ]);
+            $('#sidebar-price-to').val(ui.values[ 1 ]);
+            formatSidebarPrice();
         }
     });
 
+    $('body').on('keyup', '#sidebar-price-from', function() {
+           var self = $(this),
+               value = self.val(),
+               price = numeral(value);
+           self.val(price.format('0,0'));
+           $('.price-range-slider').slider('values', 0, numeral().unformat( price.value() ) );
+       });
+       $('body').on('keyup', '#sidebar-price-to', function() {
+           var self = $(this),
+               value = self.val(),
+               price = numeral(value);
+           self.val(price.format('0,0'));
+           $('.price-range-slider').slider('values', 1, numeral().unformat( price.value() ) );
+       });
+
+       $('.filter-mobile-dropdown').on('click', function() {
+        $('.filter').toggleClass('active');
+        
+    });
+
+
+
+    //   $('.send').colorbox({
+    //   inline: true,
+    //   href: '.popup-message-sent-form',
+    //   transition: 'none',
+    //   maxWidth: '95%',
+    //   maxHeight: '95%'
+      
+
+    // });
+   
+
+  //   $('.price-range-slider').slider({
+  //     create: function( event, ui ) {
+  //       var self = $(this),
+  //           dataValues = self.data('values').split(',');
+  //       self.slider('option', {
+  //         range: self.data('range'),
+  //         min: self.data('min'),
+  //         max: self.data('max'),
+  //         values: dataValues
+  //       });
+  //       self.find('.ui-slider-handle').first().html('<i class="first-handle-value">' + dataValues[0] + '</i>');
+  //       self.find('.ui-slider-handle').last().html('<i class="last-handle-value">' + dataValues[1] + '</i>');
+  //     },
+  //     slide: function( event, ui ) {
+  //       $(this).find('.first-handle-value').text(ui.values[0]);
+  //       $(this).find('.last-handle-value').text(ui.values[1]);
+  //     }
+  // });
 
 	
 });
+
+function notify(message) {
+    $('.popup-notify').find('.message-wrap').text(message);
+    $.colorbox({
+      inline: true,
+      href: '.popup-notify',      
+      transition: 'none',
+      onComplete: setTimeout(function() {$.colorbox.resize(); $.colorbox.resize();}, 100)
+    });
+}
+
+function formatSidebarPrice() {
+    var priceFrom = $('#sidebar-price-from'),
+        priceTo = $('#sidebar-price-to');
+    priceFrom.val( numeral(priceFrom.val()).format('0,0') );
+    priceTo.val( numeral(priceTo.val()).format('0,0') );
+}
 
 $(window).resize(function() {});
 $(window).load(function() {});

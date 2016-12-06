@@ -42,20 +42,20 @@ $this->params['breadcrumbs'][] = $this->title;
                                 ->column()])
                         ->all(), 'id', 'stock_keeping_unit')
             ],
-            [
-                'attribute' => 'size_id',
-                'value' => function ($model) {
-                    return $model->size->value;
-                },
-                'filter' => ArrayHelper::map(
-                    Size::find()
-                        ->where(['in', 'id',
-                            PreOrder::find()
-                                ->select(['size_id'])
-                                ->asArray()
-                                ->column()])
-                        ->all(), 'id', 'value')
-            ],
+//            [
+//                'attribute' => 'size_id',
+//                'value' => function ($model) {
+//                    return $model->size->value;
+//                },
+//                'filter' => ArrayHelper::map(
+//                    Size::find()
+//                        ->where(['in', 'id',
+//                            PreOrder::find()
+//                                ->select(['size_id'])
+//                                ->asArray()
+//                                ->column()])
+//                        ->all(), 'id', 'value')
+//            ],
             [
                 'attribute' => 'created_at',
                 'format' => 'datetime',

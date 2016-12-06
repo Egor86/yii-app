@@ -2,6 +2,7 @@
 
 namespace frontend\models;
 
+use common\models\Category;
 use common\models\Product;
 use Yii;
 use yii\base\Model;
@@ -10,19 +11,34 @@ use common\models\Item;
 
 /**
  * ItemSearch represents the model behind the search form about `common\models\Item`.
- * @property array $sizes
+ * @property array $size
+ * @property array $color
+ * @property integer $min
+ * @property integer $max
+ * @property array $limit
  */
 class ItemSearch extends Item
 {
-    public $sizes;
+    public $size;
+    public $min;
+    public $max;
+    public $limit;
+    public $color;
+
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['id', 'product_id', 'color_id', 'created_at', 'updated_at', 'status', 'recommended', 'isDeleted'], 'integer'],
-            [['name', 'slug', 'stock_keeping_unit', 'sizes'], 'safe'],
+            [['max', 'min'], function($attribute, $params) {
+                $this->$attribute = intval(str_replace(' ', '', $this->$attribute));
+            }],
+            ['limit', function($attribute, $params) {
+                $this->$attribute = max($this->$attribute);
+            }],
+            [['id', 'product_id',  'created_at', 'updated_at', 'status', 'recommended', 'isDeleted', 'min', 'max', 'limit'], 'integer'],
+            [['name', 'slug', 'stock_keeping_unit', 'color', 'size'], 'safe'],
             [['price', 'discount_price'], 'number'],
         ];
     }
@@ -40,27 +56,40 @@ class ItemSearch extends Item
      * Creates data provider instance with search query applied
      *
      * @param array $params
-     * @param integer $category_id
+     * @param $category Category
      * @return ActiveDataProvider
      */
-    public function search($params, $category_id)
+    public function search($params, $category)
     {
-        $product_ids = Product::find()->where(['category_id' => $category_id])->asArray()->column();
-        $query = Item::find()
-            ->where(['in', 'product_id', $product_ids])->andWhere(['isDeleted' => false]);
+        if ($category->parent) {
+            $product_ids = Product::find()
+                ->where(['category_id' => $category->id])
+                ->asArray()
+                ->column();
+        } else {
+            $product_ids = Product::find()
+                ->where(['in', 'category_id',
+                    Category::find()
+                        ->where(['parent' => $category->id])
+                        ->asArray()
+                        ->column()])
+                ->column();
+        }
 
+
+        $query = Item::find()
+            ->where(['in', 'product_id', $product_ids])
+            ->andWhere(['isDeleted' => false])->joinWith('itemSizes');
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => [
-                'defaultPageSize' => isset($params['limit']) ?
-                    $params['limit'] :
-                    1
+                'defaultPageSize' => $this->limit ? $this->limit : 30,
             ],
         ]);
 
-        $this->load($params);
+        $this->setAttributes($params);
 
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
@@ -85,29 +114,25 @@ class ItemSearch extends Item
                     'desc' => ['price' => SORT_DESC],
                     'label' => 'Сначала дешевые',
                 ],
-                'discount_price' => [
-                    'default' => SORT_DESC,
+                'discount' => [
+                    'asc' => ['discount_price' => SORT_ASC],
+                    'desc' => ['discount_price' => SORT_DESC],
                     'label' => 'Только со скидкой',
                 ],
             ],
         ]);
 
-        // grid filtering conditions
-        $query->andFilterWhere([
-            'id' => $this->id,
-            'product_id' => $this->product_id,
-            'color_id' => $this->color_id,
-            'price' => $this->price,
-            'discount_price' => $this->discount_price,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'status' => $this->status,
-            'recommended' => $this->recommended,
-        ]);
+        if (isset($params['sort']) && $params['sort'] == 'discount') {
+            $query->andFilterWhere(['>', 'discount_price', 0]);
+        }
 
-        $query->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'slug', $this->slug])
-            ->andFilterWhere(['like', 'stock_keeping_unit', $this->stock_keeping_unit]);
+        if ($this->max) {
+            $query->andFilterWhere(['between', 'price', $this->min, $this->max]);
+        }
+
+        $query->andFilterWhere(['like', 'stock_keeping_unit', $this->stock_keeping_unit])
+            ->andFilterWhere(['in', 'color_id', $this->color])
+            ->andFilterWhere(['in', 'item_size.size_id', $this->size]);
 
         return $dataProvider;
     }
