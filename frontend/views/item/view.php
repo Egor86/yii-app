@@ -88,9 +88,10 @@ $this->registerJs('
                                         Yii::getAlias('@front-web'), 65, 95) ?>" /></a>
                                 <?php endforeach; ?>
                                 <?php if ($model->product->video && file_exists(Yii::getAlias('@front-web') . $model->product->video->url)) :?>
+
                                     <div class="rsContent">
                                         <video src="<?= $model->product->video->url?>" width="355" height="515" controls type="video/mp4"></video>
-                                        <div class="rsTmb video"><img width="96" height="72" class="rsTmb video" src="<?= Image::thumb($images[0]->file_path,
+                                        <div class="rsTmb video"><img width="96" height="72" src="<?= Image::thumb($images[0]->file_path,
                                             Yii::getAlias('@front-web'), 65, 95) ?>"  /></div>
                                     </div>
                                  <?php endif; ?>
